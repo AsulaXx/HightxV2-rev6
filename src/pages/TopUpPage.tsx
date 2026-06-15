@@ -482,53 +482,36 @@ const TopUpPage = () => {
     };
 
     try {
-      const { getIdToken } = await import("@/lib/firebaseIdToken");
-      const idToken = await getIdToken();
-      const { data, error } = await supabase.functions.invoke('redeem-truewallet', { body: { voucherUrl: voucherUrl.trim(), phone: truewalletPhone, idToken } });
+      // ── New tw-angpao flow: edge function does the redeem AND atomically
+      //    credits wallets/{uid} + writes processedSlips guard + walletLedger.
+      //    Client no longer calls applyLedger here (would double-credit).
+      const { data, error } = await supabase.functions.invoke('redeem-angpao', {
+        body: { voucherCode, mobile: truewalletPhone, uid: user!.uid },
+      });
       if (error) throw new Error(error.message);
-      if (!data.success) {
-        const errMsg = data.error || "ไม่สามารถรับซองอั่งเปาได้";
+      if (!data?.success) {
+        const errMsg = data?.message || "ไม่สามารถรับซองอั่งเปาได้";
         setVerifyError(errMsg); toast.error(errMsg);
         await safeAddHistory({ userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: 0, transRef: voucherCode, status: "failed", method: "voucher", error: errMsg, errorMessage: errMsg, voucherUrl: voucherUrl.trim() });
         await logSlipVerification({ method: "truewallet", result: "failed", amount: 0, transRef: voucherCode, errorMessage: `[ซองอั่งเปา] ${errMsg}` });
         wallet.loadHistory(); return;
       }
 
-      const amount = data.data.amount || 0;
-      const ownerName = data.data.ownerName || "-";
-      const transRef = data.data.voucherCode || voucherCode;
+      const amount = Number(data.amount) || 0;
+      const ownerName = data.ownerName || "-";
+      const transRef = voucherCode;
       const slipData: SlipData = {
-        transRef, date: data.data.redeemDate || new Date().toISOString(), amount, fee: 0,
+        transRef, date: new Date().toISOString(), amount, fee: 0,
         sender: { name: ownerName, bank: "TrueWallet", account: "-" },
         receiver: { name: profile?.displayName || profile?.email || user?.email || "-", bank: "TrueWallet", account: "-" },
         isDuplicate: false,
       };
       setVerifyResult(slipData);
 
-      let voucherCredit = amount;
-      if (topUpSettings.truewalletFeeEnabled && topUpSettings.truewalletFeePercent > 0) {
-        voucherCredit = Math.round(amount * (1 - topUpSettings.truewalletFeePercent / 100));
-      }
-
       const voucherAttemptId = generateAttemptId("voucher");
-      // Write history FIRST so we never lose record of a redeemed voucher
-      await safeAddHistory({ userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount, transRef, status: "success", slipData, method: "voucher", voucherUrl: voucherUrl.trim(), creditAmount: voucherCredit, attemptId: voucherAttemptId });
-
-      try {
-        await applyLedger({
-          userId: user!.uid, userEmail: user!.email, userName: userDisplay,
-          amount: voucherCredit, type: "topup_voucher",
-          description: `เติมเงินซองอั่งเปาจาก ${ownerName}`,
-          refId: transRef, method: "voucher",
-          meta: { attemptId: voucherAttemptId, ownerName, gross: amount, voucherUrl: voucherUrl.trim() },
-        });
-      } catch (walletErr) {
-        logError("voucher.creditWallet", walletErr);
-        await safeAddHistory({ userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount, transRef, status: "failed", method: "voucher", error: `ซองรับสำเร็จแต่เครดิตเข้ากระเป๋าไม่สำเร็จ: ${getErrorMessage(walletErr)}`, errorMessage: "ซองรับสำเร็จแต่เครดิตไม่เข้า กรุณาแจ้งแอดมิน", needsManualReview: true, slipData, attemptId: voucherAttemptId });
-        toast.error("ซองรับสำเร็จแต่เครดิตเข้ากระเป๋าไม่สำเร็จ - กรุณาแจ้งแอดมินพร้อมรหัสซอง");
-        wallet.loadHistory();
-        return;
-      }
+      const voucherCredit = amount; // server credits gross amount; fee setting kept for legacy UI only
+      void topUpSettings; void applyLedger; // (no client-side ledger here)
+      await safeAddHistory({ userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount, transRef, status: "success", slipData, method: "voucher", voucherUrl: voucherUrl.trim(), creditAmount: voucherCredit, attemptId: voucherAttemptId, serverCredited: true });
 
       await logActivity(user!, profile, "topup", `เติมเงินซองอั่งเปา ฿${amount.toLocaleString()} จาก ${ownerName} (Code: ${transRef.substring(0, 8)}...)`);
       await logSlipVerification({ method: "truewallet", result: "success", amount, transRef, senderName: ownerName, senderBank: "TrueWallet (ซอง)", receiverName: profile?.displayName || user?.email || "-", receiverBank: "TrueWallet" });

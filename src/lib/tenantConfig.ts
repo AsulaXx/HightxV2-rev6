@@ -82,14 +82,15 @@ export const TENANT_THEME = {
 //    หรือตั้งผ่าน Environment Variables (VITE_FIREBASE_xxx) ใน .env
 //    ถ้าปล่อยว่างไว้แอปจะไม่สามารถ connect Firebase ได้ (ตามตั้งใจ)
 export const TENANT_FIREBASE = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: "",
-  measurementId: "",
+  apiKey: "AIzaSyCmv1I1cstH04Aj-lLzR1NQzaKfMsKneV4",
+  authDomain: "dev-hightx.firebaseapp.com",
+  projectId: "dev-hightx",
+  storageBucket: "dev-hightx.firebasestorage.app",
+  messagingSenderId: "639566342180",
+  appId: "1:639566342180:web:c31c4a1b89aa21bc6050b1",
+  measurementId: "G-75FMW90FWZ",
 };
+
 
 // ========== 📋 Hero Banner Defaults ==========
 export const TENANT_HERO = {

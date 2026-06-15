@@ -1,0 +1,566 @@
+/* ============================================================
+   UI VERSION 2 — "TACTICAL" / SHARP & AGGRESSIVE
+   Hard edges, carbon black, hazard accents, mono labels,
+   corner brackets, scan-line surfaces, uppercase chrome.
+   Activated by [data-ui-version="v2"] on <html>.
+   Tokens + .v2-* utilities only — V2 components opt-in.
+   ============================================================ */
+
+[data-ui-version="v2"] {
+  --background: 0 0% 4%;             /* #0a0a0a carbon */
+  --foreground: 0 0% 96%;
+  --card: 0 0% 7%;                   /* #121212 */
+  --card-foreground: 0 0% 96%;
+  --popover: 0 0% 8%;
+  --popover-foreground: 0 0% 96%;
+  --muted: 0 0% 12%;
+  --muted-foreground: 0 0% 62%;
+  --border: 0 0% 18%;
+  --input: 0 0% 9%;
+  --ring: 0 84% 55%;                 /* hazard red focus */
+
+  /* Accent: oxide red #ef2b2b */
+  --primary: 0 84% 55%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 14%;
+  --secondary-foreground: 0 0% 96%;
+  --accent: 24 100% 50%;             /* hazard orange #ff6a00 secondary */
+  --accent-foreground: 0 0% 0%;
+  --destructive: 0 84% 55%;
+  --destructive-foreground: 0 0% 100%;
+
+  /* Sharp radii */
+  --radius: 0.125rem;                /* 2px */
+}
+
+/* Carbon canvas with diagonal scan + faint grid */
+[data-ui-version="v2"] body {
+  background-color: #0a0a0a !important;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,0.018) 0px,
+      rgba(255,255,255,0.018) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    linear-gradient(to right, rgba(239,43,43,0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(239,43,43,0.05) 1px, transparent 1px);
+  background-size: auto, 80px 80px, 80px 80px;
+  background-attachment: fixed;
+  font-family: "JetBrains Mono", "IBM Plex Sans Thai", "Noto Sans Thai", system-ui, sans-serif !important;
+  color: hsl(var(--foreground));
+}
+
+[data-ui-version="v2"] h1,
+[data-ui-version="v2"] h2,
+[data-ui-version="v2"] h3,
+[data-ui-version="v2"] h4 {
+  font-family: "Rajdhani", "Oswald", "IBM Plex Sans Thai", system-ui, sans-serif !important;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* Hide v1 decorative orbs/glows */
+[data-ui-version="v2"] .glow-orb,
+[data-ui-version="v2"] [data-glow-orb],
+[data-ui-version="v2"] .shadow-glow {
+  display: none !important;
+}
+
+/* Storefront: kill glassy blur, replace with hard surfaces */
+[data-ui-version="v2"] main .glass-card,
+[data-ui-version="v2"] main .glass-panel,
+[data-ui-version="v2"] main .nav-glass,
+[data-ui-version="v2"] main .btn-glass,
+[data-ui-version="v2"] main .input-glass {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 2px !important;
+  box-shadow: none !important;
+}
+
+/* Map all rounded utilities to sharp */
+[data-ui-version="v2"] .rounded-full { border-radius: 0 !important; }
+[data-ui-version="v2"] .rounded-3xl,
+[data-ui-version="v2"] .rounded-2xl,
+[data-ui-version="v2"] .rounded-xl,
+[data-ui-version="v2"] .rounded-lg,
+[data-ui-version="v2"] .rounded-md,
+[data-ui-version="v2"] .rounded { border-radius: 2px !important; }
+
+/* ============================================================
+   .v2-* UTILITIES — opt-in by V2 components
+   ============================================================ */
+
+/* Top tactical bar — full width, hard bottom border, hazard stripe */
+.v2-tac-bar {
+  position: relative;
+  background: linear-gradient(180deg, #0d0d0d 0%, #060606 100%);
+  border-bottom: 1px solid hsl(var(--border));
+}
+.v2-tac-bar::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  background: repeating-linear-gradient(
+    -45deg,
+    hsl(var(--primary)) 0 8px,
+    transparent 8px 16px
+  );
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Breathing room under sticky tactical bar so hazard stripe never sits on content */
+[data-ui-version="v2"] main { padding-top: 12px; }
+[data-ui-version="v2"] main > section:first-child,
+[data-ui-version="v2"] main > div:first-child { margin-top: 0; }
+
+/* Bracket-corner card */
+.v2-card {
+  position: relative;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 2px;
+  padding: 14px;
+}
+.v2-card::before,
+.v2-card::after {
+  content: "";
+  position: absolute;
+  width: 10px; height: 10px;
+  border-color: hsl(var(--primary));
+  border-style: solid;
+  border-width: 0;
+}
+.v2-card::before { top: -1px; left: -1px; border-top-width: 2px; border-left-width: 2px; }
+.v2-card::after  { bottom: -1px; right: -1px; border-bottom-width: 2px; border-right-width: 2px; }
+
+/* Tab/nav link — hard rectangle, uppercase mono */
+.v2-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  border: 1px solid transparent;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  transition: color 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+.v2-tab:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.03);
+  border-bottom-color: rgba(239,43,43,0.4);
+}
+.v2-tab[data-active="true"] {
+  color: #fff;
+  background: rgba(239,43,43,0.08);
+  border-bottom-color: hsl(var(--primary));
+}
+
+/* Hazard CTA — hard red block */
+.v2-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: hsl(var(--primary));
+  color: #fff;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid hsl(var(--primary));
+  border-radius: 2px;
+  position: relative;
+  transition: filter 120ms ease, transform 100ms ease;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+.v2-cta:hover { filter: brightness(1.1); }
+.v2-cta:active { transform: translateY(1px); }
+
+/* Ghost CTA */
+.v2-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 14px;
+  background: rgba(255,255,255,0.02);
+  color: rgba(255,255,255,0.85);
+  border: 1px solid hsl(var(--border));
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+.v2-ghost:hover {
+  background: rgba(239,43,43,0.06);
+  border-color: hsl(var(--primary) / 0.6);
+  color: #fff;
+}
+
+/* Status pill — STATUS:ONLINE block */
+.v2-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  background: rgba(16,185,129,0.1);
+  color: #10b981;
+  border: 1px solid rgba(16,185,129,0.4);
+  border-radius: 2px;
+}
+.v2-status::before {
+  content: "";
+  width: 6px; height: 6px;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: v2-blink 1.6s steps(2) infinite;
+}
+@keyframes v2-blink { 50% { opacity: 0.35; } }
+
+/* Sharp rectangular input */
+.v2-input {
+  width: 100%;
+  background: hsl(var(--input));
+  border: 1px solid hsl(var(--border));
+  color: #fff;
+  border-radius: 2px;
+  padding: 10px 14px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.v2-input::placeholder {
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 11px;
+}
+.v2-input:focus {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 1px hsl(var(--primary)), 0 0 12px hsl(var(--primary) / 0.25);
+}
+
+/* Mono label */
+.v2-label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+}
+
+/* Heading display */
+.v2-display {
+  font-family: "Rajdhani", "Oswald", system-ui, sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #fff;
+  text-shadow: 0 0 24px rgba(239,43,43,0.4);
+}
+
+/* Brand mark */
+.v2-brand {
+  font-family: "Rajdhani", "Oswald", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.v2-brand > span { color: hsl(var(--primary)); }
+
+/* V2 product card visual upgrade for storefront (StorePage uses .glass-card) */
+[data-ui-version="v2"] main a[href^="/product/"] .glass-card {
+  border-radius: 2px !important;
+  padding: 8px !important;
+  position: relative;
+  transition: border-color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+[data-ui-version="v2"] main a[href^="/product/"]:hover .glass-card {
+  border-color: hsl(var(--primary) / 0.7) !important;
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.4), 0 8px 24px rgba(239,43,43,0.18) !important;
+}
+
+/* Accessible focus ring */
+[data-ui-version="v2"] :focus-visible {
+  outline: 1px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Mono numerals everywhere they appear in storefront */
+[data-ui-version="v2"] main .tabular-nums,
+[data-ui-version="v2"] main [class*="price"],
+[data-ui-version="v2"] main [class*="Price"] {
+  font-family: "JetBrains Mono", monospace !important;
+  letter-spacing: 0.02em;
+}
+
+/* ============================================================
+   V2 — STOREFRONT PRODUCT CARDS (Tactical look)
+   ============================================================ */
+
+/* Card shell — overflow clipped so brackets/scan-lines never bleed onto neighbors */
+[data-ui-version="v2"] main .glass-card-hover {
+  position: relative;
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 2px !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  overflow: hidden;
+  isolation: isolate;
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+/* Tighter, predictable grid spacing for storefront product grids */
+[data-ui-version="v2"] main .grid {
+  gap: 14px !important;
+}
+[data-ui-version="v2"] main section { margin-top: 28px; margin-bottom: 28px; }
+
+/* Bracket corners on each card */
+[data-ui-version="v2"] main .glass-card-hover::before,
+[data-ui-version="v2"] main .glass-card-hover::after {
+  content: "";
+  position: absolute;
+  width: 10px; height: 10px;
+  border-color: hsl(var(--primary));
+  border-style: solid;
+  border-width: 0;
+  pointer-events: none;
+  z-index: 5;
+  transition: opacity 150ms ease;
+  opacity: 0.5;
+}
+[data-ui-version="v2"] main .glass-card-hover::before {
+  top: 0; left: 0;
+  border-top-width: 2px; border-left-width: 2px;
+}
+[data-ui-version="v2"] main .glass-card-hover::after {
+  bottom: 0; right: 0;
+  border-bottom-width: 2px; border-right-width: 2px;
+}
+[data-ui-version="v2"] main .glass-card-hover:hover::before,
+[data-ui-version="v2"] main .glass-card-hover:hover::after {
+  opacity: 1;
+}
+
+/* Hover */
+[data-ui-version="v2"] main .glass-card-hover:hover {
+  border-color: hsl(var(--primary) / 0.7) !important;
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.4), 0 10px 28px rgba(239,43,43,0.18) !important;
+  transform: translateY(-1px);
+}
+
+/* Image area — sharp bottom border + continuous scan-line beam */
+[data-ui-version="v2"] main .glass-card-hover > div[class~="relative"]:not([class~="absolute"]) {
+  border-radius: 0 !important;
+  border-bottom: 1px solid hsl(var(--border));
+  position: relative;
+  overflow: hidden;
+}
+
+/* Continuous red scan-line sweeping vertically through the product image */
+[data-ui-version="v2"] main .glass-card-hover > div[class~="relative"]:not([class~="absolute"])::before {
+  content: "";
+  position: absolute;
+  left: -2%; right: -2%; top: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    hsl(var(--primary) / 0.0) 8%,
+    hsl(var(--primary) / 0.95) 50%,
+    hsl(var(--primary) / 0.0) 92%,
+    transparent 100%
+  );
+  box-shadow: 0 0 10px hsl(var(--primary) / 0.6), 0 0 22px hsl(var(--primary) / 0.25);
+  pointer-events: none;
+  z-index: 4;
+  animation: v2-scan-sweep 2.6s linear infinite;
+  will-change: transform, opacity;
+}
+
+/* Soft trailing wash so it reads as a beam rather than a hairline */
+[data-ui-version="v2"] main .glass-card-hover > div[class~="relative"]:not([class~="absolute"])::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 26px;
+  background: linear-gradient(180deg, hsl(var(--primary) / 0.18), transparent);
+  pointer-events: none;
+  z-index: 3;
+  mix-blend-mode: screen;
+  animation: v2-scan-sweep 2.6s linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes v2-scan-sweep {
+  0%   { transform: translateY(-10px); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(220px); opacity: 0; }
+}
+
+/* Faster + brighter on hover */
+[data-ui-version="v2"] main .glass-card-hover:hover > div[class~="relative"]:not([class~="absolute"])::before,
+[data-ui-version="v2"] main .glass-card-hover:hover > div[class~="relative"]:not([class~="absolute"])::after {
+  animation-duration: 1.4s;
+}
+[data-ui-version="v2"] main .glass-card-hover:hover > div[class~="relative"]:not([class~="absolute"])::before {
+  box-shadow: 0 0 18px hsl(var(--primary) / 0.9), 0 0 36px hsl(var(--primary) / 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ui-version="v2"] main .glass-card-hover > div[class~="relative"]:not([class~="absolute"])::before,
+  [data-ui-version="v2"] main .glass-card-hover > div[class~="relative"]:not([class~="absolute"])::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   V2 — OPTION COUNT PILL ("X ตัวเลือก") tactical restyle
+   ============================================================ */
+[data-ui-version="v2"] main .glass-card-hover > [class~="absolute"][class~="top-2"][class~="right-2"] {
+  top: 8px !important;
+  right: 8px !important;
+  padding: 4px 8px 4px 6px !important;
+  border-radius: 2px !important;
+  background: rgba(10,10,10,0.85) !important;
+  border: 1px solid hsl(var(--primary) / 0.55) !important;
+  border-left: 3px solid hsl(var(--primary)) !important;
+  color: #fff !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.5), 0 4px 12px rgba(239,43,43,0.18);
+  gap: 6px !important;
+}
+[data-ui-version="v2"] main .glass-card-hover > [class~="absolute"][class~="top-2"][class~="right-2"] svg {
+  color: hsl(var(--primary));
+  width: 11px; height: 11px;
+}
+[data-ui-version="v2"] main .glass-card-hover > [class~="absolute"][class~="top-2"][class~="right-2"] span {
+  font-family: "JetBrains Mono", monospace !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: #fff !important;
+}
+
+/* Image itself: kill smooth scale, swap for desaturate->saturate */
+[data-ui-version="v2"] main .glass-card-hover img {
+  filter: saturate(0.85) contrast(1.05);
+  transition: filter 200ms ease, transform 200ms ease !important;
+  transform: none !important;
+}
+[data-ui-version="v2"] main .glass-card-hover:hover img {
+  filter: saturate(1.2) contrast(1.1);
+  transform: none !important;
+}
+
+/* Lift hover effect without nudging cards into their neighbors */
+[data-ui-version="v2"] main .glass-card-hover:hover {
+  transform: none !important;
+}
+
+/* Title — uppercase, condensed */
+[data-ui-version="v2"] main .glass-card-hover h3 {
+  font-family: "Rajdhani", "Oswald", system-ui, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  color: #fff !important;
+}
+
+/* Description */
+[data-ui-version="v2"] main .glass-card-hover p {
+  color: rgba(255,255,255,0.55) !important;
+  font-family: "IBM Plex Sans Thai", "Noto Sans Thai", system-ui, sans-serif !important;
+}
+
+/* Price chip — hard mono block with leading bracket */
+[data-ui-version="v2"] main .glass-card-hover .bg-primary\/10 {
+  background: rgba(239,43,43,0.08) !important;
+  border: 1px solid hsl(var(--primary) / 0.5) !important;
+  border-radius: 2px !important;
+  padding: 3px 8px !important;
+  font-family: "JetBrains Mono", monospace !important;
+  letter-spacing: 0.04em !important;
+}
+
+/* CTA button — hard red tactical block with clipped corners */
+[data-ui-version="v2"] main .glass-card-hover button {
+  background: hsl(var(--primary)) !important;
+  color: #fff !important;
+  border: 1px solid hsl(var(--primary)) !important;
+  border-radius: 2px !important;
+  font-family: "JetBrains Mono", monospace !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+  transition: filter 120ms ease;
+}
+[data-ui-version="v2"] main .glass-card-hover button:hover {
+  filter: brightness(1.12);
+}
+
+/* Sharpen all inner badges (option count, cooldown) */
+[data-ui-version="v2"] main .glass-card-hover .rounded-full,
+[data-ui-version="v2"] main .glass-card-hover .rounded-lg,
+[data-ui-version="v2"] main .glass-card-hover .rounded-md {
+  border-radius: 2px !important;
+}
+
+/* Empty-state card */
+[data-ui-version="v2"] main .glass-card {
+  border-radius: 2px !important;
+}
+
+/* Header strip with breadcrumb / search input */
+[data-ui-version="v2"] main .input-glass {
+  border-radius: 2px !important;
+  font-family: "JetBrains Mono", monospace !important;
+  font-size: 12px !important;
+}
+
+/* History pill button on store header */
+[data-ui-version="v2"] main .btn-glass {
+  border-radius: 2px !important;
+  font-family: "JetBrains Mono", monospace !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+}

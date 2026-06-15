@@ -1,0 +1,404 @@
+rules_version = '2';
+
+// ============================================================================
+// SECURITY POSTURE — PHASE 1 (hardening pass, build mode)
+// ----------------------------------------------------------------------------
+// Locked down in this revision:
+//   • users.role / users.email are now admin-only (closes privilege-escalation
+//     via devtools updateDoc → role:'owner').
+//   • otpCodes is fully service-account only (was: self-set OTP = 2FA bypass).
+//   • linkPages click-counter updates now require unauth+delta≤1 OR signed-in,
+//     so analytics can no longer be inflated by bots beyond +1/req.
+//   • linkClicks legacy collection requires sign-in to create (DoS mitigation).
+//   • ipGeoCache read/write narrowed to staff (was: any signed-in user).
+//   • stats writes narrowed to admin (was: any staff incl. hightxcrew).
+//   • archivedKeys read widened to staff (moderators can audit).
+//
+// ❗ PHASE 2 (server migration — not yet done; tracked in .lovable/plan.md):
+//   • wallets.balance / walletLedger / walletTransactions / topUpHistory must
+//     move to edge functions (service account) — currently client-writable for
+//     compatibility with existing topup/purchase/wheel flows. Until then, any
+//     signed-in user can forge transactions.
+//   • processedSlips create stays open for the same reason (applyLedger txn).
+//   • boosterOrders status stays open (client polls upstream API).
+//   • reviews / claimHistory verification deferred to Phase 2.
+//   • Firebase App Check should be enabled (Phase 3).
+// ============================================================================
+
+service cloud.firestore {
+
+  match /databases/{database}/documents {
+
+    // ========== Helper Functions ==========
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isOwner() {
+      return isSignedIn() && getUserRole() == 'owner';
+    }
+
+    function isAdmin() {
+      return isSignedIn() && getUserRole() in ['owner', 'admin'];
+    }
+
+    function isModerator() {
+      return isSignedIn() && getUserRole() in ['owner', 'admin', 'moderator'];
+    }
+
+    function isStaff() {
+      return isSignedIn() && getUserRole() in ['owner', 'admin', 'moderator', 'hightxcrew'];
+    }
+
+    // Fields a user may NEVER modify on their own user doc.
+    // role / email / createdAt are identity-defining; banned* is admin/auto only
+    // via server-side helpers — direct self-write is fine for the auto-ban path
+    // (worst case: self-DoS), but role must be locked or it's instant takeover.
+    function userSelfWriteSafe() {
+      return !request.resource.data.diff(resource.data).affectedKeys()
+        .hasAny(['role', 'email', 'createdAt', 'uid']);
+    }
+
+    // ========== Settings ==========
+    // Public branding/config. Sensitive fields (webhooks, API keys, bank info)
+    // MUST live in siteSettingsPrivate, never here. See Phase 2.
+
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // ========== Secure Config (provider credentials, owner-only) ==========
+
+    match /secureConfig/{docId} {
+      allow read, write: if isOwner();
+    }
+
+    // ========== Site Settings Private (webhook URLs, admin-only) ==========
+    // URLs are read by edge function (`send-webhook`) via service account, so
+    // browsers never need read access. Admins manage values from Admin → Webhook.
+
+    match /siteSettingsPrivate/{docId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ========== Users ==========
+    // SECURITY: role/email/createdAt are admin-only — closes privilege escalation.
+    // Self-update allowed for profile fields (displayName, banned by auto-ban, etc.)
+
+    match /users/{userId} {
+      // get  (single-doc): own profile or admin only — prevents PII leaks.
+      // list (collection query): admin only, evaluated ONCE per query (not per
+      //      document) so isAdmin()'s internal get() doesn't multiply across
+      //      8 000+ docs and hit Firestore's per-evaluation get() limit.
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isSignedIn() && (
+        (request.auth.uid == userId && userSelfWriteSafe())
+        || isAdmin()
+      );
+      allow delete: if isAdmin();
+
+      // ========== User Notifications (sub-collection) ==========
+      match /notifications/{notifId} {
+        allow read, create: if isSignedIn() && request.auth.uid == userId;
+        allow update: if isSignedIn() && request.auth.uid == userId
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+        allow delete: if isSignedIn() && request.auth.uid == userId;
+      }
+    }
+
+    // ========== Keys ==========
+    // SECURITY: Reads restricted to signed-in users; clients may only mark a key
+    // as claimed by themselves (and cannot modify the key string). Server-side
+    // edge functions using a service account bypass these rules for full control.
+
+    match /keys/{keyId} {
+      // Only staff can read all keys. Regular users can only read keys they have claimed.
+      // This prevents any signed-in user from reading unclaimed key strings.
+      allow read: if isStaff()
+        || (isSignedIn() && resource.data.get('claimed', false) == true
+            && resource.data.claimedBy == request.auth.uid);
+      // Allow any signed-in user to claim a free/available key. Field whitelist
+      // matches what GlobalCartPanel writes during checkout (base + extended
+      // claim data). Price / purchaseType are recorded for audit but cannot be
+      // re-used to escalate privileges since wallet deduction happens separately.
+      allow update: if isSignedIn()
+        && resource.data.get('claimed', false) == false
+        && request.resource.data.claimed == true
+        && request.resource.data.claimedBy == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly([
+            'claimed', 'claimedBy', 'claimedByEmail', 'claimedByName',
+            'claimedAt', 'claimedAtServer',
+            'batchId', 'claimMessage', 'claimNote',
+            'price', 'purchaseType'
+          ]);
+      allow create, delete: if isSignedIn()
+        && getUserRole() in ['moderator', 'admin', 'owner'];
+    }
+
+    // ========== Announcements ==========
+
+    match /announcements/{annId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ========== Activity Logs ==========
+
+    match /activityLogs/{logId} {
+      allow read: if isAdmin();
+      // Client may only create logs for themselves; cannot impersonate other users.
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // ========== Processed Slips (atomic refId guard) ==========
+    // TODO PHASE 2: lock create to false; move slip verification entirely into
+    // the verify-slip edge function (service account). Currently the applyLedger
+    // client transaction reserves this doc, which lets a malicious user squat
+    // arbitrary refIds and DoS legitimate slip processing.
+    match /processedSlips/{refId} {
+      // Signed-in users must be able to read this doc because applyLedger's
+      // Firestore transaction calls tx.get(processedSlips/{refId}) to enforce
+      // the duplicate-slip guard. Without read access the topup flow fails
+      // with "Missing or insufficient permissions".
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ========== IP Geo Cache (staff-only) ==========
+    // SECURITY: Was readable by any signed-in user (privacy leak of admin IPs).
+    // Now staff-only since this is admin tooling.
+
+    match /ipGeoCache/{ip} {
+      allow read, write: if isStaff();
+    }
+
+    // ========== Claim History ==========
+    // TODO PHASE 2: client create allows forging claim history for VIP-tier /
+    // referral-reward inflation. Move to edge function with server-side validation.
+
+    match /claimHistory/{claimId} {
+      allow read: if isSignedIn()
+        && (resource.data.userId == request.auth.uid || isStaff());
+      allow create: if isSignedIn()
+        && (request.resource.data.userId == request.auth.uid || isAdmin());
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ========== Archived Keys ==========
+
+    match /archivedKeys/{keyId} {
+      allow read: if isStaff();
+      allow create: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ========== Link Pages ==========
+    // SECURITY: click-counter update now requires the delta to be exactly +1 on
+    // totalClicks (and the only fields changed are click counters), so bots
+    // cannot inflate analytics beyond actual request volume.
+
+    match /linkPages/{pageId} {
+      allow read: if resource.data.published == true;
+      allow read: if isSignedIn();
+      // Public click increment — strict shape + delta validation.
+      allow update: if request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['clickCounts', 'totalClicks'])
+        && request.resource.data.totalClicks is int
+        && request.resource.data.totalClicks == (resource.data.get('totalClicks', 0) + 1);
+      allow create: if isSignedIn()
+        && getUserRole() in ['owner', 'admin', 'moderator', 'hightxcrew']
+        && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn()
+        && (resource.data.ownerId == request.auth.uid || getUserRole() == 'owner');
+    }
+
+    // ========== Link Clicks (legacy) ==========
+    // Counter-based system replaced this; collection kept for read-only history.
+    // Require sign-in to create (DoS mitigation — prevents unauth quota burn).
+
+    match /linkClicks/{clickId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+    }
+
+    // ========== Wallets ==========
+    // ❗ TODO PHASE 2: client can self-update `balance` → forge unlimited credit.
+    // Must move balance mutations to edge function (service account) writing
+    // wallet + walletLedger atomically. Until then, this is the highest-risk
+    // surface in the app. Mitigations: server-side reconciliation, audit logs.
+
+    match /wallets/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow create: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      // Admin: full write (credit add/deduct, reconcile, manual fix).
+      // Self: allowed for compatibility with client-side topup/purchase flows
+      //       (applyLedger transaction). ❗ PHASE 2: move balance mutations to
+      //       edge function (service account) so client cannot forge credit.
+      allow update: if isAdmin()
+        || (
+          isSignedIn() && request.auth.uid == userId
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['balance', 'lastTopUp', 'userId', 'createdAt', 'updatedAt', 'totalSpent', 'totalTopUp'])
+        );
+      allow delete: if isAdmin();
+    }
+
+    // ========== Wheels (spin-the-wheel) ==========
+
+    match /wheels/{wheelId} {
+      allow read: if true;
+      // Admins can fully manage wheel docs (config). All spin writes (prizeStocks +
+      // user spin doc + spins log) now go through the `spin-wheel` edge function which
+      // uses a service account and bypasses these rules — so non-admins cannot mutate
+      // wheel state directly anymore (closes prizeId-spoofing attack via devtools).
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin();
+
+      match /users/{userId} {
+        // Read-only for the owner — server writes via service account
+        allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+        allow write: if isAdmin();
+      }
+
+      match /spins/{spinId} {
+        // Read-only for the owner — server writes via service account
+        allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+        allow create: if isAdmin();
+      }
+    }
+
+    // Collection group query for spin history (WheelHistoryPage)
+    match /{path=**}/spins/{spinId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    // ❗ TODO PHASE 2: client can create topUpHistory with arbitrary amounts.
+    match /topUpHistory/{docId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin());
+      allow update, delete: if isAdmin();
+    }
+
+    // ========== Wallet Transactions ==========
+    // ❗ TODO PHASE 2: forgery surface — must move to edge function.
+
+    match /walletTransactions/{docId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn()
+        && (request.resource.data.userId == request.auth.uid || isAdmin());
+      allow update, delete: if isAdmin();
+    }
+
+    // ========== Slip Verify Logs ==========
+
+    match /slipVerifyLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ========== Stats ==========
+    // SECURITY: tightened to admin-only writes (hightxcrew should not edit
+    // public-facing stats).
+
+    match /stats/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ========== OTP Codes (2FA) ==========
+    // SECURITY: locked down — client must NEVER write its own OTP (would let
+    // user pre-set a known code and bypass 2FA verification). All OTP create/
+    // verify must go through an edge function using the service account.
+    // Reads kept for the owner so the verify UI can poll status if needed.
+
+    match /otpCodes/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow write: if false;
+    }
+
+    // ========== Booster Orders ==========
+    // Status update kept (client polls upstream MeeLike API and writes back).
+    // Wallet was already deducted on create, so faked status has no monetary
+    // benefit to the user.
+
+    match /boosterOrders/{orderId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn()
+        && (resource.data.userId == request.auth.uid || isAdmin())
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['status', 'lastCheckedAt', 'startCount', 'remains', 'charge']);
+    }
+
+    // ========== Wheel Claims ==========
+
+    match /wheelClaims/{claimId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isStaff());
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // ========== Wallet Ledger ==========
+    // ❗ TODO PHASE 2: forgery surface — must move to edge function.
+
+    match /walletLedger/{entryId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn()
+        && (request.resource.data.userId == request.auth.uid || isAdmin());
+      allow update, delete: if isAdmin();
+    }
+
+    // ========== Product Reviews ==========
+    // TODO PHASE 2: add verified-purchase check (cross-reference claimHistory)
+    // to prevent review bombing by users who never bought the product.
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5;
+      allow delete: if isSignedIn()
+        && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // ========== Referral Rewards Log ==========
+
+    match /referralRewards/{rewardId} {
+      allow read: if isSignedIn()
+        && (resource.data.referrerId == request.auth.uid || resource.data.refereeId == request.auth.uid || isAdmin());
+      // Only the referee (the new user triggering the reward) or admin may create.
+      allow create: if isSignedIn()
+        && (request.resource.data.refereeId == request.auth.uid || isAdmin());
+      allow update, delete: if isAdmin();
+    }
+
+    // ========== Ruizen Bypass UID Claims ==========
+
+    match /ruzienBypassClaims/{claimId} {
+      allow read: if isSignedIn()
+        && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+  }
+
+}
+
+

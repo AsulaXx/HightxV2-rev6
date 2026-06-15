@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Security headers (meta-supported subset; full set in public/_headers) -->
+    <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="permissions-policy" content="camera=(), microphone=(), geolocation=()" />
+    <!-- ⚡ แก้ไขข้อมูลด้านล่างให้ตรงกับร้านของคุณ หรือแก้ที่ src/lib/tenantConfig.ts -->
+    <title>HightXClient — Beyond ur limits</title>
+    <meta name="description" content="HightXClient แหล่งรวมคีย์โปรแกรมเสริมเกมระดับพรีเมียม" />
+    <meta name="author" content="HX DEV" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#6366f1" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="canonical" href="https://hightxclient.com" />
+
+    <!-- Open Graph — แก้ให้ตรงกับร้านของคุณ -->
+    <meta property="og:title" content="HightXClient — Beyond ur limits" />
+    <meta property="og:description" content="แหล่งรวมคีย์โปรแกรมเสริมเกมระดับพรีเมียม" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://hightxclient.com" />
+    <meta property="og:image" content="https://img2.pic.in.th/1771383147450_polarre79e5721233d4b7e.jpeg" />
+    <meta property="og:locale" content="th_TH" />
+    <meta property="og:site_name" content="HightXClient" />
+
+    <!-- Twitter — แก้ให้ตรงกับร้านของคุณ -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@HightXClient" />
+    <meta name="twitter:title" content="HightXClient — Beyond ur limits" />
+    <meta name="twitter:description" content="แหล่งรวมคีย์โปรแกรมเสริมเกมระดับพรีเมียม" />
+    <meta name="twitter:image" content="https://img2.pic.in.th/1771383147450_polarre79e5721233d4b7e.jpeg" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "HightXClient",
+      "url": "https://hightxclient.com",
+      "description": "แหล่งรวมคีย์โปรแกรมเสริมเกมระดับพรีเมียม",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://hightxclient.com/store?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;700&family=Prompt:wght@400;500;600;700&family=Sarabun:wght@400;700&family=Mitr:wght@400;500;600;700&family=Bai+Jamjuree:wght@400;500;600;700&family=K2D:wght@400;500;600;700&family=Krub:wght@400;500;600;700&family=Anuphan:wght@400;500;600;700&family=Athiti:wght@400;500;600;700&family=Sora:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Chakra+Petch:wght@400;500;600;700&family=Orbitron:wght@400;700&family=Press+Start+2P&family=Fira+Code:wght@400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      document.addEventListener('mousemove', (e) => {
+        document.querySelectorAll('.glass-card-hover, .hover-glow').forEach(card => {
+          const rect = card.getBoundingClientRect();
+          card.style.setProperty('--mouse-x', (e.clientX - rect.left) + 'px');
+          card.style.setProperty('--mouse-y', (e.clientY - rect.top) + 'px');
+        });
+      });
+    </script>
+  </body>
+</html>

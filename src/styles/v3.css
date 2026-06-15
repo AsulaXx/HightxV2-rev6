@@ -1,0 +1,201 @@
+/* ============================================================
+   UI VERSION 3 — "SAAS" / Modern, Clean, Productivity
+   Inspired by Linear · Stripe · Vercel · Notion.
+   Light surfaces, soft shadows, generous whitespace,
+   Inter typography, indigo accent, restrained motion.
+   Activated by html[data-ui-version="v3"] on <html>.
+   ============================================================ */
+
+html[data-ui-version="v3"] {
+  /* Cool neutral palette — soft off-white canvas, near-white cards */
+  --background: 220 24% 97%;          /* #f4f6fa */
+  --foreground: 222 28% 12%;          /* #161b25 */
+  --card: 0 0% 100%;                  /* #ffffff */
+  --card-foreground: 222 28% 12%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 28% 12%;
+  --muted: 220 18% 94%;               /* #ecf0f4 */
+  --muted-foreground: 222 12% 44%;    /* #62697a */
+  --border: 220 16% 90%;              /* #e1e6ee */
+  --input: 220 16% 92%;
+  --ring: 234 89% 62%;
+
+  /* Accent: indigo #4f46e5 */
+  --primary: 234 89% 58%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 18% 95%;
+  --secondary-foreground: 222 28% 12%;
+  --accent: 234 89% 58%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 72% 55%;
+  --destructive-foreground: 0 0% 100%;
+
+  /* Friendly soft radii */
+  --radius: 0.75rem;                  /* 12px */
+
+  --font-heading: "Inter", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --font-body: "Inter", "IBM Plex Sans Thai", system-ui, sans-serif;
+}
+
+/* Clean canvas — soft gradient wash, no grid/scanlines */
+html[data-ui-version="v3"] body {
+  background-color: hsl(var(--background)) !important;
+  background-image:
+    radial-gradient(1200px 600px at 0% 0%, hsl(234 89% 92% / 0.55), transparent 60%),
+    radial-gradient(1000px 500px at 100% 0%, hsl(280 80% 94% / 0.45), transparent 60%);
+  background-attachment: fixed;
+  color: hsl(var(--foreground));
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.005em;
+}
+
+html[data-ui-version="v3"] h1,
+html[data-ui-version="v3"] h2,
+html[data-ui-version="v3"] h3,
+html[data-ui-version="v3"] h4 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: hsl(var(--foreground));
+}
+
+/* Disable heavy decorative layers from v1 (canvas particles, glow orbs) */
+html[data-ui-version="v3"] .glow-orbs,
+html[data-ui-version="v3"] .background-particles,
+html[data-ui-version="v3"] [class*="glow-orb"],
+html[data-ui-version="v3"] body > canvas.fixed,
+html[data-ui-version="v3"] canvas.pointer-events-none.fixed { display: none !important; }
+
+/* Cards — flat white with hairline border + soft shadow */
+html[data-ui-version="v3"] .glass-card,
+html[data-ui-version="v3"] .glass-card-hover,
+html[data-ui-version="v3"] .liquid-glass {
+  background: hsl(var(--card)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
+  box-shadow:
+    0 1px 2px hsl(222 28% 12% / 0.04),
+    0 4px 12px hsl(222 28% 12% / 0.04) !important;
+  transition: box-shadow 180ms ease, transform 180ms ease, border-color 180ms ease;
+}
+
+html[data-ui-version="v3"] .glass-card-hover:hover {
+  border-color: hsl(var(--primary) / 0.35) !important;
+  box-shadow:
+    0 1px 2px hsl(222 28% 12% / 0.05),
+    0 12px 28px hsl(234 89% 58% / 0.12) !important;
+  transform: translateY(-2px);
+}
+
+/* Buttons — solid indigo primary, crisp focus ring */
+html[data-ui-version="v3"] .btn-glass,
+html[data-ui-version="v3"] button[class*="bg-primary"] {
+  border-radius: 0.5rem !important;
+  font-weight: 500;
+  letter-spacing: 0;
+  transition: background-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+
+html[data-ui-version="v3"] button[class*="bg-primary"]:hover {
+  box-shadow: 0 4px 14px hsl(234 89% 58% / 0.32);
+}
+
+/* Inputs — clean white surfaces */
+html[data-ui-version="v3"] input,
+html[data-ui-version="v3"] textarea,
+html[data-ui-version="v3"] select {
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 0.5rem !important;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+html[data-ui-version="v3"] input:focus,
+html[data-ui-version="v3"] textarea:focus,
+html[data-ui-version="v3"] select:focus {
+  border-color: hsl(var(--primary)) !important;
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.18) !important;
+  outline: none !important;
+}
+
+/* Navbar — frosted white with hairline */
+html[data-ui-version="v3"] nav,
+html[data-ui-version="v3"] header {
+  background: hsl(0 0% 100% / 0.78) !important;
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  border-bottom: 1px solid hsl(var(--border)) !important;
+}
+
+/* Badges/pills */
+html[data-ui-version="v3"] [class*="badge"],
+html[data-ui-version="v3"] [class*="rounded-full"] {
+  font-weight: 500;
+}
+
+/* Subtle text adjustments */
+html[data-ui-version="v3"] .text-muted-foreground { color: hsl(var(--muted-foreground)) !important; }
+
+/* Tables / dividers stay light */
+html[data-ui-version="v3"] hr,
+html[data-ui-version="v3"] [class*="border-border"] { border-color: hsl(var(--border)) !important; }
+
+/* Gentle scroll bar */
+html[data-ui-version="v3"] ::-webkit-scrollbar { width: 10px; height: 10px; }
+html[data-ui-version="v3"] ::-webkit-scrollbar-thumb {
+  background: hsl(220 12% 80%);
+  border-radius: 8px;
+  border: 2px solid hsl(var(--background));
+}
+html[data-ui-version="v3"] ::-webkit-scrollbar-thumb:hover { background: hsl(220 12% 70%); }
+
+/* ---- Readability fixes for components designed for dark theme ---- */
+/* Force hardcoded white text to readable dark on light surfaces */
+html[data-ui-version="v3"] .text-white,
+html[data-ui-version="v3"] [class*="text-white"]:not([class*="bg-primary"]):not([class*="bg-gradient"]):not(.btn-glass) {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Gradient/clip-text headings often use white -> make solid dark */
+html[data-ui-version="v3"] [class*="bg-clip-text"][class*="text-transparent"] {
+  -webkit-text-fill-color: hsl(var(--foreground)) !important;
+  color: hsl(var(--foreground)) !important;
+  background: none !important;
+}
+
+/* Category / feature cards often rely on dark gradients — give a soft tinted surface */
+html[data-ui-version="v3"] [class*="bg-gradient-to"][class*="from-"]:not(button):not(a[class*="btn"]) {
+  background-image: none !important;
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Icon brightness — many icons use white/low-opacity foreground */
+html[data-ui-version="v3"] svg { color: inherit; }
+
+/* Muted text needs to actually be visible on white */
+html[data-ui-version="v3"] .text-muted-foreground,
+html[data-ui-version="v3"] [class*="text-foreground/"] {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* Announcement popup / dialogs */
+html[data-ui-version="v3"] [role="dialog"],
+html[data-ui-version="v3"] [data-radix-popper-content-wrapper] > * {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Ticker bar — keep readable on light bg */
+html[data-ui-version="v3"] [class*="announcement"],
+html[data-ui-version="v3"] [class*="ticker"] {
+  background: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-version="v3"] * { transition: none !important; animation: none !important; }
+}

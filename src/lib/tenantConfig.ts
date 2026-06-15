@@ -9,50 +9,54 @@
  * ✅ แก้ไขค่าด้านล่างนี้ → รีเฟรช → เว็บเปลี่ยนชื่อทันที
  * ✅ ตั้งค่าเพิ่มเติมได้ที่หน้า Admin → ตั้งค่าเว็บไซต์
  *
- * หมายเหตุ: ค่าบางตัวเป็นแค่ Default (ค่าเริ่มต้น)
- *           สามารถเปลี่ยนผ่านหน้า Admin ได้ทีหลัง
+ * ⚠️ หมายเหตุสำคัญ:
+ *   - ไฟล์นี้ถูกล้างค่าเริ่มต้นทิ้งทั้งหมด เพื่อไม่ให้โปรเจกต์
+ *     เผลอไปต่อกับ Firebase / แบรนด์ของเว็บต้นฉบับ
+ *   - ต้องกรอกค่าตัวเองทั้งหมดก่อนใช้งาน
+ *   - หรือจะตั้งผ่าน `.env` ด้วยตัวแปร VITE_* ก็ได้
+ *     (env จะถูกใช้ก่อน ไฟล์นี้คือ fallback)
  */
 
 // ========== 🏷️ ข้อมูลร้านค้า ==========
 export const TENANT_BRAND = {
   /** ชื่อร้าน/แบรนด์ (แสดงทั่วเว็บ) */
-  name: "HightXClient",
+  name: "My Store",
 
   /** สโลแกน / Tagline */
-  tagline: "Beyond ur limits",
+  tagline: "",
 
   /** คำอธิบายสั้นสำหรับ SEO */
-  description: "แหล่งรวมคีย์โปรแกรมเสริมเกมระดับพรีเมียม",
+  description: "",
 
   /** ชื่อผู้พัฒนาที่แสดงใน Footer */
-  developerName: "HX DEV",
+  developerName: "",
 
   /** ลิงก์ผู้พัฒนา (ถ้าไม่ต้องการใส่ค่าว่าง "") */
   developerUrl: "",
 
   /** ข้อความ Footer */
-  footerText: "© 2025 HightXClient. All rights reserved.",
+  footerText: "",
 
   /** ข้อความ Subtitle (แสดงหน้าแรก) */
-  subtitle: "Welcome to HightXClient Tools !\n[+] HX ! DEV",
+  subtitle: "",
 };
 
 // ========== 🌐 โดเมนและ URL ==========
 export const TENANT_URLS = {
   /** โดเมนหลักของเว็บไซต์ */
-  domain: "hightxclient.com",
+  domain: "",
 
   /** URL เต็ม (ใช้สำหรับ SEO, OG tags) */
-  siteUrl: "https://hightxclient.com",
+  siteUrl: "",
 
   /** Twitter/X handle (ถ้าไม่มีใส่ค่าว่าง "") */
-  twitterHandle: "@HightXClient",
+  twitterHandle: "",
 };
 
 // ========== 🖼️ รูปภาพเริ่มต้น ==========
 export const TENANT_IMAGES = {
   /** OG Image สำหรับแชร์บน Social Media */
-  ogImage: "https://img2.pic.in.th/1771383147450_polarre79e5721233d4b7e.jpeg",
+  ogImage: "",
 
   /** Favicon path (ไฟล์ต้องอยู่ใน public/) */
   favicon: "/favicon.png",
@@ -74,21 +78,22 @@ export const TENANT_THEME = {
 };
 
 // ========== 🔑 Firebase Config (สำคัญ!) ==========
-// ผู้เช่าต้องเปลี่ยนค่านี้เป็นของตัวเอง
-// หรือตั้งผ่าน Environment Variables (VITE_FIREBASE_xxx)
+// ⚠️ ค่าทั้งหมดเป็นค่าว่าง ต้องกรอกของตัวเอง
+//    หรือตั้งผ่าน Environment Variables (VITE_FIREBASE_xxx) ใน .env
+//    ถ้าปล่อยว่างไว้แอปจะไม่สามารถ connect Firebase ได้ (ตามตั้งใจ)
 export const TENANT_FIREBASE = {
-  apiKey: "AIzaSyBV_J5iLhwE8XXa1_ZTk_p9nvmBI_8Y81o",
-  authDomain: "hightxclient.firebaseapp.com",
-  projectId: "hightxclient",
-  storageBucket: "hightxclient.firebasestorage.app",
-  messagingSenderId: "186347234458",
-  appId: "1:186347234458:web:e0740d2f1c28bab632ab23",
-  measurementId: "G-XVW137W5H2",
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: "",
+  measurementId: "",
 };
 
 // ========== 📋 Hero Banner Defaults ==========
 export const TENANT_HERO = {
-  textLines: [`Welcome to ${TENANT_BRAND.name}`, "ระบบจัดการคีย์ครบวงจร"],
+  textLines: [`Welcome to ${TENANT_BRAND.name || "My Store"}`],
   ctaText: "เข้าสู่ระบบ",
   ctaLink: "/login",
 };

@@ -561,7 +561,7 @@ const GlobalCartPanel = () => {
               className="flex items-center justify-between px-4 sm:px-8 py-4 border-b border-border/15"
             >
               <div className="flex items-center gap-3">
-                <motion.div whileHover={{ rotate: 12, scale: 1.06 }} className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary/25 to-accent/15 border border-primary/20 flex items-center justify-center shadow-lg shadow-primary/20">
+                <motion.div whileHover={{ rotate: 12, scale: 1.06 }} className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary/25 to-accent/15 border border-primary/20 flex items-center justify-center hover:shadow-lg hover:shadow-primary/20 transition-shadow">
                   <ShoppingCart size={20} className="text-primary" />
                 </motion.div>
                 <div>

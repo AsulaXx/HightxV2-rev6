@@ -78,14 +78,14 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="nav-glass sticky top-0 z-50 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <nav className={`nav-glass sticky top-0 z-50 transition-all duration-300 ease-out ${scrolled ? "shadow-lg shadow-primary/5 backdrop-blur-xl" : ""}`}>
+        <div className={`max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4 transition-all duration-300 ease-out ${scrolled ? "h-12" : "h-16"}`}>
           {/* Brand */}
           <Link to="/" className={`flex items-center gap-3 shrink-0 group rounded-xl ${FOCUS_RING}`}>
-            <div className="w-10 h-10 rounded-2xl overflow-hidden transition-transform duration-300 group-hover:scale-105">
+            <div className={`rounded-2xl overflow-hidden transition-all duration-300 ease-out group-hover:scale-105 group-hover:rotate-3 ${scrolled ? "w-8 h-8" : "w-10 h-10"}`}>
               <img src={logo} alt="Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="text-base font-bold text-foreground tracking-tight hidden sm:block">
+            <span className={`font-bold text-foreground tracking-tight hidden sm:block transition-all duration-300 ${scrolled ? "text-sm" : "text-base"}`}>
               {settings.brandName}
             </span>
           </Link>

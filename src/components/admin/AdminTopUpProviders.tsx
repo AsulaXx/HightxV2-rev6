@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
   Save, Plug, Loader2, Eye, EyeOff, Zap, Wallet,
-  CheckCircle2, XCircle, KeyRound, AlertCircle, Radio, Shield,
+  CheckCircle2, XCircle, KeyRound, Radio,
 } from "lucide-react";
 
 

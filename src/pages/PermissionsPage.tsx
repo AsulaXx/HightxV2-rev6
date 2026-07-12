@@ -78,16 +78,16 @@ const PermissionsPage = () => {
         {profile && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="glass-card p-5 mb-6">
             <div className="flex items-center gap-4">
-              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${ROLE_COLORS[profile.role] || "from-slate-500 to-zinc-400"} flex items-center justify-center`}>
+              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${ROLE_COLORS[(effectiveRole || profile.role)] || "from-slate-500 to-zinc-400"} flex items-center justify-center`}>
                 <Crown size={24} className="text-white" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">ยศปัจจุบันของคุณ</p>
-                <p className="text-2xl font-bold text-foreground">{ROLE_LABELS[profile.role]}</p>
+                <p className="text-2xl font-bold text-foreground">{ROLE_LABELS[(effectiveRole || profile.role)]}</p>
               </div>
               <div className="ml-auto">
                 <span className="text-sm text-muted-foreground">
-                  {(rolePermissions[profile.role] || []).length} / {permissions.length} สิทธิ์
+                  {(rolePermissions[(effectiveRole || profile.role)] || []).length} / {permissions.length} สิทธิ์
                 </span>
               </div>
             </div>
@@ -127,7 +127,7 @@ const PermissionsPage = () => {
                     </td>
                     {roles.map((role) => {
                       const has = rolePermissions[role]?.includes(perm.id);
-                      const isCurrentRole = profile?.role === role;
+                      const isCurrentRole = effectiveRole === role;
                       return (
                         <td key={role} className={`text-center py-3 px-2 ${isCurrentRole ? "bg-primary/5" : ""}`}>
                           {has ? (
@@ -153,7 +153,7 @@ const PermissionsPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {ROLE_HIERARCHY.map((role, i) => {
               const perms = rolePermissions[role] || [];
-              const isCurrentRole = profile?.role === role;
+              const isCurrentRole = effectiveRole === role;
               return (
                 <motion.div
                   key={role}

@@ -699,7 +699,7 @@ const DashboardPage = () => {
 
   if (authLoading) return <div className="min-h-[80vh] flex items-center justify-center"><p className="text-muted-foreground">กำลังโหลด...</p></div>;
   if (!user) return <RedirectToLogin />;
-  if (!hasPermission("moderator")) return <Navigate to="/" replace />;
+  if (!hasPermission("hightxcrew")) return <Navigate to="/" replace />;
 
   // Filter daily data by period
   const filteredDaily = dailyData.slice(-trendPeriod);

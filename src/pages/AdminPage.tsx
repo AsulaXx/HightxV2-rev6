@@ -284,169 +284,135 @@ const AdminPage = () => {
   const showSave = !hideSaveTabs.includes(activeTab);
 
   return (
-    <><div className="relative z-10 h-[calc(100vh-4rem)] overflow-hidden">
-      <div className="flex h-full">
-
-        {/* Sidebar */}
-        <aside className={`${sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'} h-full shrink-0 transition-all duration-300 hidden md:flex flex-col border-r border-border/40 bg-card/30`}>
-          <div className="p-3 border-b border-border/40">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-xl bg-primary/15 text-primary flex items-center justify-center">
-                <Settings size={16} />
-              </div>
-              <div className="min-w-0">
-                <div className="text-sm font-bold truncate">ตั้งค่าเว็บไซต์</div>
-                <div className="text-[10px] text-muted-foreground truncate">Admin Panel</div>
-              </div>
+    <><div className="relative z-10 h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
+      {/* Admin top bar */}
+      <header className="shrink-0 border-b border-border/40 bg-background/70 backdrop-blur-md">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6">
+          {/* Row 1: title + search + save */}
+          <div className="flex items-center gap-2 h-14">
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden flex w-8 h-8 rounded-lg hover:bg-muted/40 items-center justify-center text-muted-foreground"
+              title="เมนู"
+            >
+              <LayoutGrid size={15} />
+            </button>
+            <div className="w-8 h-8 rounded-xl bg-primary/15 text-primary hidden md:flex items-center justify-center shrink-0">
+              <Settings size={15} />
             </div>
-            <div className="relative">
+            <div className="flex items-center gap-1.5 min-w-0 flex-1">
+              {activeCategory && (
+                <>
+                  <span className="text-[11px] text-muted-foreground hidden sm:inline">{activeCategory.label}</span>
+                  <ChevronDown size={11} className="text-muted-foreground -rotate-90 hidden sm:inline shrink-0" />
+                </>
+              )}
+              {currentTab && (
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <currentTab.icon size={14} className="text-primary shrink-0" />
+                  <span className="text-sm font-semibold truncate">{currentTab.label}</span>
+                </div>
+              )}
+            </div>
+            <div className="relative hidden md:block">
               <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
                 value={menuQuery}
                 onChange={(e) => setMenuQuery(e.target.value)}
                 placeholder="ค้นหาเมนู..."
-                className="w-full h-8 pl-7 pr-2 rounded-lg bg-muted/40 border border-border/40 text-xs focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/40"
+                className="w-56 h-8 pl-7 pr-2 rounded-lg bg-muted/40 border border-border/40 text-xs focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/40"
               />
             </div>
+            {showSave && (
+              <button
+                onClick={handleSave}
+                className={`flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold transition-all ${
+                  saved
+                    ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-400/40'
+                    : 'btn-gradient text-white shadow-sm hover:brightness-110 active:scale-95'
+                }`}
+              >
+                {saved ? <CheckCircle size={14} /> : <Save size={14} />}
+                <span className="hidden sm:inline">{saved ? 'บันทึกแล้ว' : 'บันทึก'}</span>
+              </button>
+            )}
           </div>
-          <div className="flex-1 overflow-y-auto scrollbar-thin p-2 space-y-1 pb-24">
-            {filteredCategories.map((cat) => {
-              const isCatActive = cat.tabs.some((t) => t.id === activeTab);
-              const collapsed = collapsedCats[cat.id] ?? false;
-              return (
-                <div key={cat.id} className="space-y-0.5">
+
+          {/* Row 2: category navbar (horizontal chips) */}
+          <nav aria-label="Admin categories" className="hidden md:block">
+            <div className="flex items-center gap-1 overflow-x-auto scrollbar-none [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pb-2">
+              {categories.map((cat) => {
+                const active = activeCategory.id === cat.id;
+                return (
                   <button
-                    onClick={() => setCollapsedCats((s) => ({ ...s, [cat.id]: !collapsed }))}
-                    className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] font-semibold uppercase tracking-wider transition-colors ${
-                      isCatActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                    key={cat.id}
+                    onClick={() => {
+                      setActiveTab(cat.tabs[0].id);
+                      contentScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className={`flex items-center gap-1.5 px-3 h-8 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
+                      active
+                        ? 'bg-primary/12 text-primary border border-primary/30'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/30 border border-transparent'
                     }`}
                   >
-                    <cat.icon size={12} />
-                    <span className="flex-1 text-left">{cat.label}</span>
-                    <ChevronDown size={12} className={`transition-transform ${collapsed ? '-rotate-90' : ''}`} />
+                    <cat.icon size={13} />
+                    {cat.label}
                   </button>
-                  {!collapsed && (
-                    <div className="space-y-0.5">
-                      {cat.tabs.map((tab) => {
-                        const active = activeTab === tab.id;
-                        return (
-                          <button
-                            key={tab.id}
-                            onClick={() => {
-                              setActiveTab(tab.id);
-                              contentScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-                            }}
-                            className={`w-full flex items-center gap-2.5 pl-6 pr-2 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                              active
-                                ? 'bg-primary/12 text-foreground border-l-2 border-primary'
-                                : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground border-l-2 border-transparent'
-                            }`}
-                          >
-                            <tab.icon size={13} className={active ? 'text-primary' : ''} />
-                            <span className="truncate">{tab.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-            {filteredCategories.length === 0 && (
-              <div className="text-center text-xs text-muted-foreground py-6">ไม่พบเมนู</div>
-            )}
-            {isAdmin && !menuQuery && (
-              <Link to="/announcements" className="mt-3 w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-all">
-                <Megaphone size={13} /> ประกาศ
-              </Link>
-            )}
-          </div>
-        </aside>
-
-        {/* Main */}
-        <div className="flex-1 min-w-0 min-h-0 flex flex-col">
-          {/* Header */}
-          <header className="shrink-0 border-b border-border/40 bg-background/60 backdrop-blur-md">
-            <div className="flex items-center gap-2 px-3 sm:px-5 h-14">
-              <button
-                onClick={() => setSidebarOpen((s) => !s)}
-                className="hidden md:flex w-8 h-8 rounded-lg hover:bg-muted/40 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-                title="ซ่อน/แสดง sidebar"
-              >
-                <LayoutGrid size={15} />
-              </button>
-              <button
-                onClick={() => setMobileMenuOpen(true)}
-                className="md:hidden flex w-8 h-8 rounded-lg hover:bg-muted/40 items-center justify-center text-muted-foreground"
-              >
-                <LayoutGrid size={15} />
-              </button>
-              <div className="flex items-center gap-2 min-w-0 flex-1">
-                {activeCategory && (
-                  <>
-                    <span className="text-[11px] text-muted-foreground hidden sm:inline">{activeCategory.label}</span>
-                    <ChevronDown size={12} className="text-muted-foreground -rotate-90 hidden sm:inline" />
-                  </>
-                )}
-                {currentTab && (
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <currentTab.icon size={14} className="text-primary shrink-0" />
-                    <span className="text-sm font-semibold truncate">{currentTab.label}</span>
-                  </div>
-                )}
-              </div>
-              {showSave && (
-                <button
-                  onClick={handleSave}
-                  className={`flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold transition-all ${
-                    saved
-                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-400/40'
-                      : 'btn-gradient text-white shadow-sm hover:brightness-110 active:scale-95'
-                  }`}
+                );
+              })}
+              {isAdmin && (
+                <Link
+                  to="/announcements"
+                  className="flex items-center gap-1.5 px-3 h-8 rounded-lg text-xs font-medium whitespace-nowrap text-muted-foreground hover:text-foreground hover:bg-muted/30 border border-transparent"
                 >
-                  {saved ? <CheckCircle size={14} /> : <Save size={14} />}
-                  <span className="hidden sm:inline">{saved ? 'บันทึกแล้ว' : 'บันทึก'}</span>
-                </button>
+                  <Megaphone size={13} /> ประกาศ
+                </Link>
               )}
             </div>
-            {activeCategory.tabs.length > 1 && (
-              <div className="px-3 sm:px-5 pb-2 -mt-1">
-                <div
-                  role="tablist"
-                  aria-label={`${activeCategory.label} sub-tabs`}
-                  className="flex items-center gap-1 overflow-x-auto scrollbar-none [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-                >
-                  {activeCategory.tabs.map((tab, idx) => {
-                    const active = activeTab === tab.id;
-                    return (
-                      <button
-                        key={tab.id}
-                        ref={(el) => { subTabRefs.current[idx] = el; }}
-                        role="tab"
-                        aria-selected={active}
-                        tabIndex={active ? 0 : -1}
-                        onClick={() => setActiveTab(tab.id)}
-                        onKeyDown={(e) => handleSubTabKeyDown(e, idx)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all focus:outline-none focus-visible:ring-1 focus-visible:ring-primary ${
-                          active
-                            ? 'bg-primary/12 text-primary'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
-                        }`}
-                      >
-                        <tab.icon size={12} />
-                        {tab.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </header>
+          </nav>
 
-          {/* Content */}
-          <div ref={contentScrollRef} className="flex-1 overflow-y-auto" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-            <div className="w-full max-w-full mx-auto px-3 sm:px-5 md:px-6 lg:px-8 xl:px-10 2xl:px-12 py-4 sm:py-5 md:py-6 pb-24 md:pb-8">
+          {/* Row 3: sub-tabs of current category */}
+          {activeCategory.tabs.length > 1 && (
+            <div className="pb-2 border-t border-border/30 pt-2">
+              <div
+                role="tablist"
+                aria-label={`${activeCategory.label} sub-tabs`}
+                className="flex items-center gap-1 overflow-x-auto scrollbar-none [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              >
+                {activeCategory.tabs.map((tab, idx) => {
+                  const active = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      ref={(el) => { subTabRefs.current[idx] = el; }}
+                      role="tab"
+                      aria-selected={active}
+                      tabIndex={active ? 0 : -1}
+                      onClick={() => setActiveTab(tab.id)}
+                      onKeyDown={(e) => handleSubTabKeyDown(e, idx)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all focus:outline-none focus-visible:ring-1 focus-visible:ring-primary ${
+                        active
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
+                      }`}
+                    >
+                      <tab.icon size={12} />
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
+
+      {/* Content */}
+      <div ref={contentScrollRef} className="flex-1 overflow-y-auto" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 pb-24 md:pb-8">
+
 
 
                 {/* Sub-tab overlay sheet (mobile) */}

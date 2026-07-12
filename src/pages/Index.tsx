@@ -202,14 +202,21 @@ const Index = () => {
 
       {/* Ticker is now a global component in App.tsx */}
 
-      {/* Hero Banner with Logo + Typing Text */}
+      {/* Hero Banner with Logo + Typing Text + 3D Parallax */}
       {settings.heroBanner?.enabled !== false && (
         <motion.section
+          ref={heroRef as any}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className={`${maxWidthClass()} mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-4 sm:pb-6`}
+          className={`parallax-scene relative ${maxWidthClass()} mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-4 sm:pb-6`}
         >
+          {/* Aurora backdrop that also parallaxes */}
+          <div
+            className="parallax-layer absolute inset-0 aurora-bg -z-10 rounded-[3rem] blur-2xl opacity-70"
+            style={{ ["--depth" as any]: 10 }}
+            aria-hidden
+          />
           <div className={`flex flex-col items-${settings.heroBanner?.textAlign || "center"} gap-4`}>
             {/* Logo */}
             {settings.heroBanner?.showLogo !== false && (
@@ -217,12 +224,14 @@ const Index = () => {
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.1, type: "spring", damping: 20 }}
+                className="parallax-layer float-soft"
+                style={{ ["--depth" as any]: 28 }}
               >
                 <img
                   src={settings.logoUrl || logo}
                   alt={settings.brandName}
                   style={{ height: `${settings.heroBanner?.logoSize || settings.logoSize || 48}px` }}
-                  className="object-contain drop-shadow-lg"
+                  className="object-contain drop-shadow-[0_10px_30px_hsl(var(--primary)/0.4)]"
                 />
               </motion.div>
             )}
@@ -233,7 +242,8 @@ const Index = () => {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className={`text-${settings.heroBanner?.textAlign || "center"} w-full`}
+                className={`parallax-layer text-${settings.heroBanner?.textAlign || "center"} w-full`}
+                style={{ ["--depth" as any]: 16 }}
               >
                 {(() => {
                   const isGradient = settings.heroBanner?.textColorMode === "gradient";

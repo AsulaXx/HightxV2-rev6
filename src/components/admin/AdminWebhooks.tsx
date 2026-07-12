@@ -253,24 +253,28 @@ const WebhookLogPanel = () => {
         ))}
       </div>
 
-      <div className="max-h-[280px] overflow-y-auto">
+      <div className="max-h-[320px] overflow-auto bg-[#0a0e14] font-mono text-[11px] leading-relaxed">
         {filtered.length === 0 ? (
-          <p className="text-xs text-muted-foreground text-center py-8">ยังไม่มีประวัติ</p>
+          <p className="text-xs text-muted-foreground/60 text-center py-8 font-mono">$ no webhook events yet_</p>
         ) : (
-          <div className="divide-y divide-border/10">
-            {filtered.map((entry) => (
-              <div key={entry.id} className="flex items-center gap-2.5 px-4 py-2 text-[10px] hover:bg-muted/10 transition-colors">
-                {entry.status === "success" ? <CheckCircle size={12} className="text-emerald-400 shrink-0" /> : <XCircle size={12} className="text-destructive shrink-0" />}
-                <span className="font-semibold text-foreground min-w-[60px]">{entry.type}</span>
-                {entry.httpStatus && <span className="text-muted-foreground">HTTP {entry.httpStatus}</span>}
-                {entry.embedTitle && <span className="text-muted-foreground truncate flex-1">{entry.embedTitle}</span>}
-                {entry.error && <span className="text-destructive truncate flex-1">{entry.error}</span>}
-                <span className="text-muted-foreground ml-auto shrink-0">
-                  {new Date(entry.timestamp).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
-                </span>
-              </div>
-            ))}
-          </div>
+          <pre className="px-4 py-3 whitespace-pre text-slate-300 m-0">
+{filtered.map((entry) => {
+  const t = new Date(entry.timestamp).toLocaleTimeString("th-TH", { hour12: false });
+  const level = entry.status === "success" ? "OK  " : entry.status === "failed" ? "FAIL" : "SKIP";
+  const color = entry.status === "success" ? "text-emerald-400" : entry.status === "failed" ? "text-red-400" : "text-amber-400";
+  const http = entry.httpStatus ? ` ${entry.httpStatus}` : "";
+  const detail = entry.error || entry.embedTitle || entry.reason || "";
+  return (
+    <div key={entry.id} className="hover:bg-white/5 px-1 -mx-1 rounded">
+      <span className="text-slate-500">[{t}]</span>{" "}
+      <span className={`font-bold ${color}`}>{level}</span>{" "}
+      <span className="text-cyan-400">{entry.type}</span>
+      <span className="text-slate-500">{http}</span>
+      {detail && <span className="text-slate-400"> — {detail}</span>}
+    </div>
+  );
+})}
+          </pre>
         )}
       </div>
     </div>

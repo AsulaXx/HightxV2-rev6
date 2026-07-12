@@ -660,26 +660,69 @@ const AdminPage = () => {
         </div>
       </div>
 
-      {/* Floating Save & Scroll-to-top */}
-      {!["users", "permissions", "transactions", "linkpages", "auditlog"].includes(activeTab) && (
-        <>
-          <button
-            onClick={() => contentScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
-            className="fixed bottom-20 right-4 md:bottom-28 md:right-8 z-50 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-card/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground hover:bg-card transition-all shadow-lg flex items-center justify-center"
-            title="กลับขึ้นด้านบน"
+      {/* Mobile menu drawer */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-[60]" onClick={() => setMobileMenuOpen(false)}>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div
+            className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl border-t border-border/40 max-h-[80vh] overflow-hidden animate-in slide-in-from-bottom duration-300"
+            onClick={(e) => e.stopPropagation()}
           >
-            <ChevronUp size={18} />
-          </button>
-          <button
-            onClick={handleSave}
-            className={`fixed bottom-[4.5rem] right-4 md:bottom-8 md:right-8 z-50 w-12 h-12 sm:w-14 sm:h-14 rounded-full btn-gradient shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 ${saved ? 'ring-2 ring-emerald-400 ring-offset-2 ring-offset-background' : ''}`}
-            title={saved ? "บันทึกแล้ว" : "บันทึกการตั้งค่า"}
-          >
-            {saved ? <CheckCircle size={22} className="text-white" /> : <Save size={22} className="text-white" />}
-          </button>
-        </>
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1.5 rounded-full bg-muted-foreground/30" />
+            </div>
+            <div className="px-4 pb-2 flex items-center justify-between">
+              <h3 className="text-sm font-bold">เมนูตั้งค่า</h3>
+              <button onClick={() => setMobileMenuOpen(false)} className="p-1.5 rounded-lg hover:bg-muted/50 text-muted-foreground">
+                <XCircle size={18} />
+              </button>
+            </div>
+            <div className="px-3 pb-2">
+              <div className="relative">
+                <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={menuQuery}
+                  onChange={(e) => setMenuQuery(e.target.value)}
+                  placeholder="ค้นหาเมนู..."
+                  className="w-full h-9 pl-7 pr-2 rounded-lg bg-muted/40 border border-border/40 text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
+                />
+              </div>
+            </div>
+            <div className="overflow-y-auto max-h-[62vh] px-3 pb-8 space-y-3">
+              {filteredCategories.map((cat) => (
+                <div key={cat.id}>
+                  <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider px-1 py-1.5 flex items-center gap-1.5">
+                    <cat.icon size={12} /> {cat.label}
+                  </h4>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {cat.tabs.map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => {
+                          setActiveTab(tab.id);
+                          setMobileMenuOpen(false);
+                          contentScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                        className={`flex flex-col items-center gap-1.5 px-2 py-3 rounded-xl text-xs font-medium transition-all active:scale-95 ${
+                          activeTab === tab.id
+                            ? 'bg-primary/12 text-primary border border-primary/30'
+                            : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground border border-transparent'
+                        }`}
+                      >
+                        <tab.icon size={18} />
+                        <span className="truncate w-full text-center text-[11px]">{tab.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </div>
+
   );
 };
 

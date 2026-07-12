@@ -435,11 +435,12 @@ async function verifyFirebaseIdToken(idToken: string): Promise<{ uid: string }> 
   return { uid: payload.sub };
 }
 
+// Owner-claim system removed — any authenticated user with Admin page access can edit config.
+// Client-side role gate at /adminpanel guards this UI. Edge function only checks the token is valid.
 async function verifyOwner(idToken: string | undefined): Promise<{ ok: boolean; uid?: string; reason?: string }> {
   if (!idToken) return { ok: false, reason: 'missing idToken' };
   try {
     const { uid } = await verifyFirebaseIdToken(idToken);
-    if (!(await isOwner(uid))) return { ok: false, reason: `requires owner (uid=${uid}) — กดปุ่ม "ยึดสิทธิ์เจ้าของ" ในหน้า Admin`, uid };
     return { ok: true, uid };
   } catch (e) {
     return { ok: false, reason: e instanceof Error ? e.message : String(e) };

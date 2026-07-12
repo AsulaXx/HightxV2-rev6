@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { sendWebhook } from "@/lib/webhookSender";
-import { slipVerifyEmbed, autoBanEmbed } from "@/lib/webhookTemplates";
+import { autoBanEmbed } from "@/lib/webhookTemplates";
 import { logError } from "@/lib/errorLogger";
 import { query, where, getDocs, limit, updateDoc, doc } from "firebase/firestore";
 import { logActivity } from "@/lib/activityLogger";
@@ -57,23 +57,9 @@ export const useTopUpHelpers = (
         createdAt: serverTimestamp(),
       });
 
-      const attachment = imageAttachment("slip-verify", params.slipImage);
-      await sendWebhook(settings, "slipVerify", [
-        slipVerifyEmbed({
-          result: params.result,
-          userDisplay,
-          amount: params.amount,
-          transRef: params.transRef,
-          method: params.method,
-          senderBank: params.senderBank,
-          senderName: params.senderName,
-          receiverBank: params.receiverBank,
-          receiverName: params.receiverName,
-          errorMessage: params.errorMessage,
-          brandName: settings.brandName,
-          slipAttachmentName: attachment?.name,
-        }),
-      ], attachment ? { attachments: [attachment] } : {});
+      // NOTE: Webhook แจ้งเตือนถูกส่งจาก call site (topUp channel) เพียงครั้งเดียว
+      // เพื่อไม่ให้ Discord ได้รับ 2 ข้อความต่อ 1 event. ที่นี่บันทึกเฉพาะ Firestore log.
+      void imageAttachment; // keep helper referenced for future use
     } catch (err) {
       logError("logSlipVerification", err);
     }

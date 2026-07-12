@@ -27,6 +27,21 @@ const PermissionsPage = () => {
 
   const roles = ROLE_HIERARCHY.slice().reverse(); // user first, owner last
 
+  const isOwner = profile?.role === "owner";
+  const [viewAsRole, setViewAsRole] = useState<UserRole | "">("");
+  const effectiveRole = (viewAsRole || profile?.role) as UserRole | undefined;
+
+  const applyViewAsRole = (role: UserRole | "") => {
+    setViewAsRole(role);
+    if (role) {
+      sessionStorage.setItem("__view_as_role", role);
+      toast.success(`กำลังดูในมุมของ: ${ROLE_LABELS[role]} (view-only)`);
+    } else {
+      sessionStorage.removeItem("__view_as_role");
+      toast.info("กลับสู่มุมมองปกติ");
+    }
+  };
+
   return (
     <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-6">
       <PageBreadcrumb
@@ -36,6 +51,28 @@ const PermissionsPage = () => {
         icon={Shield}
       />
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+
+        {/* Owner: View as role (impersonation preview - view only) */}
+        {isOwner && (
+          <div className="glass-card !p-4 mb-4 flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+              <Eye size={14} className="text-primary" /> ดูในมุมของยศ
+            </div>
+            <select
+              value={viewAsRole}
+              onChange={(e) => applyViewAsRole(e.target.value as UserRole | "")}
+              className="input-glass px-3 py-1.5 text-xs"
+            >
+              <option value="">— ปกติ (Owner) —</option>
+              {ROLE_HIERARCHY.filter(r => r !== "owner").map((r) => (
+                <option key={r} value={r}>{ROLE_LABELS[r as UserRole]}</option>
+              ))}
+            </select>
+            {viewAsRole && (
+              <span className="text-[10px] text-amber-400">โหมดดูอย่างเดียว — ไม่มีการเปลี่ยนสิทธิ์จริง</span>
+            )}
+          </div>
+        )}
 
         {/* Current user role badge */}
         {profile && (

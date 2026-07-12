@@ -584,7 +584,7 @@ const GlobalCartPanel = () => {
                       <motion.div
                         animate={{ y: [0, -12, 0], rotate: [0, -4, 4, 0] }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                        className="relative w-32 h-32 rounded-[2rem] bg-gradient-to-br from-primary/20 via-accent/10 to-transparent border border-primary/15 flex items-center justify-center mb-6 shadow-2xl shadow-primary/20"
+                        className="relative w-32 h-32 rounded-[2rem] bg-gradient-to-br from-primary/20 via-accent/10 to-transparent border border-primary/15 flex items-center justify-center mb-6"
                       >
                         <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-primary/10 to-transparent blur-2xl" />
                         <ShoppingCart size={56} strokeWidth={1.4} className="text-primary/70 relative z-10" />

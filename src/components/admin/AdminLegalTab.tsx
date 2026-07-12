@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Save, FileText, Shield } from "lucide-react";
+import { Save, FileText, Shield, Rocket, Info } from "lucide-react";
 import { AdminTabProps } from "./AdminTabProps";
+import { toast } from "sonner";
 
 const defaultTosContentTh = `ข้อตกลงการใช้บริการ
 
@@ -123,11 +124,42 @@ const defaultPrivacyContentEn = `Privacy Policy
 const AdminLegalTab = ({ form, setForm, handleSave }: AdminTabProps) => {
   const [legalLang, setLegalLang] = useState<"th" | "en">("th");
 
+  const termsVersion = Number(form.termsVersion || 1);
+  const privacyVersion = Number(form.privacyVersion || 1);
+
+  const publishNew = (which: "terms" | "privacy" | "both") => {
+    const patch: any = { legalUpdatedAt: new Date().toISOString() };
+    if (which === "terms" || which === "both") patch.termsVersion = termsVersion + 1;
+    if (which === "privacy" || which === "both") patch.privacyVersion = privacyVersion + 1;
+    const next = { ...form, ...patch };
+    setForm(next);
+    handleSave(next);
+    toast.success(`เผยแพร่เวอร์ชันใหม่ — ผู้ใช้ทุกคนจะเห็นหน้ายอมรับข้อตกลง (${which === "both" ? "ทั้งสองไฟล์" : which === "terms" ? "TOS" : "Privacy"})`);
+  };
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">📜 ข้อตกลงและนโยบาย</h1>
         <p className="text-sm text-muted-foreground mt-1">แก้ไข TOS และนโยบายความเป็นส่วนตัว (ไทย/อังกฤษ)</p>
+      </div>
+
+      {/* Version banner */}
+      <div className="glass-card !p-4 flex flex-wrap items-center gap-3 justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
+            <Info size={16} className="text-primary" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-foreground">เวอร์ชันปัจจุบัน — TOS v{termsVersion} · Privacy v{privacyVersion}</p>
+            <p className="text-[10px] text-muted-foreground">เผยแพร่เวอร์ชันใหม่จะบังคับให้ผู้ใช้ทุกคน re-accept ก่อนใช้งาน</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => publishNew("terms")} className="btn-glass px-3 py-2 text-xs flex items-center gap-1.5"><Rocket size={12} /> เผยแพร่ TOS ใหม่</button>
+          <button onClick={() => publishNew("privacy")} className="btn-glass px-3 py-2 text-xs flex items-center gap-1.5"><Rocket size={12} /> เผยแพร่ Privacy ใหม่</button>
+          <button onClick={() => publishNew("both")} className="btn-gradient px-3 py-2 text-xs flex items-center gap-1.5"><Rocket size={12} /> เผยแพร่ทั้งสอง</button>
+        </div>
       </div>
 
       <div className="flex gap-2">

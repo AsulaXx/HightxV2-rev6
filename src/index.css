@@ -170,7 +170,6 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
   .glass-card-hover:hover {
     border-color: hsl(var(--border) / 0.5);
     box-shadow:
-      inset 0 1px 0 hsl(0 0% 100% / 0.08),
       0 12px 30px -18px hsl(var(--foreground) / 0.25);
     transform: translateY(-2px);
   }

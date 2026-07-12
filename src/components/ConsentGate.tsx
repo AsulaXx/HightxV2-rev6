@@ -27,8 +27,31 @@ const ConsentGate = ({ children }: { children: React.ReactNode }) => {
   const p = profile as any;
   const currentTermsV = Number(s.termsVersion || 1);
   const currentPrivacyV = Number(s.privacyVersion || 1);
-  const acceptedTermsV = Math.max(Number(p?.acceptedTermsVersion || 0), localAccepted?.t || 0);
-  const acceptedPrivacyV = Math.max(Number(p?.acceptedPrivacyVersion || 0), localAccepted?.p || 0);
+
+  // LocalStorage cache: once accepted on this device, don't re-ask until the
+  // published version bumps (survives reloads even before profile refetch).
+  const lsKey = user ? `consent:${user.uid}` : null;
+  const readLS = (): { t: number; p: number } => {
+    if (!lsKey) return { t: 0, p: 0 };
+    try {
+      const raw = localStorage.getItem(lsKey);
+      if (!raw) return { t: 0, p: 0 };
+      const j = JSON.parse(raw);
+      return { t: Number(j.t || 0), p: Number(j.p || 0) };
+    } catch { return { t: 0, p: 0 }; }
+  };
+  const lsAccepted = readLS();
+
+  const acceptedTermsV = Math.max(
+    Number(p?.acceptedTermsVersion || 0),
+    localAccepted?.t || 0,
+    lsAccepted.t
+  );
+  const acceptedPrivacyV = Math.max(
+    Number(p?.acceptedPrivacyVersion || 0),
+    localAccepted?.p || 0,
+    lsAccepted.p
+  );
 
   // Reset local accept when user changes (logout/login)
   useEffect(() => {
@@ -36,7 +59,7 @@ const ConsentGate = ({ children }: { children: React.ReactNode }) => {
   }, [user?.uid]);
 
   const needsAccept = !!user && !!profile && (acceptedTermsV < currentTermsV || acceptedPrivacyV < currentPrivacyV);
-  const isFirstTime = Number(p?.acceptedTermsVersion || 0) === 0 && Number(p?.acceptedPrivacyVersion || 0) === 0 && !localAccepted;
+  const isFirstTime = Number(p?.acceptedTermsVersion || 0) === 0 && lsAccepted.t === 0 && !localAccepted;
 
   // Reset checkboxes each time modal reopens
   useEffect(() => {

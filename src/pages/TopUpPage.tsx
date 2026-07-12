@@ -280,6 +280,7 @@ const TopUpPage = () => {
 
       // Add balance via atomic ledger
       const bankAttemptId = generateAttemptId("bank");
+      let ledgerApplied = false;
       try {
         await applyLedger({
           userId: user.uid, userEmail: user.email, userName: userDisplay,
@@ -289,6 +290,7 @@ const TopUpPage = () => {
           requireUniqueRefId: true,
           meta: { attemptId: bankAttemptId, transRef: slipData.transRef, sender: slipData.sender, receiver: slipData.receiver },
         });
+        ledgerApplied = true;
       } catch (e: any) {
         if (e?.code === "DUPLICATE_REF" || e?.message === "DUPLICATE_REF") {
           const errMsg = "สลิปนี้เคยถูกใช้เติมเงินแล้ว (atomic guard)";
@@ -300,31 +302,56 @@ const TopUpPage = () => {
         throw e;
       }
 
-      await safeAddTopUpHistory({ userId: user.uid, userEmail: user.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "success", slipData, attemptId: bankAttemptId, createdAt: serverTimestamp(), method: "bank" });
-      await logActivity(user, profile, "topup", `เติมเงิน ฿${slipData.amount.toLocaleString()} (Ref: ${slipData.transRef})`);
+      // ── CRITICAL LOGGING (fire immediately after credit, isolated from UI errors) ──
+      // Each step is wrapped so a single failure never blocks the others.
+      console.log("[bank.topup] credited, writing logs", { transRef: slipData.transRef, amount: slipData.amount });
 
-      try {
-        await sendWebhook(settings, "topUp", [topUpSuccessEmbed({
-          userDisplay, ...webhookMeta, amount: slipData.amount, transRef: slipData.transRef,
-          senderBank: slipData.sender.bank, senderName: slipData.sender.name,
-          receiverBank: slipData.receiver.bank, receiverName: slipData.receiver.name,
-          date: slipData.date, channel: "สลิปธนาคาร", brandName: settings.brandName,
-          slipAttachmentName: bankSlipAttachment?.name,
-        })], topUpWebhookOptions("success", slipData.transRef, bankSlipAttachment));
-      } catch (err) { logError("bank.successWebhook", err); }
+      // 1) Firestore topUpHistory (feeds admin/web log)
+      safeAddTopUpHistory({
+        userId: user.uid, userEmail: user.email, userName: userDisplay,
+        amount: slipData.amount, transRef: slipData.transRef, status: "success",
+        slipData, attemptId: bankAttemptId, createdAt: serverTimestamp(), method: "bank",
+      }).catch((e) => logError("bank.safeAddTopUpHistory", e));
 
-      wallet.setBalance(prev => prev + slipData.amount);
-      toast.success(`เติมเงินสำเร็จ ฿${slipData.amount.toLocaleString()}`);
-      addNotification("credit", "เติมเงินสำเร็จ", `เติมเงินผ่านสลิปธนาคาร ฿${slipData.amount.toLocaleString()}`, "/wallet");
-      await logSlipVerification({ method: "bank", result: "success", amount: slipData.amount, transRef: slipData.transRef, senderName: slipData.sender.name, senderBank: slipData.sender.bank, receiverName: slipData.receiver.name, receiverBank: slipData.receiver.bank, slipImage: bankSlip.slipImage });
-      invalidateCache();
-      wallet.loadHistory();
+      // 2) Discord webhook (single organized embed)
+      (async () => {
+        try {
+          await sendWebhook(settings, "topUp", [topUpSuccessEmbed({
+            userDisplay, ...webhookMeta, amount: slipData.amount, transRef: slipData.transRef,
+            senderBank: slipData.sender.bank, senderName: slipData.sender.name,
+            receiverBank: slipData.receiver.bank, receiverName: slipData.receiver.name,
+            date: slipData.date, channel: "สลิปธนาคาร", brandName: settings.brandName,
+            slipAttachmentName: bankSlipAttachment?.name,
+          })], topUpWebhookOptions("success", slipData.transRef, bankSlipAttachment));
+        } catch (err) { logError("bank.successWebhook", err); }
+      })();
+
+      // 3) Activity + slip verification logs
+      logActivity(user, profile, "topup", `เติมเงิน ฿${slipData.amount.toLocaleString()} (Ref: ${slipData.transRef})`)
+        .catch((e) => logError("bank.logActivity", e));
+      logSlipVerification({
+        method: "bank", result: "success", amount: slipData.amount, transRef: slipData.transRef,
+        senderName: slipData.sender.name, senderBank: slipData.sender.bank,
+        receiverName: slipData.receiver.name, receiverBank: slipData.receiver.bank,
+        slipImage: bankSlip.slipImage,
+      }).catch((e) => logError("bank.logSlipVerification", e));
+
+      // 4) UI updates — kept last so any UI error can't clobber logs above
+      try { wallet.setBalance(prev => prev + slipData.amount); } catch (e) { logError("bank.setBalance", e); }
+      try { toast.success(`เติมเงินสำเร็จ ฿${slipData.amount.toLocaleString()}`); } catch (e) { logError("bank.toast", e); }
+      try { addNotification("credit", "เติมเงินสำเร็จ", `เติมเงินผ่านสลิปธนาคาร ฿${slipData.amount.toLocaleString()}`, "/wallet"); } catch (e) { logError("bank.addNotification", e); }
+      try { invalidateCache(); } catch (e) { logError("bank.invalidateCache", e); }
+      try { wallet.loadHistory(); } catch (e) { logError("bank.loadHistory", e); }
+      void ledgerApplied;
 
     } catch (err) {
       const msg = getErrorMessage(err);
       setVerifyError(msg); toast.error(msg);
-      await safeAddTopUpHistory({ userId: user.uid, userEmail: user.email, userName: userDisplay, amount: 0, transRef: "-", status: "failed", error: msg, createdAt: serverTimestamp() });
-      await logSlipVerification({ method: "bank", result: "failed", amount: 0, transRef: "-", errorMessage: msg, slipImage: bankSlip.slipImage });
+      // Use real slip data if we have it so failed attempts still show in logs
+      const failedAmount = verifyResult?.amount ?? 0;
+      const failedRef = verifyResult?.transRef ?? "-";
+      await safeAddTopUpHistory({ userId: user.uid, userEmail: user.email, userName: userDisplay, amount: failedAmount, transRef: failedRef, status: "failed", error: msg, createdAt: serverTimestamp(), method: "bank" });
+      await logSlipVerification({ method: "bank", result: "failed", amount: failedAmount, transRef: failedRef, errorMessage: msg, slipImage: bankSlip.slipImage });
       wallet.loadHistory();
     } finally {
       verifyLockRef.current = false;

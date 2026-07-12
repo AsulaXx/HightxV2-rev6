@@ -1,6 +1,8 @@
-import { Save, Columns, LayoutGrid, Eye, Monitor } from "lucide-react";
+import { useState } from "react";
+import { Save, Columns, LayoutGrid, Eye, Monitor, Sparkles } from "lucide-react";
 import { AdminTabProps } from "./AdminTabProps";
 import type { LayoutConfig } from "@/contexts/SiteSettingsContext";
+import AdminCardPreview from "./AdminCardPreview";
 
 const AdminLayoutTab = ({ form, setForm, handleSave }: AdminTabProps) => {
   const layoutForm = form.layout || {

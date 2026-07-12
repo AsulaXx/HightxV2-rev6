@@ -94,6 +94,8 @@ const AdminPage = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [subTabSheetOpen, setSubTabSheetOpen] = useState(false);
   const [slideDir, setSlideDir] = useState<"left" | "right" | null>(null);
+  const [menuQuery, setMenuQuery] = useState("");
+  const [collapsedCats, setCollapsedCats] = useState<Record<string, boolean>>({});
 
   const contentScrollRef = useRef<HTMLDivElement | null>(null);
   const subTabRefs = useRef<(HTMLButtonElement | null)[]>([]);

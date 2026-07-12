@@ -6,6 +6,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide Lovable badge */
+#lovable-badge,
+a[href*="lovable.dev"][target="_blank"],
+a[href*="lovable.app"][target="_blank"][class*="badge"],
+[data-lovable-badge],
+[id*="lovable"][class*="badge" i] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 @layer base {
   :root {
     --background: 240 10% 96%;

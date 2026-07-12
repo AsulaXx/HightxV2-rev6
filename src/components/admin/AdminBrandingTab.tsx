@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Save, Image, Eye, Trash2, Plus, LayoutGrid, Volume2, Sparkles } from "lucide-react";
 import AdminSection from "./AdminSection";
 import { AdminTabProps } from "./AdminTabProps";
+import ImageUploadField from "./ImageUploadField";
 import { type HeroBannerConfig, type TickerConfig } from "@/contexts/SiteSettingsContext";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";

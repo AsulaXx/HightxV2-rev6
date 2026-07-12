@@ -598,6 +598,16 @@ const TopUpPage = () => {
 
       await logActivity(user!, profile, "topup", `เติมเงินซองอั่งเปา ฿${amount.toLocaleString()} จาก ${ownerName} (Code: ${transRef.substring(0, 8)}...)`);
       await logSlipVerification({ method: "truewallet", result: "success", amount, transRef, senderName: ownerName, senderBank: "TrueWallet (ซอง)", receiverName: profile?.displayName || user?.email || "-", receiverBank: "TrueWallet" });
+
+      try {
+        await sendWebhook(settings, "topUp", [topUpTrueWalletSuccessEmbed({
+          userDisplay, ...webhookMeta, amount, creditAmount: voucherCredit,
+          feeEnabled: false, feePercent: 0,
+          transRef, senderName: ownerName, receiverName: slipData.receiver.name, receiverBank: "TrueWallet",
+          date: slipData.date, channel: "ซองอั่งเปา TrueWallet", brandName: settings.brandName,
+        })], topUpWebhookOptions("success", transRef));
+      } catch (err) { logError("voucher.successWebhook", err); }
+
       wallet.loadBalance(); invalidateCache(); wallet.loadHistory();
       toast.success(`เติมเงิน ฿${amount.toLocaleString()} สำเร็จ!`);
       addNotification("credit", "เติมเงินซองอั่งเปาสำเร็จ", `฿${amount.toLocaleString()}`, "/wallet");

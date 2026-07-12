@@ -356,7 +356,10 @@ export interface LayoutConfig {
   hubCols: { mobile: number; tablet: number; desktop: number };
   // Hide product duration options after N entries (0 = show all)
   productOptionsCollapseAfter?: number;
+  // Product card visual variant
+  productCardVariant?: "split" | "poster" | "compact";
 }
+
 
 export interface HeroBannerConfig {
   enabled: boolean;

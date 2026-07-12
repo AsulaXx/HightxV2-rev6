@@ -221,12 +221,12 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
      BUTTONS
      ═══════════════════════════════════════════ */
   .btn-gradient {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+    background: linear-gradient(135deg, var(--fx-grad-from) 0%, var(--fx-grad-to) 100%);
     @apply text-primary-foreground font-semibold rounded-xl transition-all duration-300;
-    box-shadow: 0 4px 20px hsl(var(--primary) / 0.3);
+    box-shadow: 0 4px 20px hsl(var(--primary) / calc(0.15 + 0.30 * var(--fx-glow)));
   }
   .btn-gradient:hover {
-    box-shadow: 0 8px 32px hsl(var(--primary) / 0.4);
+    box-shadow: 0 8px 32px hsl(var(--primary) / calc(0.20 + 0.40 * var(--fx-glow)));
     transform: translateY(-1px);
     filter: brightness(1.05);
   }

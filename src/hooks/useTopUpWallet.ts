@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { logError } from "@/lib/errorLogger";
+import { flushTopUpHistoryQueue } from "@/lib/topUpHistory";
 
 export interface TopUpRecord {
   id: string;

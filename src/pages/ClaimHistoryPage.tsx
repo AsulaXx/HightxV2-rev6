@@ -290,7 +290,13 @@ const ClaimHistoryPage = () => {
 
         {/* Ruizen Bypass UID claims */}
         {ruzienClaims.length > 0 && (() => {
+          const nowMs = Date.now();
           const filteredRuzien = ruzienClaims.filter((r: any) => {
+            // Hide expired Ruizen Bypass entries automatically
+            if (r.expires_at) {
+              const expMs = new Date(r.expires_at).getTime();
+              if (Number.isFinite(expMs) && expMs <= nowMs) return false;
+            }
             if (searchQuery) {
               const s = searchQuery.toLowerCase();
               if (!String(r.key || "").toLowerCase().includes(s)

@@ -211,8 +211,8 @@ const AdminThemeTab = ({ form, setForm, handleSave }: AdminTabProps) => {
           </div>
         </div>
         <div>
-          <label className="block text-xs font-semibold text-foreground mb-2">URL รูปพื้นหลัง</label>
-          <input type="url" value={form.theme?.backgroundImage || ""} onChange={(e) => setForm({ ...form, theme: { ...form.theme, backgroundImage: e.target.value } })} className="input-glass w-full px-4 py-3 text-sm" placeholder="https://..." />
+          <label className="block text-xs font-semibold text-foreground mb-2">รูปพื้นหลัง</label>
+          <ImageUploadField value={form.theme?.backgroundImage || ""} onChange={(url) => setForm({ ...form, theme: { ...form.theme, backgroundImage: url } })} folder="theme-bg" maxSizeMB={8} compact />
         </div>
         {form.theme?.backgroundImage && (
           <div className="rounded-xl overflow-hidden border border-border h-32 relative">

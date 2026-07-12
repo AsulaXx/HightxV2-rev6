@@ -397,6 +397,24 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    // ========== Consent Logs (PDPA/GDPR audit trail) ==========
+    // Users create their own accept records; only admins can read/list.
+
+    match /consentLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ========== Rate Limits (server-side) ==========
+    // Users may only touch their own bucket ({uid}_{action}). Admins can inspect.
+
+    match /rateLimits/{bucketId} {
+      allow read: if isSignedIn() && (bucketId.matches(request.auth.uid + '_.*') || isAdmin());
+      allow write: if isSignedIn() && bucketId.matches(request.auth.uid + '_.*');
+      allow delete: if isAdmin();
+    }
+
   }
 
 }

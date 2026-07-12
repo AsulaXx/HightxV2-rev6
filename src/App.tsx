@@ -21,6 +21,7 @@ import PageTransition from "@/components/PageTransition";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AnimatePresence } from "framer-motion";
 import AtomLoader from "@/components/AtomLoader";
+import ConsentGate from "@/components/ConsentGate";
 
 
 // Eagerly loaded (critical path)

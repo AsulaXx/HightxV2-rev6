@@ -169,16 +169,15 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
       transparent 45%
     );
   }
-  .glass-card-hover:hover::before { opacity: 1; }
+  .glass-card-hover:hover::before { opacity: 0; }
   .glass-card-hover:hover {
-    border-color: hsl(var(--primary) / calc(0.20 + 0.30 * var(--fx-glow)));
+    border-color: hsl(var(--border) / 0.5);
     box-shadow:
-      0 12px 60px hsl(var(--primary) / calc(0.10 + 0.30 * var(--fx-glow))),
-      0 0 0 1px hsl(var(--primary) / calc(0.05 + 0.15 * var(--fx-glow))),
-      inset 0 1px 0 hsl(0 0% 100% / 0.12),
-      0 30px 80px -20px hsl(var(--foreground) / 0.35);
-    transform: perspective(1200px) translateY(-6px) rotateX(var(--fx-tilt)) scale(1.012);
+      inset 0 1px 0 hsl(0 0% 100% / 0.08),
+      0 12px 30px -18px hsl(var(--foreground) / 0.25);
+    transform: translateY(-2px);
   }
+
 
   .glass-panel {
     background: linear-gradient(160deg, hsl(var(--card) / 0.5) 0%, hsl(var(--card) / 0.28) 100%);
@@ -455,22 +454,20 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
      ═══════════════════════════════════════════ */
   .perspective-scene { perspective: 1400px; perspective-origin: 50% 30%; }
   .card-3d {
-    transform-style: preserve-3d;
-    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.6s ease;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: transform;
   }
   .card-3d:hover {
-    transform: perspective(1200px) rotateX(4deg) rotateY(-4deg) translateZ(12px);
+    transform: translateY(-2px);
   }
   .depth-lift {
-    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
   }
   .depth-lift:hover {
-    transform: translateY(-4px);
-    box-shadow:
-      0 24px 60px -20px hsl(var(--primary) / 0.25),
-      0 0 0 1px hsl(var(--primary) / 0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -14px hsl(var(--foreground) / 0.20);
   }
+
 
   /* Soft floating animation for hero elements */
   .float-soft { animation: floatSoft 6s ease-in-out infinite; }

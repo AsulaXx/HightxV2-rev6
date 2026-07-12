@@ -718,7 +718,7 @@ const GlobalCartPanel = () => {
                       initial={{ opacity: 0, scale: 0.96 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.15 }}
-                      className="relative overflow-hidden p-4 rounded-2xl border border-primary/25 shadow-xl shadow-primary/10"
+                      className="relative overflow-hidden p-4 rounded-2xl border border-primary/25"
                       style={{ background: "linear-gradient(135deg, hsl(var(--primary) / 0.12), hsl(var(--accent) / 0.08))" }}
                     >
                       <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-primary/15 blur-3xl pointer-events-none" />

@@ -176,7 +176,7 @@ const TopUpPage = () => {
         if (!dupSnap.empty) {
           const errMsg = "สลิปนี้เคยถูกใช้เติมเงินในระบบแล้ว (ตรวจพบโดยระบบภายใน)";
           setVerifyError(errMsg); toast.error("สลิปนี้เคยถูกใช้แล้ว!");
-          await addDoc(collection(db, "topUpHistory"), { userId: user.uid, userEmail: user.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "duplicate", slipData, createdAt: serverTimestamp(), method: "bank" });
+          await safeAddTopUpHistory({ userId: user.uid, userEmail: user.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "duplicate", slipData, createdAt: serverTimestamp(), method: "bank" });
           await logSlipVerification({ method: "bank", result: "duplicate", amount: slipData.amount, transRef: slipData.transRef, senderName: slipData.sender.name, senderBank: slipData.sender.bank, receiverName: slipData.receiver.name, receiverBank: slipData.receiver.bank, errorMessage: errMsg, slipImage: bankSlip.slipImage });
           await sendDuplicateWebhook("ระบบภายใน (Firestore)");
           await checkAndAutoBan(user.uid, userDisplay, errMsg);
@@ -232,7 +232,7 @@ const TopUpPage = () => {
         if (shouldReject && verificationErrors.length > 0) {
           const errMsg = `บัญชีปลายทางไม่ตรง — ${verificationErrors.join(' | ')} — โอนไปยัง ${slipData.receiver.bank} ${slipData.receiver.name} (${slipData.receiver.account})`;
           setVerifyError(errMsg); toast.error("❌ สลิปนี้ไม่ได้โอนเข้าบัญชีร้าน!");
-          await addDoc(collection(db, "topUpHistory"), { userId: user.uid, userEmail: user.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "failed", error: errMsg, slipData, createdAt: serverTimestamp(), method: "bank" });
+          await safeAddTopUpHistory({ userId: user.uid, userEmail: user.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "failed", error: errMsg, slipData, createdAt: serverTimestamp(), method: "bank" });
           await logSlipVerification({ method: "bank", result: "failed", amount: slipData.amount, transRef: slipData.transRef, senderName: slipData.sender.name, senderBank: slipData.sender.bank, receiverName: slipData.receiver.name, receiverBank: slipData.receiver.bank, errorMessage: errMsg, slipImage: bankSlip.slipImage });
           try {
             await sendWebhook(settings, "topUp", [wrongAccountBankEmbed({
@@ -254,7 +254,7 @@ const TopUpPage = () => {
       // Check duplicate from Thunder API
       if (slipData.isDuplicate) {
         setVerifyError("สลิปนี้เคยถูกใช้แล้ว (Thunder API)"); toast.error("สลิปนี้เคยถูกใช้แล้ว");
-        await addDoc(collection(db, "topUpHistory"), { userId: user.uid, userEmail: user.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "duplicate", slipData, createdAt: serverTimestamp() });
+        await safeAddTopUpHistory({ userId: user.uid, userEmail: user.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "duplicate", slipData, createdAt: serverTimestamp() });
         await sendDuplicateWebhook("Thunder API");
         await logSlipVerification({ method: "bank", result: "duplicate", amount: slipData.amount, transRef: slipData.transRef, senderName: slipData.sender.name, senderBank: slipData.sender.bank, receiverName: slipData.receiver.name, receiverBank: slipData.receiver.bank, slipImage: bankSlip.slipImage });
         wallet.loadHistory(); return;
@@ -275,14 +275,14 @@ const TopUpPage = () => {
         if (e?.code === "DUPLICATE_REF" || e?.message === "DUPLICATE_REF") {
           const errMsg = "สลิปนี้เคยถูกใช้เติมเงินแล้ว (atomic guard)";
           setVerifyError(errMsg); toast.error("สลิปนี้เคยถูกใช้แล้ว!");
-          await addDoc(collection(db, "topUpHistory"), { userId: user.uid, userEmail: user.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "duplicate", slipData, createdAt: serverTimestamp(), method: "bank" });
+          await safeAddTopUpHistory({ userId: user.uid, userEmail: user.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "duplicate", slipData, createdAt: serverTimestamp(), method: "bank" });
           await sendDuplicateWebhook("Atomic guard");
           wallet.loadHistory(); return;
         }
         throw e;
       }
 
-      await addDoc(collection(db, "topUpHistory"), { userId: user.uid, userEmail: user.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "success", slipData, attemptId: bankAttemptId, createdAt: serverTimestamp(), method: "bank" });
+      await safeAddTopUpHistory({ userId: user.uid, userEmail: user.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "success", slipData, attemptId: bankAttemptId, createdAt: serverTimestamp(), method: "bank" });
       await logActivity(user, profile, "topup", `เติมเงิน ฿${slipData.amount.toLocaleString()} (Ref: ${slipData.transRef})`);
 
       try {
@@ -305,7 +305,7 @@ const TopUpPage = () => {
     } catch (err) {
       const msg = getErrorMessage(err);
       setVerifyError(msg); toast.error(msg);
-      await addDoc(collection(db, "topUpHistory"), { userId: user.uid, userEmail: user.email, userName: userDisplay, amount: 0, transRef: "-", status: "failed", error: msg, createdAt: serverTimestamp() });
+      await safeAddTopUpHistory({ userId: user.uid, userEmail: user.email, userName: userDisplay, amount: 0, transRef: "-", status: "failed", error: msg, createdAt: serverTimestamp() });
       await logSlipVerification({ method: "bank", result: "failed", amount: 0, transRef: "-", errorMessage: msg, slipImage: bankSlip.slipImage });
       wallet.loadHistory();
     } finally {
@@ -368,7 +368,7 @@ const TopUpPage = () => {
         if (!dupSnap.empty) {
           const errMsg = "สลิปนี้เคยถูกใช้เติมเงินในระบบแล้ว (ตรวจพบโดยระบบภายใน)";
           setVerifyError(errMsg); toast.error("สลิปนี้เคยถูกใช้แล้ว!");
-          await addDoc(collection(db, "topUpHistory"), { userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "duplicate", slipData, createdAt: serverTimestamp(), method: "truewallet" });
+          await safeAddTopUpHistory({ userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "duplicate", slipData, createdAt: serverTimestamp(), method: "truewallet" });
           await logSlipVerification({ method: "truewallet", result: "duplicate", amount: slipData.amount, transRef: slipData.transRef, senderName: slipData.sender.name, senderBank: slipData.sender.bank, errorMessage: errMsg, slipImage: truewalletSlip.slipImage });
           try { await sendWebhook(settings, "topUp", [duplicateSlipEmbed({ userDisplay, amount: slipData.amount, transRef: slipData.transRef, channel: "TrueWallet", source: "ระบบภายใน (Firestore)", brandName: settings.brandName, slipAttachmentName: truewalletSlipAttachment?.name })], truewalletSlipAttachment ? { attachments: [truewalletSlipAttachment] } : {}); } catch (e) { logError("tw.dupWebhook", e); }
           await checkAndAutoBan(user!.uid, userDisplay, errMsg);
@@ -385,7 +385,7 @@ const TopUpPage = () => {
         if (!phoneMatch) {
           const errMsg = `เบอร์ TrueWallet ปลายทางไม่ตรง (สลิป: ${receiverPhone || '-'}, ร้าน: ${configuredShopPhone})`;
           setVerifyError(errMsg); toast.error("❌ สลิปนี้ไม่ได้โอนเข้า TrueWallet ร้าน!");
-          await addDoc(collection(db, "topUpHistory"), { userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "failed", error: errMsg, slipData, createdAt: serverTimestamp(), method: "truewallet" });
+          await safeAddTopUpHistory({ userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "failed", error: errMsg, slipData, createdAt: serverTimestamp(), method: "truewallet" });
           await logSlipVerification({ method: "truewallet", result: "failed", amount: slipData.amount, transRef: slipData.transRef, senderName: slipData.sender.name, senderBank: slipData.sender.bank, receiverName: slipData.receiver.name, receiverBank: "TrueWallet", errorMessage: errMsg, slipImage: truewalletSlip.slipImage });
           try {
             await sendWebhook(settings, "topUp", [wrongAccountTrueWalletEmbed({
@@ -402,7 +402,7 @@ const TopUpPage = () => {
       // Thunder API duplicate
       if (slipData.isDuplicate) {
         setVerifyError("ลิงก์นี้เคยถูกใช้แล้ว (Thunder API)"); toast.error("ลิงก์นี้เคยถูกใช้แล้ว");
-        await addDoc(collection(db, "topUpHistory"), { userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "duplicate", slipData, createdAt: serverTimestamp(), method: "truewallet" });
+        await safeAddTopUpHistory({ userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "duplicate", slipData, createdAt: serverTimestamp(), method: "truewallet" });
         await logSlipVerification({ method: "truewallet", result: "duplicate", amount: slipData.amount, transRef: slipData.transRef, senderName: slipData.sender.name, senderBank: slipData.sender.bank, slipImage: truewalletSlip.slipImage });
         try { await sendWebhook(settings, "topUp", [duplicateSlipEmbed({ userDisplay, amount: slipData.amount, transRef: slipData.transRef, channel: "TrueWallet", source: "Thunder API", brandName: settings.brandName, slipAttachmentName: truewalletSlipAttachment?.name })], truewalletSlipAttachment ? { attachments: [truewalletSlipAttachment] } : {}); } catch (e) { logError("tw.thunderDupWebhook", e); }
         wallet.loadHistory(); return;
@@ -427,14 +427,14 @@ const TopUpPage = () => {
         if (e?.code === "DUPLICATE_REF" || e?.message === "DUPLICATE_REF") {
           const errMsg = "ลิงก์นี้เคยถูกใช้แล้ว (atomic guard)";
           setVerifyError(errMsg); toast.error("ลิงก์นี้เคยถูกใช้แล้ว!");
-          await addDoc(collection(db, "topUpHistory"), { userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "duplicate", slipData, createdAt: serverTimestamp(), method: "truewallet" });
+          await safeAddTopUpHistory({ userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "duplicate", slipData, createdAt: serverTimestamp(), method: "truewallet" });
           try { await sendWebhook(settings, "topUp", [duplicateSlipEmbed({ userDisplay, amount: slipData.amount, transRef: slipData.transRef, channel: "TrueWallet", source: "Atomic guard", brandName: settings.brandName, slipAttachmentName: truewalletSlipAttachment?.name })], truewalletSlipAttachment ? { attachments: [truewalletSlipAttachment] } : {}); } catch {}
           wallet.loadHistory(); return;
         }
         throw e;
       }
 
-      await addDoc(collection(db, "topUpHistory"), { userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: slipData.amount, creditAmount, transRef: slipData.transRef, status: "success", slipData, attemptId: twAttemptId, createdAt: serverTimestamp(), method: "truewallet" });
+      await safeAddTopUpHistory({ userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: slipData.amount, creditAmount, transRef: slipData.transRef, status: "success", slipData, attemptId: twAttemptId, createdAt: serverTimestamp(), method: "truewallet" });
       await logActivity(user!, profile, "topup", `เติมเงิน TrueWallet ฿${slipData.amount.toLocaleString()} (Ref: ${slipData.transRef})`);
 
       try {
@@ -457,7 +457,7 @@ const TopUpPage = () => {
     } catch (err) {
       const msg = getErrorMessage(err);
       setVerifyError(msg); toast.error(msg);
-      await addDoc(collection(db, "topUpHistory"), { userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: 0, transRef: "-", status: "failed", error: msg, createdAt: serverTimestamp(), method: "truewallet" });
+      await safeAddTopUpHistory({ userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: 0, transRef: "-", status: "failed", error: msg, createdAt: serverTimestamp(), method: "truewallet" });
       await logSlipVerification({ method: "truewallet", result: "failed", amount: 0, transRef: "-", errorMessage: msg, slipImage: truewalletSlip.slipImage });
       wallet.loadHistory();
     } finally {
@@ -487,13 +487,13 @@ const TopUpPage = () => {
     // Defensive history-write helper: never let a logging failure swallow the attempt
     const safeAddHistory = async (payload: any) => {
       try {
-        await addDoc(collection(db, "topUpHistory"), { ...payload, createdAt: serverTimestamp() });
+        await safeAddTopUpHistory({ ...payload, createdAt: serverTimestamp() });
       } catch (e) {
         logError("voucher.addHistory", e);
         // Retry once after short delay
         try {
           await new Promise(r => setTimeout(r, 800));
-          await addDoc(collection(db, "topUpHistory"), { ...payload, createdAt: serverTimestamp(), retryWrite: true });
+          await safeAddTopUpHistory({ ...payload, createdAt: serverTimestamp(), retryWrite: true });
         } catch (e2) { logError("voucher.addHistory.retry", e2); }
       }
     };
@@ -741,7 +741,7 @@ const TopUpPage = () => {
                     } else {
                       await setDoc(walletRef, { balance: amount, userId: user.uid, lastTopUp: serverTimestamp() });
                     }
-                    await addDoc(collection(db, "topUpHistory"), {
+                    await safeAddTopUpHistory({
                       userId: user.uid, userEmail: user.email, userName: userDisplay,
                       amount, transRef: `QR_${reference}`, status: "success", method: "qr", createdAt: serverTimestamp(),
                     });
@@ -826,7 +826,7 @@ const TopUpPage = () => {
                     meta: { attemptId: giftAttemptId, giftCodeId: result.id, code: result.code },
                   });
 
-                  await addDoc(collection(db, "topUpHistory"), { userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: result.amount, transRef: `GIFT_${result.code}`, status: "success", attemptId: giftAttemptId, createdAt: serverTimestamp(), method: "giftcode" });
+                  await safeAddTopUpHistory({ userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: result.amount, transRef: `GIFT_${result.code}`, status: "success", attemptId: giftAttemptId, createdAt: serverTimestamp(), method: "giftcode" });
                   await logActivity(user!, profile, "topup", `เติมเงิน Gift Code ฿${result.amount.toLocaleString()} (Code: ${result.code})`);
                   wallet.setBalance(prev => prev + result.amount);
                   toast.success(`เติมเงิน ฿${result.amount.toLocaleString()} สำเร็จ!`);
@@ -863,7 +863,7 @@ const TopUpPage = () => {
                     refId: reference, method: "qr",
                     meta: { attemptId: qrAttemptId, reference },
                   });
-                  await addDoc(collection(db, "topUpHistory"), {
+                  await safeAddTopUpHistory({
                     userId: user.uid, userEmail: user.email, userName: userDisplay,
                     amount, transRef: `QR_${reference}`, status: "success", method: "qr", attemptId: qrAttemptId, createdAt: serverTimestamp(),
                   });

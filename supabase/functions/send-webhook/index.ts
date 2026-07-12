@@ -215,7 +215,15 @@ function resolveUrls(urls: Record<string, any>, type: string): string[] {
     const fb = urls.discordWebhookUrl;
     if (typeof fb === "string" && fb.trim().startsWith("http")) out.push(fb.trim());
   }
-  return Array.from(new Set(out));
+  const resolved = Array.from(new Set(out));
+
+  // Top-up Discord notifications must be a single organized embed per event.
+  // If admins accidentally configured both a single URL and URL list (or multiple
+  // URLs pointing to the same channel), sending to all of them looks like a
+  // duplicate top-up alert in Discord.
+  if (type === "topUp") return resolved.slice(0, 1);
+
+  return resolved;
 }
 
 // ─── Discord payload + post with retry ───

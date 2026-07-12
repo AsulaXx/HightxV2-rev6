@@ -22,6 +22,76 @@ const meta = (brandName: string) => ({
   footer: { text: brandName },
 });
 
+const cleanText = (value?: unknown): string => {
+  const text = String(value ?? "").trim();
+  return text || "-";
+};
+
+const inlineCode = (value?: unknown): string => `\`${cleanText(value).replace(/`/g, "ˋ").slice(0, 900)}\``;
+
+const moneyText = (amount: number): string => `**฿${(Number(amount) || 0).toLocaleString()}**`;
+
+const extractEmail = (userDisplay?: string): string => {
+  const match = cleanText(userDisplay).match(/\(([^)]+@[^)]+)\)/);
+  return match?.[1] || "-";
+};
+
+const extractUserName = (userDisplay?: string): string => cleanText(userDisplay).replace(/\s*\([^)]*\)\s*$/, "") || "-";
+
+const formatTransferTime = (value?: string): string => {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString("th-TH", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+};
+
+const topUpAuthor = (brandName: string, label: string) => ({
+  author: { name: `${cleanText(brandName)} • ${label}` },
+});
+
+type ModernTopUpBase = {
+  userDisplay: string;
+  userName?: string;
+  userEmail?: string;
+  amount: number;
+  transRef: string;
+  channel?: string;
+  deviceInfo?: string;
+  senderBank?: string;
+  senderName?: string;
+  receiverBank?: string;
+  receiverName?: string;
+  date?: string;
+  transferAt?: string;
+};
+
+const modernTopUpFields = (p: ModernTopUpBase): NonNullable<WebhookEmbed["fields"]> => [
+  { name: "👤 USERNAME", value: inlineCode(p.userName || extractUserName(p.userDisplay)), inline: true },
+  { name: "📧 USER EMAIL", value: inlineCode(p.userEmail || extractEmail(p.userDisplay)), inline: true },
+  { name: "💵 จำนวนเงิน", value: moneyText(p.amount), inline: true },
+  { name: "🧾 REF", value: inlineCode(p.transRef), inline: true },
+  { name: "🌐 ช่องทาง", value: inlineCode(p.channel), inline: true },
+  { name: "📱 อุปกรณ์", value: inlineCode(p.deviceInfo), inline: true },
+  {
+    name: "💸 ชื่อคนโอน",
+    value: `${inlineCode(p.senderName)}${p.senderBank ? `\n${inlineCode(p.senderBank)}` : ""}`,
+    inline: true,
+  },
+  {
+    name: "🏪 ชื่อคนรับเงิน",
+    value: `${inlineCode(p.receiverName)}${p.receiverBank ? `\n${inlineCode(p.receiverBank)}` : ""}`,
+    inline: true,
+  },
+  { name: "🕒 เวลาที่โอน", value: inlineCode(formatTransferTime(p.transferAt || p.date)), inline: true },
+];
+
 const productImage = (imageUrl?: string) =>
   imageUrl?.trim() ? { thumbnail: { url: imageUrl.trim() } } : {};
 
@@ -58,6 +128,8 @@ export const isPiiMaskingEnabled = (settings: any): boolean =>
 
 export const topUpSuccessEmbed = (p: {
   userDisplay: string;
+  userName?: string;
+  userEmail?: string;
   amount: number;
   transRef: string;
   senderBank: string;
@@ -65,74 +137,96 @@ export const topUpSuccessEmbed = (p: {
   receiverBank: string;
   receiverName: string;
   date: string;
+  channel?: string;
+  deviceInfo?: string;
   brandName: string;
   slipAttachmentName?: string;
 }): WebhookEmbed => ({
-  title: "💰 เติมเงินสำเร็จ",
+  title: "✅ TOP-UP CONFIRMED",
+  description: "> รายการเติมเงินสำเร็จและเครดิตถูกบันทึกเข้าระบบแล้ว",
   color: WEBHOOK_COLORS.success,
-  fields: [
-    { name: "👤 ผู้ใช้", value: p.userDisplay, inline: true },
-    { name: "💵 จำนวน", value: `฿${p.amount.toLocaleString()}`, inline: true },
-    { name: "📝 Ref", value: `\`${p.transRef}\``, inline: true },
-    { name: "🏦 จาก", value: `${p.senderBank} - ${p.senderName}`, inline: true },
-    { name: "🏦 ไปยัง", value: `${p.receiverBank} - ${p.receiverName}`, inline: true },
-    { name: "📅 วันที่", value: p.date ? new Date(p.date).toLocaleString('th-TH') : '-', inline: true },
-  ],
+  fields: modernTopUpFields({ ...p, channel: p.channel || "สลิปธนาคาร" }),
   ...(p.slipAttachmentName ? { image: { url: `attachment://${p.slipAttachmentName}` } } : {}),
+  ...topUpAuthor(p.brandName, "Payment Monitor"),
   ...meta(p.brandName),
 });
 
 export const topUpTrueWalletSuccessEmbed = (p: {
   userDisplay: string;
+  userName?: string;
+  userEmail?: string;
   amount: number;
   creditAmount: number;
   feeEnabled: boolean;
   feePercent: number;
   transRef: string;
   senderName: string;
+  receiverName?: string;
+  receiverBank?: string;
+  date?: string;
+  channel?: string;
+  deviceInfo?: string;
   brandName: string;
   slipAttachmentName?: string;
 }): WebhookEmbed => ({
-  title: "💰 เติมเงิน TrueWallet สำเร็จ",
+  title: "✅ TRUEWALLET TOP-UP CONFIRMED",
+  description: "> รายการเติมเงิน TrueWallet สำเร็จและเครดิตถูกบันทึกเข้าระบบแล้ว",
   color: WEBHOOK_COLORS.orange,
   fields: [
-    { name: "👤 ผู้ใช้", value: p.userDisplay, inline: true },
-    { name: "💵 จำนวน", value: `฿${p.amount.toLocaleString()}`, inline: true },
-    { name: "💳 หลังหัก", value: p.feeEnabled ? `฿${p.creditAmount.toLocaleString()} (${p.feePercent}%)` : "ไม่หัก", inline: true },
-    { name: "📝 Ref", value: `\`${p.transRef}\``, inline: true },
-    { name: "📱 ช่องทาง", value: "TrueWallet", inline: true },
-    { name: "👤 ผู้ส่ง", value: p.senderName, inline: true },
+    ...modernTopUpFields({
+      ...p,
+      channel: p.channel || "TrueWallet",
+      senderBank: "TrueWallet",
+      receiverBank: p.receiverBank || "TrueWallet",
+      receiverName: p.receiverName || "-",
+    }),
+    { name: "💳 เครดิตเข้า", value: p.feeEnabled ? `${moneyText(p.creditAmount)}\n\`fee ${p.feePercent}%\`` : moneyText(p.creditAmount), inline: false },
   ],
   ...(p.slipAttachmentName ? { image: { url: `attachment://${p.slipAttachmentName}` } } : {}),
+  ...topUpAuthor(p.brandName, "Payment Monitor"),
   ...meta(p.brandName),
 });
 
 export const duplicateSlipEmbed = (p: {
   userDisplay: string;
+  userName?: string;
+  userEmail?: string;
   amount: number;
   transRef: string;
   channel: string;
   source: string;
   senderInfo?: string;
+  senderName?: string;
+  senderBank?: string;
+  receiverName?: string;
+  receiverBank?: string;
+  date?: string;
+  deviceInfo?: string;
   brandName: string;
   slipAttachmentName?: string;
 }): WebhookEmbed => ({
-  title: "⚠️ พยายามใช้สลิปซ้ำ!",
+  title: "⚠️ DUPLICATE TOP-UP DETECTED",
+  description: "> ตรวจพบรายการที่เคยถูกใช้งานแล้ว ระบบไม่เพิ่มเครดิตซ้ำ",
   color: WEBHOOK_COLORS.error,
   fields: [
-    { name: "👤 ผู้ใช้", value: p.userDisplay, inline: true },
-    { name: "💵 จำนวน", value: `฿${p.amount.toLocaleString()}`, inline: true },
-    { name: "📝 Ref", value: `\`${p.transRef}\``, inline: true },
-    ...(p.senderInfo ? [{ name: "🏦 จาก", value: p.senderInfo, inline: true }] : []),
-    { name: "📱 ช่องทาง", value: p.channel, inline: true },
-    { name: "🔍 ตรวจพบโดย", value: p.source, inline: true },
+    ...modernTopUpFields({
+      ...p,
+      senderName: p.senderName || p.senderInfo || "-",
+      senderBank: p.senderBank,
+      receiverName: p.receiverName,
+      receiverBank: p.receiverBank,
+    }),
+    { name: "🔍 ตรวจพบโดย", value: inlineCode(p.source), inline: false },
   ],
   ...(p.slipAttachmentName ? { image: { url: `attachment://${p.slipAttachmentName}` } } : {}),
+  ...topUpAuthor(p.brandName, "Duplicate Guard"),
   ...meta(p.brandName),
 });
 
 export const wrongAccountBankEmbed = (p: {
   userDisplay: string;
+  userName?: string;
+  userEmail?: string;
   amount: number;
   transRef: string;
   senderBank: string;
@@ -140,49 +234,61 @@ export const wrongAccountBankEmbed = (p: {
   receiverBank: string;
   receiverName: string;
   receiverAccount: string;
+  channel?: string;
+  date?: string;
+  deviceInfo?: string;
   reasons: string[];
   thunderMatch: string;
   localAccounts?: string;
   brandName: string;
   slipAttachmentName?: string;
 }): WebhookEmbed => ({
-  title: "🚨 สลิปบัญชีปลายทางไม่ตรง!",
+  title: "🚨 WRONG RECEIVER ACCOUNT",
+  description: "> ระบบปฏิเสธรายการนี้เพราะบัญชีปลายทางไม่ตรงกับบัญชีร้าน",
   color: WEBHOOK_COLORS.ban,
   fields: [
-    { name: "👤 ผู้ใช้", value: p.userDisplay, inline: true },
-    { name: "💵 จำนวน", value: `฿${p.amount.toLocaleString()}`, inline: true },
-    { name: "📝 Ref", value: `\`${p.transRef}\``, inline: true },
-    { name: "🏦 จาก", value: `${p.senderBank} - ${p.senderName}`, inline: true },
-    { name: "🏦 โอนไปยัง", value: `${p.receiverBank} - ${p.receiverName} (${p.receiverAccount})`, inline: false },
-    { name: "⚠️ สาเหตุ", value: p.reasons.join('\n').slice(0, 500), inline: false },
-    { name: "🔒 Thunder Match", value: p.thunderMatch, inline: true },
-    ...(p.localAccounts ? [{ name: "🔒 บัญชีร้าน (Local)", value: p.localAccounts, inline: true }] : []),
+    ...modernTopUpFields({ ...p, channel: p.channel || "สลิปธนาคาร" }),
+    { name: "🏦 เลขบัญชีปลายทาง", value: inlineCode(p.receiverAccount), inline: true },
+    { name: "⚠️ สาเหตุ", value: `\`\`\`text\n${p.reasons.join('\n').slice(0, 700)}\n\`\`\``, inline: false },
+    { name: "🔒 Thunder Match", value: inlineCode(p.thunderMatch), inline: true },
+    ...(p.localAccounts ? [{ name: "🔒 บัญชีร้าน (Local)", value: inlineCode(p.localAccounts), inline: true }] : []),
   ],
   ...(p.slipAttachmentName ? { image: { url: `attachment://${p.slipAttachmentName}` } } : {}),
+  ...topUpAuthor(p.brandName, "Receiver Guard"),
   ...meta(p.brandName),
 });
 
 export const wrongAccountTrueWalletEmbed = (p: {
   userDisplay: string;
+  userName?: string;
+  userEmail?: string;
   amount: number;
   transRef: string;
   senderName: string;
+  receiverName?: string;
   receiverPhone: string;
   shopPhone: string;
+  date?: string;
+  deviceInfo?: string;
   brandName: string;
   slipAttachmentName?: string;
 }): WebhookEmbed => ({
-  title: "🚨 สลิป TrueWallet บัญชีปลายทางไม่ตรง!",
+  title: "🚨 WRONG TRUEWALLET RECEIVER",
+  description: "> ระบบปฏิเสธรายการนี้เพราะเบอร์ TrueWallet ปลายทางไม่ตรงกับเบอร์ร้าน",
   color: WEBHOOK_COLORS.ban,
   fields: [
-    { name: "👤 ผู้ใช้", value: p.userDisplay, inline: true },
-    { name: "💵 จำนวน", value: `฿${p.amount.toLocaleString()}`, inline: true },
-    { name: "📝 Ref", value: `\`${p.transRef}\``, inline: true },
-    { name: "📱 จาก", value: p.senderName, inline: true },
-    { name: "📱 โอนไปเบอร์", value: p.receiverPhone, inline: true },
-    { name: "📱 เบอร์ร้าน", value: p.shopPhone, inline: true },
+    ...modernTopUpFields({
+      ...p,
+      channel: "TrueWallet",
+      senderBank: "TrueWallet",
+      receiverBank: "TrueWallet",
+      receiverName: p.receiverName || p.receiverPhone,
+    }),
+    { name: "📱 โอนไปเบอร์", value: inlineCode(p.receiverPhone), inline: true },
+    { name: "🏪 เบอร์ร้าน", value: inlineCode(p.shopPhone), inline: true },
   ],
   ...(p.slipAttachmentName ? { image: { url: `attachment://${p.slipAttachmentName}` } } : {}),
+  ...topUpAuthor(p.brandName, "Receiver Guard"),
   ...meta(p.brandName),
 });
 

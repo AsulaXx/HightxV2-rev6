@@ -245,6 +245,86 @@ const AdminBackup = ({ user, profile }: AdminBackupProps) => {
     }
   };
 
+  const downloadBlob = (content: string, filename: string, mime: string) => {
+    const blob = new Blob(["\uFEFF" + content], { type: `${mime};charset=utf-8;` });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const csvEscape = (v: any): string => {
+    if (v === null || v === undefined) return "";
+    if (typeof v === "object") {
+      if ((v as any).__type === "timestamp") v = (v as any).value;
+      else v = JSON.stringify(v);
+    }
+    const s = String(v);
+    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+
+  // Export CSV — full rows (all fields) per selected collection
+  const exportCSVFull = async () => {
+    if (selectedCollections.size === 0) { toast.error("กรุณาเลือกข้อมูลที่ต้องการ Export"); return; }
+    setExporting(true);
+    setCsvModalOpen(false);
+    try {
+      const dateStr = new Date().toISOString().split("T")[0];
+      for (const col of selectedCollections) {
+        const data = await fetchCollectionData(col);
+        if (!data.length) continue;
+        const headers = Array.from(new Set(data.flatMap(d => Object.keys(d))));
+        const rows = [
+          headers.join(","),
+          ...data.map(row => headers.map(h => csvEscape((row as any)[h])).join(",")),
+        ];
+        downloadBlob(rows.join("\n"), `${col}-${dateStr}.csv`, "text/csv");
+      }
+      toast.success(`Export CSV สำเร็จ! (${selectedCollections.size} ไฟล์)`);
+      await logActivity(user, profile, "backup_export", `Export CSV (full): ${[...selectedCollections].join(", ")}`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Export ล้มเหลว: " + (err.message || "Unknown error"));
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  // Export CSV — keys only: one key string per line, from `keys` + `archivedKeys` (if selected)
+  const exportCSVKeysOnly = async () => {
+    setExporting(true);
+    setCsvModalOpen(false);
+    try {
+      const targets = [...selectedCollections].filter(c => c === "keys" || c === "archivedKeys");
+      if (!targets.length) { toast.error("ไม่ได้เลือก keys / archivedKeys"); return; }
+      const dateStr = new Date().toISOString().split("T")[0];
+      let totalKeys = 0;
+      for (const col of targets) {
+        const data = await fetchCollectionData(col);
+        const lines = data
+          .map((d: any) => d.key || d.value || d.keyValue)
+          .filter(Boolean);
+        if (!lines.length) continue;
+        totalKeys += lines.length;
+        downloadBlob(lines.join("\n"), `${col}-only-${dateStr}.txt`, "text/plain");
+      }
+      toast.success(`Export คีย์อย่างเดียวสำเร็จ! (${totalKeys} คีย์)`);
+      await logActivity(user, profile, "backup_export", `Export keys-only: ${targets.join(", ")} (${totalKeys})`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Export ล้มเหลว: " + (err.message || "Unknown error"));
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const openCsvModal = () => {
+    if (selectedCollections.size === 0) { toast.error("กรุณาเลือกข้อมูลที่ต้องการ Export"); return; }
+    setCsvModalOpen(true);
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;

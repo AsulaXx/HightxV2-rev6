@@ -5,40 +5,29 @@ import { doc, setDoc } from "firebase/firestore";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
-  Save, Plug, Loader2, Eye, EyeOff, Zap, Shield, Wallet,
-  CheckCircle2, XCircle, KeyRound, AlertCircle, Radio,
+  Save, Plug, Loader2, Eye, EyeOff, Zap, Wallet,
+  CheckCircle2, XCircle, KeyRound, AlertCircle, Radio, Shield,
 } from "lucide-react";
 
 
 interface ProviderCreds {
   thunder: { apiKey: string; enabled: boolean };
-  rdcw: { clientId: string; clientSecret: string; enabled: boolean };
-  slip2go: { apiKey: string; enabled: boolean };
   plernpay: { clientId: string; clientSecret: string; enabled: boolean };
-  truewallet: { apiUrl: string; enabled: boolean };
 }
 
 const DEFAULT: ProviderCreds = {
   thunder: { apiKey: "", enabled: true },
-  rdcw: { clientId: "", clientSecret: "", enabled: false },
-  slip2go: { apiKey: "", enabled: false },
   plernpay: { clientId: "", clientSecret: "", enabled: false },
-  truewallet: { apiUrl: "https://apiparkxd.pro/api/topup", enabled: true },
 };
 
 type ProviderKey = keyof ProviderCreds;
-
-const SLIP_GROUP: ProviderKey[] = ["thunder", "rdcw", "slip2go"];
 
 const META: Record<ProviderKey, {
   name: string; tag: string; color: string; icon: typeof Zap;
   desc: string; docs?: string;
 }> = {
-  thunder: { name: "Thunder", tag: "ตรวจสลิปธนาคาร + TrueWallet (รูป)", color: "from-amber-500 to-orange-500", icon: Zap, desc: "API ตรวจสอบสลิปด้วยรูปภาพ พร้อม Whitelist บัญชี", docs: "https://document.thunder.in.th" },
-  rdcw: { name: "RDCW", tag: "ตรวจสลิปธนาคาร (รูป + payload)", color: "from-blue-500 to-cyan-500", icon: Shield, desc: "ใช้ Basic Auth (Client ID/Secret) — ตรวจสลิปได้ทั้งรูปและ QR payload" },
-  slip2go: { name: "Slip2Go", tag: "ตรวจสลิปจาก QR payload", color: "from-emerald-500 to-teal-500", icon: KeyRound, desc: "ตรวจจาก QR payload ของสลิป (ไม่ใช่รูปภาพ)" },
+  thunder: { name: "Thunder", tag: "ตรวจสลิปธนาคาร + TrueWallet (รูป)", color: "from-amber-500 to-orange-500", icon: Zap, desc: "API ตรวจสอบสลิปด้วยรูปภาพ พร้อม Whitelist บัญชี (บังคับตรวจปลายทาง)", docs: "https://document.thunder.in.th" },
   plernpay: { name: "PlernPay", tag: "Payment Gateway (สร้าง QR + auto verify)", color: "from-violet-500 to-fuchsia-500", icon: Wallet, desc: "สร้าง PromptPay QR ให้ลูกค้าสแกน — ระบบยืนยันการชำระอัตโนมัติผ่าน webhook" },
-  truewallet: { name: "TrueWallet (อั่งเปา)", tag: "Endpoint รับซองอั่งเปา", color: "from-green-500 to-emerald-500", icon: Wallet, desc: "URL ของ API ที่ใช้รับซองอั่งเปา TrueWallet (compatible: apiparkxd)" },
 };
 
 export default function AdminTopUpProviders() {
@@ -63,16 +52,23 @@ export default function AdminTopUpProviders() {
 
   const saveConfig = async (next: ProviderCreds) => {
     const idToken = await getIdToken();
+    // Persist only supported providers (thunder + plernpay). Clear legacy fields.
+    const payload = {
+      thunder: next.thunder,
+      plernpay: next.plernpay,
+      rdcw: { clientId: "", clientSecret: "", enabled: false },
+      slip2go: { apiKey: "", enabled: false },
+      truewallet: { apiUrl: "", enabled: false },
+    };
     const { data, error } = await supabase.functions.invoke("topup-qr", {
-      body: { action: "save_config", idToken, config: next },
+      body: { action: "save_config", idToken, config: payload },
     });
     if (error) throw new Error(error.message);
     if (!data?.success) throw new Error(data?.error?.message || "save failed");
-    const activeSlip = SLIP_GROUP.find(k => next[k].enabled) || "thunder";
     try {
       await setDoc(doc(db, "settings", "site"), {
-        slipProvider: activeSlip,
-        truewalletProvider: next.thunder.enabled ? "thunder" : activeSlip,
+        slipProvider: "thunder",
+        truewalletProvider: "thunder",
         topUp: { qrProvider: "plernpay" },
       }, { merge: true });
     } catch (e) { console.warn("sync settings failed", e); }
@@ -83,7 +79,6 @@ export default function AdminTopUpProviders() {
     setLoading(true);
     setNeedsClaim(false);
     try {
-      // Check if owner exists
       const own = await supabase.functions.invoke("topup-qr", { body: { action: "has_owner" } });
       const o = own.data || {};
       setOwnerInfo({
@@ -103,11 +98,8 @@ export default function AdminTopUpProviders() {
       if (data?.success) {
         const d = (data.config || {}) as Partial<ProviderCreds>;
         setCreds({
-          thunder: { ...DEFAULT.thunder, ...(d.thunder || {}) },
-          rdcw: { ...DEFAULT.rdcw, ...(d.rdcw || {}) },
-          slip2go: { ...DEFAULT.slip2go, ...(d.slip2go || {}) },
+          thunder: { ...DEFAULT.thunder, ...(d.thunder || {}), enabled: true },
           plernpay: { ...DEFAULT.plernpay, ...(d.plernpay || {}) },
-          truewallet: { ...DEFAULT.truewallet, ...(d.truewallet || {}) },
         });
       } else {
         const msg = data?.error?.message || "";
@@ -142,18 +134,9 @@ export default function AdminTopUpProviders() {
   };
 
   const toggleEnabled = (k: ProviderKey) => {
-    setCreds(prev => {
-      const next = { ...prev } as ProviderCreds;
-      const turningOn = !prev[k].enabled;
-      if (SLIP_GROUP.includes(k)) {
-        SLIP_GROUP.forEach(g => {
-          (next as any)[g] = { ...prev[g], enabled: g === k ? turningOn : false };
-        });
-      } else {
-        (next as any)[k] = { ...prev[k], enabled: turningOn };
-      }
-      return next;
-    });
+    // Thunder is always on (single slip verifier)
+    if (k === "thunder") return;
+    setCreds(prev => ({ ...prev, [k]: { ...prev[k], enabled: !prev[k].enabled } }));
   };
 
   const handleSave = async () => {
@@ -172,7 +155,6 @@ export default function AdminTopUpProviders() {
     setTesting(provider);
     setResults(prev => ({ ...prev, [provider]: undefined }));
     try {
-      // Save first so edge function reads latest values
       await saveConfig(creds);
       const idToken = await getIdToken();
       const { data, error } = await supabase.functions.invoke("topup-qr", {
@@ -235,19 +217,6 @@ export default function AdminTopUpProviders() {
       fields: renderField("thunder", "apiKey", "API Key", true, creds.thunder.apiKey, (v) => update("thunder", { apiKey: v }), "Bearer token จาก Thunder dashboard"),
     },
     {
-      key: "rdcw",
-      fields: (
-        <div className="space-y-2">
-          {renderField("rdcw", "clientId", "Client ID", false, creds.rdcw.clientId, (v) => update("rdcw", { clientId: v }))}
-          {renderField("rdcw", "clientSecret", "Client Secret", true, creds.rdcw.clientSecret, (v) => update("rdcw", { clientSecret: v }))}
-        </div>
-      ),
-    },
-    {
-      key: "slip2go",
-      fields: renderField("slip2go", "apiKey", "API Key", true, creds.slip2go.apiKey, (v) => update("slip2go", { apiKey: v })),
-    },
-    {
       key: "plernpay",
       fields: (
         <div className="space-y-2">
@@ -255,10 +224,6 @@ export default function AdminTopUpProviders() {
           {renderField("plernpay", "clientSecret", "Client Secret", true, creds.plernpay.clientSecret, (v) => update("plernpay", { clientSecret: v }))}
         </div>
       ),
-    },
-    {
-      key: "truewallet",
-      fields: renderField("truewallet", "apiUrl", "API Endpoint URL", false, creds.truewallet.apiUrl, (v) => update("truewallet", { apiUrl: v }), "https://apiparkxd.pro/api/topup"),
     },
   ];
 
@@ -270,7 +235,7 @@ export default function AdminTopUpProviders() {
             <KeyRound size={16} className="text-primary" /> API Providers — ตั้งค่า Credentials
           </h3>
           <p className="text-xs text-muted-foreground mt-1">
-            กรอก API Key/Secret ของแต่ละผู้ให้บริการตรงนี้ — เก็บเข้ารหัสใน Firestore (เฉพาะ Owner เท่านั้นที่อ่าน/แก้ไขได้)
+            ใช้เฉพาะ <strong className="text-amber-500">Thunder</strong> (ตรวจสลิป) และ <strong className="text-violet-500">PlernPay</strong> (Payment Gateway) — ระบบซองอั่งเปาใช้ tw-angpao ไม่ต้องตั้งค่า API
           </p>
         </div>
         <div className="flex gap-2">
@@ -290,7 +255,7 @@ export default function AdminTopUpProviders() {
           <div className="flex items-start gap-2 min-w-0">
             <AlertCircle size={14} className="text-violet-400 mt-0.5 shrink-0" />
             <p className="text-[11px] text-foreground">
-              <strong className="text-violet-400">ยังไม่มีเจ้าของระบบ:</strong> กดปุ่มเพื่อยึดสิทธิ์ Owner — บัญชีนี้จะเป็นผู้ดูแลค่า API ระบบเติมเงินได้
+              <strong className="text-violet-400">ยังไม่มีเจ้าของระบบ:</strong> กดปุ่มเพื่อยึดสิทธิ์ Owner
             </p>
           </div>
           <button onClick={handleClaim} disabled={claiming} className="btn-primary px-3 py-1.5 text-[11px] flex items-center gap-1.5 disabled:opacity-50 shrink-0">
@@ -303,9 +268,7 @@ export default function AdminTopUpProviders() {
       {ownerInfo && ownerInfo.hasOwner && (() => {
         const isMe = ownerInfo.latestUid && auth.currentUser?.uid === ownerInfo.latestUid;
         const claimedAt = ownerInfo.latestClaimedAt ? new Date(ownerInfo.latestClaimedAt) : null;
-        const claimedStr = claimedAt
-          ? claimedAt.toLocaleString("th-TH", { dateStyle: "medium", timeStyle: "short" })
-          : "—";
+        const claimedStr = claimedAt ? claimedAt.toLocaleString("th-TH", { dateStyle: "medium", timeStyle: "short" }) : "—";
         const uidShort = ownerInfo.latestUid ? `${ownerInfo.latestUid.slice(0, 6)}…${ownerInfo.latestUid.slice(-4)}` : "—";
         return (
           <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20 flex-wrap">
@@ -331,9 +294,9 @@ export default function AdminTopUpProviders() {
       <div className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-500/5 border border-amber-500/20">
         <Radio size={13} className="text-amber-500 shrink-0" />
         <p className="text-[10px] text-muted-foreground">
-          <strong className="text-amber-500">ระบบสแกนสลิปแบบแนบรูป:</strong> เปิดใช้งานได้แค่ <strong>1 API</strong> เท่านั้น (Thunder / RDCW / Slip2Go) — กดเปิดตัวอื่น ตัวที่เปิดอยู่จะปิดอัตโนมัติ
+          <strong className="text-amber-500">Thunder</strong>: ใช้สำหรับตรวจสลิปธนาคาร + TrueWallet ทั้งหมด (มีระบบตรวจปลายทางบังคับ)
           <br />
-          <strong className="text-violet-500">ระบบสร้าง QR Code ตามจำนวนเงิน:</strong> ใช้ <strong>PlernPay</strong> เท่านั้น (เปิดการ์ด PlernPay ด้านล่างเพื่อใช้งาน)
+          <strong className="text-violet-500">PlernPay</strong>: ใช้สร้าง QR PromptPay อัตโนมัติ (ลูกค้าสแกน → เครดิตอัตโนมัติผ่าน webhook)
         </p>
       </div>
 
@@ -342,6 +305,7 @@ export default function AdminTopUpProviders() {
           const m = META[key];
           const Icon = m.icon;
           const result = results[key];
+          const isThunder = key === "thunder";
           return (
             <motion.div
               key={key}
@@ -359,14 +323,18 @@ export default function AdminTopUpProviders() {
                     <div className="min-w-0">
                       <h4 className="text-sm font-bold text-foreground truncate flex items-center gap-1.5">
                         {m.name}
-                        {creds[key].enabled && SLIP_GROUP.includes(key) && (
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">กำลังใช้งาน</span>
+                        {creds[key].enabled && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
+                            {isThunder ? "บังคับใช้" : "กำลังใช้งาน"}
+                          </span>
                         )}
                       </h4>
                       <p className="text-[10px] text-muted-foreground truncate">{m.tag}</p>
                     </div>
                   </div>
-                  <div className={`toggle-slider scale-75 ${creds[key].enabled ? "toggle-active" : ""}`} onClick={() => toggleEnabled(key)} />
+                  {!isThunder && (
+                    <div className={`toggle-slider scale-75 ${creds[key].enabled ? "toggle-active" : ""}`} onClick={() => toggleEnabled(key)} />
+                  )}
                 </div>
 
                 <p className="text-[10px] text-muted-foreground/80 leading-relaxed">{m.desc}</p>

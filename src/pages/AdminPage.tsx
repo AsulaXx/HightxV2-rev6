@@ -362,9 +362,6 @@ const AdminPage = () => {
                 <Megaphone size={13} /> ประกาศ
               </Link>
             )}
-            <div className="pt-3">
-              <AdminStatusWidget />
-            </div>
           </div>
         </aside>
 

@@ -38,6 +38,18 @@ const WalletHistoryPage = () => {
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [copiedRef, setCopiedRef] = useState<string | null>(null);
+
+  const copyRef = async (ref: string) => {
+    try {
+      await navigator.clipboard.writeText(ref);
+      setCopiedRef(ref);
+      toast.success("คัดลอก Ref แล้ว");
+      setTimeout(() => setCopiedRef(null), 1500);
+    } catch {
+      toast.error("คัดลอกไม่สำเร็จ");
+    }
+  };
 
   const loadTransactions = useCallback(async () => {
     if (!user) return;

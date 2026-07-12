@@ -944,6 +944,18 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
     document.documentElement.setAttribute("data-ui-version", "v1");
   }, [settings.uiVersion]);
 
+  // Apply 3D effect CSS variables (glow / tilt / gradient)
+  useEffect(() => {
+    const fx = settings.theme?.fx3d;
+    const root = document.documentElement;
+    const glow = Math.max(0, Math.min(100, fx?.glow ?? 55)) / 100;
+    const tilt = Math.max(0, Math.min(8, fx?.tilt ?? 3));
+    root.style.setProperty("--fx-glow", String(glow));
+    root.style.setProperty("--fx-tilt", `${tilt}deg`);
+    root.style.setProperty("--fx-grad-from", fx?.gradientFrom || "#6366f1");
+    root.style.setProperty("--fx-grad-to", fx?.gradientTo || "#a855f7");
+  }, [settings.theme?.fx3d]);
+
   // Apply OG meta tags from settings
   useEffect(() => {
     const setMeta = (property: string, content: string) => {

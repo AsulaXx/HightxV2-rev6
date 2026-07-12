@@ -5,7 +5,7 @@ import type { LayoutConfig } from "@/contexts/SiteSettingsContext";
 import AdminCardPreview from "./AdminCardPreview";
 
 const AdminLayoutTab = ({ form, setForm, handleSave }: AdminTabProps) => {
-  const layoutForm = form.layout || {
+  const layoutForm: LayoutConfig = form.layout || {
     categoryCols: { mobile: 2, tablet: 3, desktop: 4 },
     productCols: { mobile: 1, tablet: 2, desktop: 2 },
     featuredCols: { mobile: 2, tablet: 3, desktop: 4 },
@@ -16,7 +16,11 @@ const AdminLayoutTab = ({ form, setForm, handleSave }: AdminTabProps) => {
     productImageRatio: "3:2",
     maxWidth: "6xl",
     hubCols: { mobile: 1, tablet: 2, desktop: 3 },
-  } as LayoutConfig;
+    productCardVariant: "split",
+  };
+  const cardVariant = layoutForm.productCardVariant || "split";
+  const [previewStatus, setPreviewStatus] = useState<"available" | "updating" | "closed" | "oos">("available");
+
 
   const updateLayout = (updates: Partial<LayoutConfig>) => setForm({ ...form, layout: { ...layoutForm, ...updates } });
 

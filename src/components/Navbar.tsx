@@ -48,8 +48,16 @@ const Navbar = () => {
   const { settings } = useSiteSettings();
   const { balance, loading: walletLoading } = useWallet();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   const isMod = !!user && hasPermission("moderator");
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Centralized, reference-counted scroll lock (iOS-safe). See useScrollLock.
   useScrollLock(mobileMenuOpen);

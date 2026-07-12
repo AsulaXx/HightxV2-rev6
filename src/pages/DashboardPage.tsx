@@ -842,7 +842,7 @@ const DashboardPage = () => {
           <>
             {/* Low Stock Alerts */}
             {lowStockAlerts.length > 0 && (
-              <div className="mb-6 p-3 rounded-xl bg-destructive/10 border border-destructive/30">
+              <div className="mb-3 p-3 rounded-xl bg-destructive/10 border border-destructive/30">
                 <button onClick={toggleLowStock} className="w-full flex items-center justify-between">
                   <h3 className="text-sm font-bold text-destructive flex items-center gap-2">
                     <AlertTriangle size={16} /> แจ้งเตือน: คีย์ใกล้หมด! ({lowStockAlerts.length})

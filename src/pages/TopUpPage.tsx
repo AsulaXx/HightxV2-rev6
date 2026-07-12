@@ -37,6 +37,7 @@ import {
 import { useSlipFile } from "@/hooks/useSlipFile";
 import { useTopUpWallet, type TopUpRecord } from "@/hooks/useTopUpWallet";
 import { useTopUpHelpers } from "@/hooks/useTopUpHelpers";
+import { safeAddTopUpHistory, flushTopUpHistoryQueue } from "@/lib/topUpHistory";
 
 interface SlipData {
   transRef: string;

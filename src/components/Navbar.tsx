@@ -79,7 +79,7 @@ const Navbar = () => {
   return (
     <>
       <nav className={`nav-glass sticky top-0 z-50 transition-all duration-500 ease-out relative ${scrolled ? "shadow-lg shadow-primary/10" : ""}`}>
-        <div className={`max-w-[1720px] mx-auto px-4 sm:px-6 flex items-center justify-between gap-4 transition-all duration-500 ease-out ${scrolled ? "h-14" : "h-20"}`}>
+        <div className={`max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4 transition-all duration-500 ease-out ${scrolled ? "h-14" : "h-20"}`}>
           {/* Brand */}
           <Link to="/" className={`flex items-center gap-3 shrink-0 group rounded-xl ${FOCUS_RING}`}>
             <div className={`rounded-2xl overflow-hidden transition-all duration-500 ease-out group-hover:scale-110 group-hover:rotate-6 ring-1 ring-white/10 shadow-lg shadow-primary/10 ${scrolled ? "w-9 h-9" : "w-12 h-12"}`}>

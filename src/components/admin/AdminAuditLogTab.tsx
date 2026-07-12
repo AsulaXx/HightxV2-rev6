@@ -66,22 +66,28 @@ const AdminAuditLogTab = ({ form }: AdminTabProps) => {
       ) : filtered.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground text-sm">ไม่มีข้อมูล</div>
       ) : (
-        <div className="space-y-1.5">
-          {filtered.map((l: any) => {
-            const color = actionColors[l.action] || "bg-muted/20 text-muted-foreground";
-            return (
-              <div key={l.id} className="glass-card !p-3 flex items-start gap-3">
-                <div className="shrink-0 mt-0.5">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${color}`}>{l.action}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-foreground">{l.details || "-"}</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">{l.userName || l.userEmail || "ไม่ระบุ"}</p>
-                </div>
-                <span className="text-[10px] text-muted-foreground whitespace-nowrap shrink-0">{formatDate(l.timestamp)}</span>
-              </div>
-            );
-          })}
+        <div className="rounded-xl border border-border/30 bg-[#0a0e14] overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-2 border-b border-white/5 text-[10px] font-mono text-slate-500">
+            <span className="w-2 h-2 rounded-full bg-red-500/70" />
+            <span className="w-2 h-2 rounded-full bg-amber-500/70" />
+            <span className="w-2 h-2 rounded-full bg-emerald-500/70" />
+            <span className="ml-2">audit.log — {filtered.length} entries</span>
+          </div>
+          <pre className="max-h-[70vh] overflow-auto px-4 py-3 m-0 font-mono text-[11px] leading-relaxed text-slate-300 whitespace-pre-wrap break-words">
+{filtered.map((l: any) => {
+  const t = formatDate(l.timestamp);
+  const user = l.userName || l.userEmail || "system";
+  const action = (l.action || "unknown").padEnd(14, " ");
+  return (
+    <div key={l.id} className="hover:bg-white/5 px-1 -mx-1 rounded">
+      <span className="text-slate-500">[{t}]</span>{" "}
+      <span className="text-amber-400 font-bold">{action}</span>{" "}
+      <span className="text-cyan-400">{user}</span>
+      {l.details && <span className="text-slate-400"> — {l.details}</span>}
+    </div>
+  );
+})}
+          </pre>
         </div>
       )}
     </div>

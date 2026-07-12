@@ -522,7 +522,7 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
     100% { background-position: 200% 0; }
   }
   .animate-shimmer {
-    background: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.06), transparent);
+    background: linear-gradient(90deg, transparent, hsl(var(--muted-foreground) / 0.06), transparent);
     background-size: 200% 100%;
     animation: shimmer 3s ease-in-out infinite;
   }

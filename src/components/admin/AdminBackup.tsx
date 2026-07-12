@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Download, Upload, Database, Package, Users, Receipt, Settings, CheckCircle, AlertTriangle, FileJson, FileSpreadsheet, Loader2, Shield, Clock, RefreshCw, Timer } from "lucide-react";
+import { Download, Upload, Database, Package, Users, Receipt, Settings, CheckCircle, AlertTriangle, FileJson, FileSpreadsheet, FileText, Loader2, Shield, Clock, RefreshCw, Timer, Key as KeyIcon, X } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, doc, setDoc, writeBatch, serverTimestamp, getDoc } from "firebase/firestore";
 import { toast } from "sonner";
@@ -68,6 +68,7 @@ const AdminBackup = ({ user, profile }: AdminBackupProps) => {
   const [importPreview, setImportPreview] = useState<{ fileName: string; collections: { name: string; count: number }[] } | null>(null);
   const [importData, setImportData] = useState<Record<string, any[]> | null>(null);
   const [confirmText, setConfirmText] = useState("");
+  const [csvModalOpen, setCsvModalOpen] = useState(false);
 
   // Auto backup state
   const [autoBackupInterval, setAutoBackupInterval] = useState(0);
@@ -242,6 +243,86 @@ const AdminBackup = ({ user, profile }: AdminBackupProps) => {
     } finally {
       setExporting(false);
     }
+  };
+
+  const downloadBlob = (content: string, filename: string, mime: string) => {
+    const blob = new Blob(["\uFEFF" + content], { type: `${mime};charset=utf-8;` });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const csvEscape = (v: any): string => {
+    if (v === null || v === undefined) return "";
+    if (typeof v === "object") {
+      if ((v as any).__type === "timestamp") v = (v as any).value;
+      else v = JSON.stringify(v);
+    }
+    const s = String(v);
+    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+
+  // Export CSV — full rows (all fields) per selected collection
+  const exportCSVFull = async () => {
+    if (selectedCollections.size === 0) { toast.error("กรุณาเลือกข้อมูลที่ต้องการ Export"); return; }
+    setExporting(true);
+    setCsvModalOpen(false);
+    try {
+      const dateStr = new Date().toISOString().split("T")[0];
+      for (const col of selectedCollections) {
+        const data = await fetchCollectionData(col);
+        if (!data.length) continue;
+        const headers = Array.from(new Set(data.flatMap(d => Object.keys(d))));
+        const rows = [
+          headers.join(","),
+          ...data.map(row => headers.map(h => csvEscape((row as any)[h])).join(",")),
+        ];
+        downloadBlob(rows.join("\n"), `${col}-${dateStr}.csv`, "text/csv");
+      }
+      toast.success(`Export CSV สำเร็จ! (${selectedCollections.size} ไฟล์)`);
+      await logActivity(user, profile, "backup_export", `Export CSV (full): ${[...selectedCollections].join(", ")}`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Export ล้มเหลว: " + (err.message || "Unknown error"));
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  // Export CSV — keys only: one key string per line, from `keys` + `archivedKeys` (if selected)
+  const exportCSVKeysOnly = async () => {
+    setExporting(true);
+    setCsvModalOpen(false);
+    try {
+      const targets = [...selectedCollections].filter(c => c === "keys" || c === "archivedKeys");
+      if (!targets.length) { toast.error("ไม่ได้เลือก keys / archivedKeys"); return; }
+      const dateStr = new Date().toISOString().split("T")[0];
+      let totalKeys = 0;
+      for (const col of targets) {
+        const data = await fetchCollectionData(col);
+        const lines = data
+          .map((d: any) => d.key || d.value || d.keyValue)
+          .filter(Boolean);
+        if (!lines.length) continue;
+        totalKeys += lines.length;
+        downloadBlob(lines.join("\n"), `${col}-only-${dateStr}.txt`, "text/plain");
+      }
+      toast.success(`Export คีย์อย่างเดียวสำเร็จ! (${totalKeys} คีย์)`);
+      await logActivity(user, profile, "backup_export", `Export keys-only: ${targets.join(", ")} (${totalKeys})`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Export ล้มเหลว: " + (err.message || "Unknown error"));
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const openCsvModal = () => {
+    if (selectedCollections.size === 0) { toast.error("กรุณาเลือกข้อมูลที่ต้องการ Export"); return; }
+    setCsvModalOpen(true);
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -470,6 +551,14 @@ const AdminBackup = ({ user, profile }: AdminBackupProps) => {
             {exporting ? <Loader2 size={14} className="animate-spin" /> : <FileSpreadsheet size={14} className="text-emerald-400" />}
             Export Excel
           </button>
+          <button
+            onClick={openCsvModal}
+            disabled={exporting || selectedCollections.size === 0}
+            className="btn-glass px-4 py-2.5 text-xs flex items-center gap-2 disabled:opacity-40"
+          >
+            {exporting ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} className="text-amber-400" />}
+            Export CSV
+          </button>
         </div>
         {selectedCollections.size > 0 && (
           <p className="text-[10px] text-muted-foreground">
@@ -549,6 +638,75 @@ const AdminBackup = ({ user, profile }: AdminBackupProps) => {
           )}
         </AnimatePresence>
       </div>
+
+      {/* CSV Export Choice Modal */}
+      <AnimatePresence>
+        {csvModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => setCsvModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="glass-card !p-5 max-w-md w-full space-y-4 relative"
+            >
+              <button
+                onClick={() => setCsvModalOpen(false)}
+                className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
+              >
+                <X size={16} />
+              </button>
+              <div>
+                <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                  <FileText size={18} className="text-amber-400" /> เลือกรูปแบบ CSV
+                </h3>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  เลือกแล้ว {selectedCollections.size} คอลเลกชัน
+                </p>
+              </div>
+
+              <button
+                onClick={exportCSVKeysOnly}
+                disabled={
+                  ![...selectedCollections].some(c => c === "keys" || c === "archivedKeys")
+                }
+                className="w-full text-left p-4 rounded-xl border border-border/40 bg-card/50 hover:bg-primary/10 hover:border-primary/40 transition-all disabled:opacity-40 disabled:cursor-not-allowed group"
+              >
+                <div className="flex items-start gap-3">
+                  <KeyIcon size={18} className="text-amber-400 mt-0.5 shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-foreground">เฉพาะคีย์ (Keys Only)</p>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      1 คีย์ต่อบรรทัด — เหมาะกับ import กลับเข้าระบบ (ต้องเลือก keys หรือ archivedKeys)
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={exportCSVFull}
+                className="w-full text-left p-4 rounded-xl border border-border/40 bg-card/50 hover:bg-primary/10 hover:border-primary/40 transition-all group"
+              >
+                <div className="flex items-start gap-3">
+                  <FileText size={18} className="text-emerald-400 mt-0.5 shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-foreground">CSV ปกติ (ทุก field)</p>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      Export ทุก field เป็นตาราง CSV มาตรฐาน (1 ไฟล์/คอลเลกชัน) เปิดใน Excel ได้
+                    </p>
+                  </div>
+                </div>
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -6,7 +6,7 @@ import logo from "@/assets/logo.png";
 import { LogOut, LogIn, Home, User, ExternalLink, Menu, X, ShoppingBag, History, Wallet, Bell, Compass, Settings, ChevronDown, Shield } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useNotifications } from "@/components/NotificationPanel";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { prefetchRoute } from "@/lib/routePrefetch";

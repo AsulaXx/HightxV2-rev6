@@ -28,6 +28,14 @@ const AdminPermissionsTab = ({ form }: AdminTabProps) => {
     setEditPermissions(settings.permissions?.length ? settings.permissions : DEFAULT_PERMISSIONS_LIST);
     setEditRolePerms(settings.rolePermissions && Object.keys(settings.rolePermissions).length ? settings.rolePermissions : DEFAULT_ROLE_PERMISSIONS_MAP);
   }, [settings]);
+  const toggleAllForRole = (role: string) => {
+    setEditRolePerms((prev) => {
+      const current = prev[role] || [];
+      const allIds = editPermissions.map((p) => p.id);
+      const hasAll = allIds.every((id) => current.includes(id));
+      return { ...prev, [role]: hasAll ? [] : allIds };
+    });
+  };
 
   const toggleRolePermission = (role: string, permId: string) => {
     setEditRolePerms((prev) => {

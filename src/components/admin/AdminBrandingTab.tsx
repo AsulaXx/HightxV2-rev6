@@ -33,7 +33,6 @@ const AdminBrandingTab = ({ form, setForm, handleSave }: AdminTabProps) => {
           <label className="block text-sm font-semibold text-foreground mb-2">URL Logo</label>
           <ImageUploadField value={form.logoUrl || ""} onChange={(url) => setForm({ ...form, logoUrl: url })} folder="logo" previewClassName="w-10 h-10 rounded-xl object-contain border border-border shrink-0" />
         </div>
-        </div>
         <div>
           <label className="block text-sm font-semibold text-foreground mb-2">ขนาด Logo ({form.logoSize || 32}px)</label>
           <input type="range" min="16" max="64" step="2" value={form.logoSize || 32} onChange={(e) => setForm({ ...form, logoSize: parseInt(e.target.value) })} className="w-full accent-primary" />

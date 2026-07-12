@@ -389,7 +389,7 @@ interface MatchReceiverAccount {
   type: 'bank' | 'promptpay' | 'truewallet';
 }
 
-export type UIVersion = "v1" | "v2" | "v3";
+export type UIVersion = "v1";
 
 export interface RuzienBypassDuration {
   id: string;

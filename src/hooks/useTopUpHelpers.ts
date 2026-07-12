@@ -1,8 +1,6 @@
 import { useCallback } from "react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { sendWebhook } from "@/lib/webhookSender";
-import { autoBanEmbed } from "@/lib/webhookTemplates";
 import { logError } from "@/lib/errorLogger";
 import { query, where, getDocs, limit, updateDoc, doc } from "firebase/firestore";
 import { logActivity } from "@/lib/activityLogger";
@@ -20,13 +18,6 @@ interface SlipLogParams {
   errorMessage?: string;
   slipImage?: string | null;
 }
-
-const imageAttachment = (prefix: string, dataUrl?: string | null) => {
-  if (!dataUrl?.startsWith("data:image/")) return null;
-  const contentType = dataUrl.match(/^data:([^;]+);/)?.[1] || "image/png";
-  const ext = contentType.split("/")[1]?.replace("jpeg", "jpg") || "png";
-  return { name: `${prefix}-${Date.now()}.${ext}`, contentType, dataUrl };
-};
 
 /**
  * Hook for shared top-up helpers: slip verification logging, auto-ban, userDisplay
@@ -59,7 +50,6 @@ export const useTopUpHelpers = (
 
       // NOTE: Webhook แจ้งเตือนถูกส่งจาก call site (topUp channel) เพียงครั้งเดียว
       // เพื่อไม่ให้ Discord ได้รับ 2 ข้อความต่อ 1 event. ที่นี่บันทึกเฉพาะ Firestore log.
-      void imageAttachment; // keep helper referenced for future use
     } catch (err) {
       logError("logSlipVerification", err);
     }
@@ -99,21 +89,6 @@ export const useTopUpHelpers = (
         });
 
         await logActivity(user!, profile, "auto_ban", `แบนอัตโนมัติ: ${userName} | ${banReason}`);
-
-        try {
-          await sendWebhook(settings, "topUp", [
-            autoBanEmbed({
-              userName,
-              totalCount: recentFailures.length,
-              wrongCount,
-              dupCount,
-              lastReason: reason,
-              brandName: settings.brandName,
-            }),
-          ]);
-        } catch (err) {
-          logError("autoBan.webhook", err);
-        }
 
         const { toast } = await import("sonner");
         toast.error("บัญชีของคุณถูกระงับเนื่องจากพยายามใช้สลิปผิดพลาดหลายครั้ง");

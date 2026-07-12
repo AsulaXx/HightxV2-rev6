@@ -10,6 +10,8 @@ import { db } from "@/lib/firebase";
 import { collection, getDocs, query, orderBy, limit as fbLimit, getCountFromServer, where } from "firebase/firestore";
 import { cachedQuery, invalidateCache } from "@/lib/firestoreCache";
 import TypingText from "@/components/TypingText";
+import Reveal, { RevealGroup } from "@/components/Reveal";
+import { useMouseParallax } from "@/hooks/useMouseParallax";
 
 interface Announcement {
   id: string;
@@ -25,6 +27,7 @@ const Index = () => {
   const { settings } = useSiteSettings();
   const { user, hasPermission } = useAuth();
   const { layout, colsToStyle, spacingClass, gapClass, radiusClass, maxWidthClass, imageRatioClass, cardPaddingClass } = useLayoutConfig();
+  const heroRef = useMouseParallax<HTMLElement>();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [showAnnouncementPopup, setShowAnnouncementPopup] = useState(false);
   const [popupAnnouncement, setPopupAnnouncement] = useState<Announcement | null>(null);
@@ -199,14 +202,21 @@ const Index = () => {
 
       {/* Ticker is now a global component in App.tsx */}
 
-      {/* Hero Banner with Logo + Typing Text */}
+      {/* Hero Banner with Logo + Typing Text + 3D Parallax */}
       {settings.heroBanner?.enabled !== false && (
         <motion.section
+          ref={heroRef as any}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className={`${maxWidthClass()} mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-4 sm:pb-6`}
+          className={`parallax-scene relative ${maxWidthClass()} mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-4 sm:pb-6`}
         >
+          {/* Aurora backdrop that also parallaxes */}
+          <div
+            className="parallax-layer absolute inset-0 aurora-bg -z-10 rounded-[3rem] blur-2xl opacity-70"
+            style={{ ["--depth" as any]: 10 }}
+            aria-hidden
+          />
           <div className={`flex flex-col items-${settings.heroBanner?.textAlign || "center"} gap-4`}>
             {/* Logo */}
             {settings.heroBanner?.showLogo !== false && (
@@ -214,12 +224,14 @@ const Index = () => {
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.1, type: "spring", damping: 20 }}
+                className="parallax-layer float-soft"
+                style={{ ["--depth" as any]: 28 }}
               >
                 <img
                   src={settings.logoUrl || logo}
                   alt={settings.brandName}
                   style={{ height: `${settings.heroBanner?.logoSize || settings.logoSize || 48}px` }}
-                  className="object-contain drop-shadow-lg"
+                  className="object-contain drop-shadow-[0_10px_30px_hsl(var(--primary)/0.4)]"
                 />
               </motion.div>
             )}
@@ -230,7 +242,8 @@ const Index = () => {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className={`text-${settings.heroBanner?.textAlign || "center"} w-full`}
+                className={`parallax-layer text-${settings.heroBanner?.textAlign || "center"} w-full`}
+                style={{ ["--depth" as any]: 16 }}
               >
                 {(() => {
                   const isGradient = settings.heroBanner?.textColorMode === "gradient";
@@ -273,19 +286,14 @@ const Index = () => {
 
       {/* Stats Bar */}
       {(settings.homeSectionVisibility?.stats !== false) && (
-      <motion.section
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className={`${maxWidthClass()} mx-auto px-4 sm:px-6 ${spacingClass()}`}
-      >
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+      <section className={`${maxWidthClass()} mx-auto px-4 sm:px-6 ${spacingClass()}`}>
+        <RevealGroup step={90} className="grid grid-cols-3 gap-2 sm:gap-3">
           {[
             { icon: Users, label: "ผู้ใช้งาน", value: siteStats.users.toLocaleString(), unit: "คน" },
             { icon: BoxesIcon, label: "สต็อก", value: siteStats.stock.toLocaleString(), unit: "ชิ้น" },
             { icon: ShoppingCart, label: "ยอดขาย", value: siteStats.sales.toLocaleString(), unit: "ชิ้น" },
           ].map((stat) => (
-            <div key={stat.label} className={`glass-card flex items-center gap-2.5 sm:gap-3 !p-3 sm:!p-4 ${radiusClass()}`}>
+            <Reveal key={stat.label} className={`glass-card glass-card-hover flex items-center gap-2.5 sm:gap-3 !p-3 sm:!p-4 ${radiusClass()}`}>
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-muted/50 border border-border/30 flex items-center justify-center shrink-0">
                 <stat.icon size={16} className="text-muted-foreground sm:w-5 sm:h-5" />
               </div>
@@ -293,10 +301,10 @@ const Index = () => {
                 <p className="text-[10px] sm:text-xs text-muted-foreground/60 leading-tight">{stat.label}</p>
                 <p className="text-sm sm:text-base font-bold text-foreground leading-tight">{stat.value} <span className="text-[10px] sm:text-xs font-normal text-muted-foreground">{stat.unit}</span></p>
               </div>
-            </div>
+            </Reveal>
           ))}
-        </div>
-      </motion.section>
+        </RevealGroup>
+      </section>
       )}
 
 

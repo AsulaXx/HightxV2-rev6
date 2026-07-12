@@ -104,6 +104,12 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
 
     --glow-1: 245 80% 68%;
     --glow-2: 270 70% 68%;
+
+    /* 3D FX defaults (overridden by SiteSettings) */
+    --fx-glow: 0.55;
+    --fx-tilt: 3deg;
+    --fx-grad-from: #6366f1;
+    --fx-grad-to: #a855f7;
   }
 }
 
@@ -165,13 +171,13 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
   }
   .glass-card-hover:hover::before { opacity: 1; }
   .glass-card-hover:hover {
-    border-color: hsl(var(--primary) / 0.35);
+    border-color: hsl(var(--primary) / calc(0.20 + 0.30 * var(--fx-glow)));
     box-shadow:
-      0 12px 60px hsl(var(--primary) / 0.18),
-      0 0 0 1px hsl(var(--primary) / 0.10),
+      0 12px 60px hsl(var(--primary) / calc(0.10 + 0.30 * var(--fx-glow))),
+      0 0 0 1px hsl(var(--primary) / calc(0.05 + 0.15 * var(--fx-glow))),
       inset 0 1px 0 hsl(0 0% 100% / 0.12),
       0 30px 80px -20px hsl(var(--foreground) / 0.35);
-    transform: perspective(1200px) translateY(-6px) rotateX(2deg) scale(1.012);
+    transform: perspective(1200px) translateY(-6px) rotateX(var(--fx-tilt)) scale(1.012);
   }
 
   .glass-panel {
@@ -198,7 +204,7 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
      GRADIENT TEXT
      ═══════════════════════════════════════════ */
   .gradient-text {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+    background: linear-gradient(135deg, var(--fx-grad-from) 0%, var(--fx-grad-to) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -215,12 +221,12 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
      BUTTONS
      ═══════════════════════════════════════════ */
   .btn-gradient {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+    background: linear-gradient(135deg, var(--fx-grad-from) 0%, var(--fx-grad-to) 100%);
     @apply text-primary-foreground font-semibold rounded-xl transition-all duration-300;
-    box-shadow: 0 4px 20px hsl(var(--primary) / 0.3);
+    box-shadow: 0 4px 20px hsl(var(--primary) / calc(0.15 + 0.30 * var(--fx-glow)));
   }
   .btn-gradient:hover {
-    box-shadow: 0 8px 32px hsl(var(--primary) / 0.4);
+    box-shadow: 0 8px 32px hsl(var(--primary) / calc(0.20 + 0.40 * var(--fx-glow)));
     transform: translateY(-1px);
     filter: brightness(1.05);
   }
@@ -586,4 +592,49 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
     to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
   }
   .animate-fade-slide-up { animation: fadeSlideUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+
+  /* Reveal on scroll — driven by IntersectionObserver + data-visible attr */
+  .reveal {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0) scale(0.985);
+    transition:
+      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+  .reveal[data-visible="true"] {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  /* Hero mouse parallax — depends on --px / --py on the wrapper */
+  .parallax-scene { perspective: 1200px; }
+  .parallax-layer {
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    transform:
+      translate3d(
+        calc(var(--px, 0) * var(--depth, 20) * 1px),
+        calc(var(--py, 0) * var(--depth, 20) * 1px),
+        0
+      )
+      rotateX(calc(var(--py, 0) * -3deg))
+      rotateY(calc(var(--px, 0) * 3deg));
+    will-change: transform;
+  }
+}
+
+/* Global reduced-motion — kills heavy animations and disables transforms */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .parallax-layer { transform: none !important; }
+  .float-soft, .float-soft-delay,
+  .animate-glow-pulse, .animate-subtle-rotate { animation: none !important; }
+  .glass-card-hover:hover { transform: none !important; }
 }

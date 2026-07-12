@@ -17,6 +17,17 @@ export interface ParticlesConfig {
   linkDistance: number;
 }
 
+export interface Theme3DConfig {
+  /** 0-100 — ความแรงของ glow บนการ์ด/ปุ่ม */
+  glow: number;
+  /** 0-8 (deg) — องศาเอียง 3D บน hover */
+  tilt: number;
+  /** hex — สี gradient หลัก (from) */
+  gradientFrom: string;
+  /** hex — สี gradient หลัก (to) */
+  gradientTo: string;
+}
+
 interface ThemeSettings {
   primaryColor: string;
   secondaryColor: string;
@@ -29,6 +40,7 @@ interface ThemeSettings {
   particles?: ParticlesConfig;
   fontHeading?: string;
   fontBody?: string;
+  fx3d?: Theme3DConfig;
 }
 
 export interface SocialLink {
@@ -528,6 +540,12 @@ const defaultTheme: ThemeSettings = {
   backgroundBlur: 0,
   backgroundColor: "",
   backgroundLayerOrder: "image-on-top",
+  fx3d: {
+    glow: 55,
+    tilt: 3,
+    gradientFrom: "#6366f1",
+    gradientTo: "#a855f7",
+  },
 };
 
 const DEFAULT_PERMISSIONS: PermissionItem[] = [
@@ -925,6 +943,18 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
   useEffect(() => {
     document.documentElement.setAttribute("data-ui-version", "v1");
   }, [settings.uiVersion]);
+
+  // Apply 3D effect CSS variables (glow / tilt / gradient)
+  useEffect(() => {
+    const fx = settings.theme?.fx3d;
+    const root = document.documentElement;
+    const glow = Math.max(0, Math.min(100, fx?.glow ?? 55)) / 100;
+    const tilt = Math.max(0, Math.min(8, fx?.tilt ?? 3));
+    root.style.setProperty("--fx-glow", String(glow));
+    root.style.setProperty("--fx-tilt", `${tilt}deg`);
+    root.style.setProperty("--fx-grad-from", fx?.gradientFrom || "#6366f1");
+    root.style.setProperty("--fx-grad-to", fx?.gradientTo || "#a855f7");
+  }, [settings.theme?.fx3d]);
 
   // Apply OG meta tags from settings
   useEffect(() => {

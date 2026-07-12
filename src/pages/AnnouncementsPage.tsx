@@ -6,6 +6,7 @@ import { useSiteSettings, roleHasPermission } from "@/contexts/SiteSettingsConte
 import { Megaphone, Plus, Trash2, Save, Pin } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, addDoc, deleteDoc, doc, query, orderBy, serverTimestamp } from "firebase/firestore";
+import ImageUploadField from "@/components/admin/ImageUploadField";
 import { toast } from "sonner";
 import { logActivity } from "@/lib/activityLogger";
 

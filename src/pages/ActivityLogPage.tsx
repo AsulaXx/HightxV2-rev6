@@ -239,35 +239,29 @@ const ActivityLogPage = () => {
             <p className="text-muted-foreground">ยังไม่มีบันทึกกิจกรรม</p>
           </div>
         ) : (
-          <div className="space-y-2">
-            {filteredLogs.map((log, i) => {
-              const actionInfo = ACTION_LABELS[log.action] || { label: log.action, color: "text-muted-foreground" };
-              const ActionIcon = ACTION_ICONS[log.action] || ClipboardList;
-              return (
-                <motion.div
-                  key={log.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: Math.min(i * 0.02, 0.5) }}
-                  className="glass-card !p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-2"
-                >
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                      <ActionIcon size={16} className={actionInfo.color} />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`text-xs font-bold ${actionInfo.color}`}>{actionInfo.label}</span>
-                        <span className="text-xs text-muted-foreground">โดย {log.userName || log.userEmail}</span>
-                        {log.ip && log.ip !== "Unknown" && <IpGeoTag ip={log.ip} masked={!canSeeFullIp} />}
-                      </div>
-                      {log.details && <p className="text-xs text-muted-foreground mt-0.5 truncate">{log.details}</p>}
-                    </div>
+          <div className="rounded-xl border border-border/30 bg-[#0a0e14] overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-2 border-b border-white/5 text-[10px] font-mono text-slate-500">
+              <span className="w-2 h-2 rounded-full bg-red-500/70" />
+              <span className="w-2 h-2 rounded-full bg-amber-500/70" />
+              <span className="w-2 h-2 rounded-full bg-emerald-500/70" />
+              <span className="ml-2">activity.log — {filteredLogs.length} entries</span>
+            </div>
+            <div className="max-h-[75vh] overflow-auto px-4 py-3 font-mono text-[11px] leading-relaxed text-slate-300">
+              {filteredLogs.map((log) => {
+                const actionInfo = ACTION_LABELS[log.action] || { label: log.action, color: "text-slate-400" };
+                const user = log.userName || log.userEmail || "system";
+                const action = (log.action || "unknown").padEnd(16, " ");
+                return (
+                  <div key={log.id} className="hover:bg-white/5 px-1 -mx-1 rounded flex flex-wrap items-baseline gap-x-2 whitespace-pre-wrap break-words">
+                    <span className="text-slate-500">[{formatTimestamp(log.timestamp)}]</span>
+                    <span className={`font-bold ${actionInfo.color}`}>{action}</span>
+                    <span className="text-cyan-400">{user}</span>
+                    {log.ip && log.ip !== "Unknown" && <IpGeoTag ip={log.ip} masked={!canSeeFullIp} />}
+                    {log.details && <span className="text-slate-400">— {log.details}</span>}
                   </div>
-                  <span className="text-[10px] text-muted-foreground whitespace-nowrap">{formatTimestamp(log.timestamp)}</span>
-                </motion.div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         )}
       </motion.div>

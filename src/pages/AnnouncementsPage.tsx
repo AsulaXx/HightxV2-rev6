@@ -92,9 +92,8 @@ const AnnouncementsPage = () => {
               <textarea value={content} onChange={(e) => setContent(e.target.value)} className="input-glass w-full px-4 py-3 text-xs min-h-[100px] resize-y" placeholder="เนื้อหา..." />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-foreground mb-1.5">รูปภาพ (URL)</label>
-              <input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="input-glass w-full px-4 py-3 text-xs" placeholder="https://..." />
-              {imageUrl.trim() && <img src={imageUrl.trim()} alt="preview" className="mt-2 max-h-36 rounded-lg object-cover border border-border/30" onError={(e) => (e.currentTarget.style.display = 'none')} />}
+              <label className="block text-xs font-semibold text-foreground mb-1.5">รูปภาพ</label>
+              <ImageUploadField value={imageUrl} onChange={setImageUrl} folder="announcement" compact />
             </div>
             <div className="flex items-center cursor-pointer select-none gap-2" onClick={() => setPinned(!pinned)}>
               <div className={`toggle-slider ${pinned ? "toggle-active" : ""}`} />

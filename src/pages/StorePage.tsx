@@ -493,84 +493,113 @@ const StorePage = () => {
                 ? { label: "สินค้าหมด", Icon: PackageX, ring: "ring-slate-400/40", glow: "animate-unavail-glow-slate", iconAnim: "animate-unavail-bob", grad: "linear-gradient(135deg, hsl(215 20% 45% / 0.95), hsl(220 15% 30% / 0.95))", ribbon: "linear-gradient(90deg, hsl(215 20% 45% / 0.92), hsl(220 15% 30% / 0.92))", shine: "via-slate-200/30", msg: "สินค้าหมดชั่วคราว" }
                 : null;
               return (
-                <motion.div key={product.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className={`glass-card-hover overflow-hidden !p-0 group ${radiusClass()} cursor-pointer relative ${isUnavailable && statusMeta ? `ring-1 ${statusMeta.ring}` : ''}`} onClick={() => navigate(`/product/${product.id}`)}>
-                  {allLinkOnly ? (
-                    <div className="absolute top-2 right-2 z-20 px-1.5 py-0.5 rounded-full bg-sky-500/95 backdrop-blur-sm border border-sky-300/40 text-white flex items-center gap-1 shadow-sm pointer-events-none">
-                      <ExternalLink size={9} />
-                      <span className="text-[9px] font-bold leading-none tracking-wide">LINK</span>
-                    </div>
-                  ) : optionCount > 0 && (
-                    <div className="absolute top-2 right-2 z-20 px-1.5 py-0.5 rounded-full bg-background/85 backdrop-blur-sm border border-primary/30 text-primary flex items-center gap-1 shadow-sm pointer-events-none">
-                      {hasLink && <ExternalLink size={9} className="text-sky-400" />}
-                      <Layers size={9} />
-                      <span className="text-[9px] font-semibold leading-none">{optionCount} ตัวเลือก</span>
-                    </div>
-                  )}
-                  {product.imageUrl && layout.showProductImage !== false && (
-                    <div className={`overflow-hidden relative bg-muted/20 ${layout.productImageDisplay === "ratio" ? imageRatioClass() : "h-32 sm:h-36"}`}>
-                      <img src={product.thumbnailUrl || product.imageUrl} alt={product.name} loading="lazy" className={`w-full h-full ${layout.productImageFit === "contain" ? "object-contain p-2" : "object-cover"} group-hover:scale-105 transition-transform duration-700 ${isUnavailable ? 'grayscale-[70%] blur-[1px]' : ''}`} />
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 14, scale: 0.94 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ delay: i * 0.05, type: "spring", stiffness: 320, damping: 20, mass: 0.6 }}
+                  whileHover={{ y: -4, scale: 1.02, transition: { type: "spring", stiffness: 400, damping: 14 } }}
+                  whileTap={{ scale: 0.97, transition: { type: "spring", stiffness: 500, damping: 18 } }}
+                  className={`glass-card-hover overflow-hidden !p-0 group ${radiusClass()} cursor-pointer relative flex flex-row ${isUnavailable && statusMeta ? `ring-1 ${statusMeta.ring}` : ''}`}
+                  onClick={() => navigate(`/product/${product.id}`)}
+                >
+                  {/* LEFT: Image side (Split layout) */}
+                  {product.imageUrl && layout.showProductImage !== false ? (
+                    <div className="relative shrink-0 w-[38%] max-w-[160px] min-w-[110px] bg-gradient-to-br from-primary/10 via-muted/10 to-accent/10 overflow-hidden">
+                      <div className="absolute inset-0">
+                        <img
+                          src={product.thumbnailUrl || product.imageUrl}
+                          alt={product.name}
+                          loading="lazy"
+                          className={`w-full h-full ${layout.productImageFit === "contain" ? "object-contain p-2" : "object-cover"} transition-transform duration-500 ease-out group-hover:scale-110 group-hover:rotate-1 ${isUnavailable ? 'grayscale-[70%] blur-[1px]' : ''}`}
+                        />
+                      </div>
+                      {/* Right-edge fade into content */}
+                      <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-card/60 to-transparent pointer-events-none" />
+                      {allLinkOnly ? (
+                        <div className="absolute top-2 left-2 z-20 px-1.5 py-0.5 rounded-full bg-sky-500/95 backdrop-blur-sm border border-sky-300/40 text-white flex items-center gap-1 shadow-sm pointer-events-none">
+                          <ExternalLink size={9} />
+                          <span className="text-[9px] font-bold leading-none tracking-wide">LINK</span>
+                        </div>
+                      ) : optionCount > 0 && (
+                        <div className="absolute top-2 left-2 z-20 px-1.5 py-0.5 rounded-full bg-background/85 backdrop-blur-sm border border-primary/30 text-primary flex items-center gap-1 shadow-sm pointer-events-none">
+                          {hasLink && <ExternalLink size={9} className="text-sky-400" />}
+                          <Layers size={9} />
+                          <span className="text-[9px] font-semibold leading-none">{optionCount}</span>
+                        </div>
+                      )}
                       {isUnavailable && statusMeta && (
                         <>
-                          <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+                          <div className="absolute inset-0 bg-black/45 backdrop-blur-[1px]" />
                           <div className="absolute inset-0 overflow-hidden pointer-events-none">
                             <div className={`absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent ${statusMeta.shine} to-transparent animate-unavail-shine`} />
                           </div>
-                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
                             <div
-                              className={`relative flex items-center justify-center w-16 h-16 rounded-full text-white shadow-2xl ring-2 ring-white/30 backdrop-blur-sm animate-unavail-badge-pop ${statusMeta.glow}`}
+                              className={`relative flex items-center justify-center w-11 h-11 rounded-full text-white shadow-2xl ring-2 ring-white/30 backdrop-blur-sm animate-unavail-badge-pop ${statusMeta.glow}`}
                               style={{ background: statusMeta.grad }}
                             >
-                              <statusMeta.Icon size={36} strokeWidth={2.5} className={statusMeta.iconAnim} />
+                              <statusMeta.Icon size={22} strokeWidth={2.5} className={statusMeta.iconAnim} />
                             </div>
                             <span
-                              className="text-[10px] font-bold tracking-widest uppercase text-white px-2.5 py-0.5 rounded-full backdrop-blur-sm"
+                              className="text-[8px] font-bold tracking-widest uppercase text-white px-2 py-0.5 rounded-full backdrop-blur-sm"
                               style={{ background: statusMeta.grad }}
                             >{statusMeta.label}</span>
-                          </div>
-                          <div
-                            className="absolute bottom-0 inset-x-0 text-white text-[9px] font-medium py-1 px-2 text-center flex items-center justify-center gap-1"
-                            style={{ background: statusMeta.ribbon }}
-                          >
-                            <span className="truncate">{product.availabilityMessage || statusMeta.msg}</span>
                           </div>
                         </>
                       )}
                       {hasCooldownActive && !isUnavailable && (
-                        <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-background/80 backdrop-blur-sm border border-border/30 flex items-center gap-1">
+                        <div className="absolute bottom-2 left-2 px-1.5 py-0.5 rounded-full bg-background/85 backdrop-blur-sm border border-amber-400/30 flex items-center gap-1">
                           <Timer size={9} className="text-amber-400" />
-                          <span className="text-[9px] font-medium text-amber-400">Cooldown</span>
+                          <span className="text-[9px] font-medium text-amber-400">CD</span>
                         </div>
                       )}
                     </div>
+                  ) : (
+                    // No image → decorative gradient block so layout stays split
+                    <div className="relative shrink-0 w-[30%] max-w-[130px] min-w-[90px] bg-gradient-to-br from-primary/25 via-primary/10 to-accent/25 flex items-center justify-center">
+                      <ShoppingBag size={26} className="text-primary/70" />
+                    </div>
                   )}
-                  <div className="p-3.5">
-                    <h3 className="text-xs font-bold text-foreground">{product.name}</h3>
-                    {productRatings[product.id] && (
-                      <StarDisplay rating={productRatings[product.id].avg} count={productRatings[product.id].count} size={10} />
-                    )}
-                    {product.description && <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{product.description}</p>}
-                    {priceLabel && (
-                      <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20">
-                        <Coins size={10} className="text-primary" />
-                        <span className="text-[10px] font-bold text-primary">
-                          {priceLabel}
-                          {!allFree && <span className="ml-1 text-[9px] font-medium text-primary/70">เครดิต</span>}
-                        </span>
-                      </div>
-                    )}
-                    {isUnavailable && statusMeta && (
-                      <div className={`mt-2 px-2.5 py-1.5 rounded-lg text-[10px] font-medium flex items-center gap-1.5 ${status === "updating" ? "bg-amber-500/10 border border-amber-500/30 text-amber-500" : status === "closed" ? "bg-red-500/10 border border-red-500/30 text-red-400" : "bg-slate-500/10 border border-slate-400/30 text-slate-300"}`}>
-                        <statusMeta.Icon size={11} className={statusMeta.iconAnim === "animate-spin-slow" ? "animate-spin-slow" : ""} />
-                        <span className="truncate">{product.availabilityMessage || statusMeta.msg}</span>
-                      </div>
-                    )}
-                    <button
+
+                  {/* RIGHT: Content side */}
+                  <div className="flex-1 min-w-0 p-3.5 flex flex-col justify-between gap-2">
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-bold text-foreground leading-tight line-clamp-2">{product.name}</h3>
+                      {productRatings[product.id] && (
+                        <div className="mt-0.5">
+                          <StarDisplay rating={productRatings[product.id].avg} count={productRatings[product.id].count} size={10} />
+                        </div>
+                      )}
+                      {product.description && (
+                        <p className="text-[10px] text-muted-foreground mt-1 line-clamp-2 leading-relaxed">{product.description}</p>
+                      )}
+                      {priceLabel && (
+                        <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gradient-to-r from-primary/15 to-accent/15 border border-primary/25">
+                          <Coins size={10} className="text-primary" />
+                          <span className="text-[11px] font-bold text-primary">
+                            {priceLabel}
+                            {!allFree && <span className="ml-1 text-[9px] font-medium text-primary/70">เครดิต</span>}
+                          </span>
+                        </div>
+                      )}
+                      {isUnavailable && statusMeta && (
+                        <div className={`mt-2 px-2 py-1 rounded-lg text-[10px] font-medium flex items-center gap-1.5 ${status === "updating" ? "bg-amber-500/10 border border-amber-500/30 text-amber-500" : status === "closed" ? "bg-red-500/10 border border-red-500/30 text-red-400" : "bg-slate-500/10 border border-slate-400/30 text-slate-300"}`}>
+                          <statusMeta.Icon size={11} className={statusMeta.iconAnim === "animate-spin-slow" ? "animate-spin-slow" : ""} />
+                          <span className="truncate">{product.availabilityMessage || statusMeta.msg}</span>
+                        </div>
+                      )}
+                    </div>
+                    <motion.button
                       onClick={(e) => { e.stopPropagation(); navigate(`/product/${product.id}`); }}
-                      className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold text-primary hover:text-primary-foreground rounded-lg border border-primary/30 hover:bg-primary/90 hover:border-primary transition-all"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                      className="w-full flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold text-primary hover:text-primary-foreground rounded-lg border border-primary/30 hover:bg-primary/90 hover:border-primary transition-colors"
                     >
                       สั่งซื้อสินค้า
                       <ChevronDownIcon size={12} className="-rotate-90" />
-                    </button>
+                    </motion.button>
                   </div>
                 </motion.div>
               );

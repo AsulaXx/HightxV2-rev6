@@ -247,7 +247,7 @@ const Navbar = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-              className="lg:hidden fixed inset-x-0 top-16 bottom-0 bg-background/60 backdrop-blur-md z-40"
+              className={`lg:hidden fixed inset-x-0 bottom-0 bg-background/60 backdrop-blur-md z-40 ${scrolled ? "top-12" : "top-16"}`}
               onClick={() => setMobileMenuOpen(false)}
             />
             <motion.div

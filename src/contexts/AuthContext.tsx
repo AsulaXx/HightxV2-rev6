@@ -203,7 +203,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
            pendingLoginWebhookRef.current = false;
          }
          setUser(firebaseUser);
-         syncSupabaseSession(true).catch((err) => logError("AuthContext.syncSupabase", err));
+         // Reuse existing Supabase session if still valid (page refresh);
+         // only mint a fresh one when none exists (fresh login).
+         syncSupabaseSession(false).catch((err) => logError("AuthContext.syncSupabase", err));
 
          // Real-time ban listener — kicks user out instantly when admin bans them
          try {

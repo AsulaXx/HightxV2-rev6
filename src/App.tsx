@@ -9,8 +9,6 @@ import { SiteSettingsProvider, useSiteSettings } from "@/contexts/SiteSettingsCo
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { CartProvider, useCart } from "@/contexts/CartContext";
 import Navbar from "@/components/Navbar";
-import V2Navbar from "@/components/v2/V2Navbar";
-import V2Footer from "@/components/v2/V2Footer";
 import AnnouncementTicker from "@/components/AnnouncementTicker";
 import BackgroundParticles from "@/components/BackgroundParticles";
 import GlowOrbs from "@/components/GlowOrbs";

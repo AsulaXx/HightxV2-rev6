@@ -2,6 +2,7 @@ import { Settings, Image, ExternalLink, Plus, Trash2, GripVertical, ChevronDown,
 import AdminSection from "./AdminSection";
 import { AdminTabProps, generateId } from "./AdminTabProps";
 import { type SocialLink } from "@/contexts/SiteSettingsContext";
+import ImageUploadField from "./ImageUploadField";
 
 const AdminGeneralTab = ({ form, setForm, handleSave }: AdminTabProps) => (
   <div className="space-y-6">
@@ -51,11 +52,8 @@ const AdminGeneralTab = ({ form, setForm, handleSave }: AdminTabProps) => (
           <textarea value={form.ogDescription || ""} onChange={(e) => setForm({ ...form, ogDescription: e.target.value })} className="input-glass w-full px-4 py-3 text-sm min-h-[60px] resize-y" placeholder="คำอธิบายสั้นๆ" />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-foreground mb-2">OG Image URL</label>
-          <div className="flex items-center gap-3">
-            <input type="url" value={form.ogImage || ""} onChange={(e) => setForm({ ...form, ogImage: e.target.value })} className="input-glass flex-1 px-4 py-3 text-sm" placeholder="https://example.com/og-image.png" />
-            {form.ogImage && <img src={form.ogImage} alt="OG" className="w-16 h-10 rounded-lg object-cover border border-border shrink-0" referrerPolicy="no-referrer" onError={(e) => (e.currentTarget.style.display = "none")} />}
-          </div>
+          <label className="block text-sm font-semibold text-foreground mb-2">OG Image</label>
+          <ImageUploadField value={form.ogImage || ""} onChange={(url) => setForm({ ...form, ogImage: url })} folder="og" placeholder="https://example.com/og-image.png" previewClassName="w-16 h-10 rounded-lg object-cover border border-border shrink-0" />
         </div>
         <div>
           <label className="block text-sm font-semibold text-foreground mb-2">OG Type</label>
@@ -158,11 +156,8 @@ const AdminGeneralTab = ({ form, setForm, handleSave }: AdminTabProps) => (
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs text-muted-foreground mb-1">URL ไอคอน (กำหนดเอง)</label>
-                        <div className="flex items-center gap-2">
-                          <input type="url" value={link.iconUrl} onChange={(e) => { const links = [...(form.socialLinks || [])]; links[idx] = { ...links[idx], iconUrl: e.target.value }; setForm({ ...form, socialLinks: links }); }} className="input-glass flex-1 px-3 py-2.5 text-sm" placeholder="https://..." />
-                          {link.iconUrl && <img src={link.iconUrl} alt="" className="w-8 h-8 object-contain rounded-lg border border-border" onError={(e) => (e.currentTarget.style.display = 'none')} />}
-                        </div>
+                        <label className="block text-xs text-muted-foreground mb-1">ไอคอน (กำหนดเอง)</label>
+                        <ImageUploadField value={link.iconUrl || ""} onChange={(url) => { const links = [...(form.socialLinks || [])]; links[idx] = { ...links[idx], iconUrl: url }; setForm({ ...form, socialLinks: links }); }} folder={`social/${link.id || idx}`} previewClassName="w-8 h-8 object-contain rounded-lg border border-border" />
                       </div>
                     </div>
                   )}

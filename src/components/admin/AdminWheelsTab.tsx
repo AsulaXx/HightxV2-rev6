@@ -1,6 +1,7 @@
 import { Save, Plus, Trash2, MoveUp, MoveDown, CircleDot, ExternalLink } from "lucide-react";
 import { AdminTabProps, generateId } from "./AdminTabProps";
 import type { WheelConfig, WheelPrize } from "@/contexts/SiteSettingsContext";
+import ImageUploadField from "./ImageUploadField";
 
 const SLICE_COLORS = ["#6366f1", "#8b5cf6", "#ec4899", "#f59e0b", "#10b981", "#06b6d4", "#ef4444", "#14b8a6"];
 
@@ -113,8 +114,8 @@ const AdminWheelsTab = ({ form, setForm, handleSave }: AdminTabProps) => {
                     <input type="text" value={w.slug} onChange={(e) => updateWheel(w.id, { slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-") })} className="input-glass w-full px-3 py-2 text-sm" placeholder="my-wheel" />
                   </div>
                   <div>
-                    <label className="block text-[10px] text-muted-foreground mb-1">Banner URL</label>
-                    <input type="text" value={w.bannerUrl || ""} onChange={(e) => updateWheel(w.id, { bannerUrl: e.target.value })} className="input-glass w-full px-3 py-2 text-sm" placeholder="https://..." />
+                    <label className="block text-[10px] text-muted-foreground mb-1">Banner</label>
+                    <ImageUploadField value={w.bannerUrl || ""} onChange={(url) => updateWheel(w.id, { bannerUrl: url })} folder={`wheel/${w.id}`} compact />
                   </div>
                   <div className="sm:col-span-2 lg:col-span-3">
                     <label className="block text-[10px] text-muted-foreground mb-1">คำอธิบาย</label>

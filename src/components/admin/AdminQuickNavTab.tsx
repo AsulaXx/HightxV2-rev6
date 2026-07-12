@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Save, Plus, Trash2, Search, ChevronDown, ChevronUp, Navigation, LayoutGrid, Rows, MoveUp, MoveDown, GripVertical } from "lucide-react";
 import { AdminTabProps, generateId } from "./AdminTabProps";
 import type { QuickNavItem, BannerLayout } from "@/contexts/SiteSettingsContext";
+import ImageUploadField from "./ImageUploadField";
 
 const AdminQuickNavTab = ({ form, setForm, handleSave }: AdminTabProps) => {
   const [quickNavSearch, setQuickNavSearch] = useState("");
@@ -124,12 +125,12 @@ const AdminQuickNavTab = ({ form, setForm, handleSave }: AdminTabProps) => {
                         <input type="text" value={nav.url} onChange={(e) => updateQuickNav(nav.id, { url: e.target.value })} className="input-glass w-full px-3 py-2.5 text-sm" placeholder="/path หรือ https://..." />
                       </div>
                       <div>
-                        <label className="block text-xs text-muted-foreground mb-1">รูป Icon URL</label>
-                        <input type="text" value={nav.imageUrl} onChange={(e) => updateQuickNav(nav.id, { imageUrl: e.target.value })} className="input-glass w-full px-3 py-2.5 text-sm" placeholder="URL รูปภาพ" />
+                        <label className="block text-xs text-muted-foreground mb-1">รูป Icon</label>
+                        <ImageUploadField value={nav.imageUrl || ""} onChange={(url) => updateQuickNav(nav.id, { imageUrl: url })} folder={`quicknav/${nav.id}`} />
                       </div>
                       <div>
-                        <label className="block text-xs text-muted-foreground mb-1">Banner URL</label>
-                        <input type="text" value={nav.bannerUrl} onChange={(e) => updateQuickNav(nav.id, { bannerUrl: e.target.value })} className="input-glass w-full px-3 py-2.5 text-sm" placeholder="URL แบนเนอร์" />
+                        <label className="block text-xs text-muted-foreground mb-1">Banner</label>
+                        <ImageUploadField value={nav.bannerUrl || ""} onChange={(url) => updateQuickNav(nav.id, { bannerUrl: url })} folder={`quicknav-banner/${nav.id}`} compact />
                       </div>
                       {form.quickNavDisplayMode === "banner" && nav.bannerUrl && (
                         <div>

@@ -1,6 +1,7 @@
 import { Save, Plus, Trash2, Wrench, MoveUp, MoveDown } from "lucide-react";
 import { AdminTabProps, generateId } from "./AdminTabProps";
 import type { ServiceItem } from "@/contexts/SiteSettingsContext";
+import ImageUploadField from "./ImageUploadField";
 
 const AdminServicesTab = ({ form, setForm, handleSave }: AdminTabProps) => {
   const filteredServices = (form.serviceItems || [])
@@ -75,12 +76,12 @@ const AdminServicesTab = ({ form, setForm, handleSave }: AdminTabProps) => {
                   <input type="text" value={service.url} onChange={(e) => updateService(service.id, { url: e.target.value })} className="input-glass w-full px-3 py-2 text-sm" placeholder="/path หรือ https://..." />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-muted-foreground mb-1">รูปภาพ Icon URL</label>
-                  <input type="text" value={service.imageUrl} onChange={(e) => updateService(service.id, { imageUrl: e.target.value })} className="input-glass w-full px-3 py-2 text-sm" placeholder="URL รูปภาพ" />
+                  <label className="block text-[10px] text-muted-foreground mb-1">รูปภาพ Icon</label>
+                  <ImageUploadField value={service.imageUrl || ""} onChange={(url) => updateService(service.id, { imageUrl: url })} folder={`service/${service.id}`} />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-muted-foreground mb-1">Banner URL</label>
-                  <input type="text" value={service.bannerUrl} onChange={(e) => updateService(service.id, { bannerUrl: e.target.value })} className="input-glass w-full px-3 py-2 text-sm" placeholder="URL แบนเนอร์" />
+                  <label className="block text-[10px] text-muted-foreground mb-1">Banner</label>
+                  <ImageUploadField value={service.bannerUrl || ""} onChange={(url) => updateService(service.id, { bannerUrl: url })} folder={`service-banner/${service.id}`} compact />
                 </div>
               </div>
 

@@ -219,46 +219,8 @@ export default function AdminTopUpProviders() {
         </div>
       </div>
 
-      {needsClaim && (
-        <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-violet-500/10 border border-violet-500/30">
-          <div className="flex items-start gap-2 min-w-0">
-            <AlertCircle size={14} className="text-violet-400 mt-0.5 shrink-0" />
-            <p className="text-[11px] text-foreground">
-              <strong className="text-violet-400">ยังไม่มีเจ้าของระบบ:</strong> กดปุ่มเพื่อยึดสิทธิ์ Owner
-            </p>
-          </div>
-          <button onClick={handleClaim} disabled={claiming} className="btn-primary px-3 py-1.5 text-[11px] flex items-center gap-1.5 disabled:opacity-50 shrink-0">
-            {claiming ? <Loader2 size={11} className="animate-spin" /> : <Shield size={11} />}
-            ยึดสิทธิ์เจ้าของ
-          </button>
-        </div>
-      )}
 
-      {ownerInfo && ownerInfo.hasOwner && (() => {
-        const isMe = ownerInfo.latestUid && auth.currentUser?.uid === ownerInfo.latestUid;
-        const claimedAt = ownerInfo.latestClaimedAt ? new Date(ownerInfo.latestClaimedAt) : null;
-        const claimedStr = claimedAt ? claimedAt.toLocaleString("th-TH", { dateStyle: "medium", timeStyle: "short" }) : "—";
-        const uidShort = ownerInfo.latestUid ? `${ownerInfo.latestUid.slice(0, 6)}…${ownerInfo.latestUid.slice(-4)}` : "—";
-        return (
-          <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20 flex-wrap">
-            <div className="flex items-start gap-2 min-w-0">
-              <CheckCircle2 size={14} className="text-emerald-500 mt-0.5 shrink-0" />
-              <div className="min-w-0">
-                <p className="text-[11px] text-foreground">
-                  <strong className="text-emerald-500">มีเจ้าของระบบแล้ว</strong>
-                  <span className="text-muted-foreground"> · ทั้งหมด {ownerInfo.count} บัญชี</span>
-                  {isMe && <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">คุณเป็นเจ้าของ</span>}
-                </p>
-                <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">
-                  Claim ล่าสุด: <span className="text-foreground">{claimedStr}</span>
-                  <span className="mx-1.5 opacity-40">·</span>
-                  UID: <span className="text-foreground">{uidShort}</span>
-                </p>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
+
 
       <div className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-500/5 border border-amber-500/20">
         <Radio size={13} className="text-amber-500 shrink-0" />

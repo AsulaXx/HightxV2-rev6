@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
   Save, Plug, Loader2, Eye, EyeOff, Zap, Wallet,
-  CheckCircle2, XCircle, KeyRound, AlertCircle, Radio, Shield,
+  CheckCircle2, XCircle, KeyRound, Radio,
 } from "lucide-react";
 
 
@@ -37,12 +37,8 @@ export default function AdminTopUpProviders() {
   const [testing, setTesting] = useState<ProviderKey | null>(null);
   const [show, setShow] = useState<Record<string, boolean>>({});
   const [results, setResults] = useState<Partial<Record<ProviderKey, { ok: boolean; message: string }>>>({});
-  const [needsClaim, setNeedsClaim] = useState(false);
-  const [claiming, setClaiming] = useState(false);
-  const [ownerInfo, setOwnerInfo] = useState<{
-    hasOwner: boolean; count: number; latestClaimedAt: string | null; latestUid: string | null;
-    owners?: Array<{ uid: string; addedAt: string; note?: string }>;
-  } | null>(null);
+
+
 
   const getIdToken = async (): Promise<string> => {
     const u = auth.currentUser;
@@ -77,19 +73,7 @@ export default function AdminTopUpProviders() {
 
   const reload = async () => {
     setLoading(true);
-    setNeedsClaim(false);
     try {
-      const own = await supabase.functions.invoke("topup-qr", { body: { action: "has_owner" } });
-      const o = own.data || {};
-      setOwnerInfo({
-        hasOwner: !!o.hasOwner,
-        count: o.count || 0,
-        latestClaimedAt: o.latestClaimedAt || null,
-        latestUid: o.latestUid || null,
-        owners: o.owners || [],
-      });
-      if (!o.hasOwner) setNeedsClaim(true);
-
       const idToken = await getIdToken();
       const { data, error } = await supabase.functions.invoke("topup-qr", {
         body: { action: "load_config", idToken },
@@ -102,9 +86,7 @@ export default function AdminTopUpProviders() {
           plernpay: { ...DEFAULT.plernpay, ...(d.plernpay || {}) },
         });
       } else {
-        const msg = data?.error?.message || "";
-        if (msg.includes("requires owner") || msg.includes("ยึดสิทธิ์")) setNeedsClaim(true);
-        else toast.warning("โหลดค่าไม่สำเร็จ: " + msg);
+        toast.warning("โหลดค่าไม่สำเร็จ: " + (data?.error?.message || ""));
       }
     } catch (e: any) {
       toast.error("โหลดการตั้งค่าไม่สำเร็จ: " + (e?.message || e));
@@ -115,19 +97,6 @@ export default function AdminTopUpProviders() {
 
   useEffect(() => { reload(); }, []);
 
-  const handleClaim = async () => {
-    setClaiming(true);
-    try {
-      const idToken = await getIdToken();
-      const { data, error } = await supabase.functions.invoke("topup-qr", { body: { action: "claim_owner", idToken } });
-      if (error) throw new Error(error.message);
-      if (!data?.success) throw new Error(data?.error?.message || "claim failed");
-      toast.success("ยึดสิทธิ์เจ้าของระบบสำเร็จ");
-      await reload();
-    } catch (e: any) {
-      toast.error("ยึดสิทธิ์ไม่สำเร็จ: " + (e?.message || e));
-    } finally { setClaiming(false); }
-  };
 
   const update = <K extends ProviderKey>(k: K, patch: Partial<ProviderCreds[K]>) => {
     setCreds(prev => ({ ...prev, [k]: { ...prev[k], ...patch } }));
@@ -250,46 +219,8 @@ export default function AdminTopUpProviders() {
         </div>
       </div>
 
-      {needsClaim && (
-        <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-violet-500/10 border border-violet-500/30">
-          <div className="flex items-start gap-2 min-w-0">
-            <AlertCircle size={14} className="text-violet-400 mt-0.5 shrink-0" />
-            <p className="text-[11px] text-foreground">
-              <strong className="text-violet-400">ยังไม่มีเจ้าของระบบ:</strong> กดปุ่มเพื่อยึดสิทธิ์ Owner
-            </p>
-          </div>
-          <button onClick={handleClaim} disabled={claiming} className="btn-primary px-3 py-1.5 text-[11px] flex items-center gap-1.5 disabled:opacity-50 shrink-0">
-            {claiming ? <Loader2 size={11} className="animate-spin" /> : <Shield size={11} />}
-            ยึดสิทธิ์เจ้าของ
-          </button>
-        </div>
-      )}
 
-      {ownerInfo && ownerInfo.hasOwner && (() => {
-        const isMe = ownerInfo.latestUid && auth.currentUser?.uid === ownerInfo.latestUid;
-        const claimedAt = ownerInfo.latestClaimedAt ? new Date(ownerInfo.latestClaimedAt) : null;
-        const claimedStr = claimedAt ? claimedAt.toLocaleString("th-TH", { dateStyle: "medium", timeStyle: "short" }) : "—";
-        const uidShort = ownerInfo.latestUid ? `${ownerInfo.latestUid.slice(0, 6)}…${ownerInfo.latestUid.slice(-4)}` : "—";
-        return (
-          <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20 flex-wrap">
-            <div className="flex items-start gap-2 min-w-0">
-              <CheckCircle2 size={14} className="text-emerald-500 mt-0.5 shrink-0" />
-              <div className="min-w-0">
-                <p className="text-[11px] text-foreground">
-                  <strong className="text-emerald-500">มีเจ้าของระบบแล้ว</strong>
-                  <span className="text-muted-foreground"> · ทั้งหมด {ownerInfo.count} บัญชี</span>
-                  {isMe && <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">คุณเป็นเจ้าของ</span>}
-                </p>
-                <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">
-                  Claim ล่าสุด: <span className="text-foreground">{claimedStr}</span>
-                  <span className="mx-1.5 opacity-40">·</span>
-                  UID: <span className="text-foreground">{uidShort}</span>
-                </p>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
+
 
       <div className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-500/5 border border-amber-500/20">
         <Radio size={13} className="text-amber-500 shrink-0" />

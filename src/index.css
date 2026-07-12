@@ -104,6 +104,12 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
 
     --glow-1: 245 80% 68%;
     --glow-2: 270 70% 68%;
+
+    /* 3D FX defaults (overridden by SiteSettings) */
+    --fx-glow: 0.55;
+    --fx-tilt: 3deg;
+    --fx-grad-from: #6366f1;
+    --fx-grad-to: #a855f7;
   }
 }
 

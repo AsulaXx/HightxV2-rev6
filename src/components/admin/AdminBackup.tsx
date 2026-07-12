@@ -551,6 +551,14 @@ const AdminBackup = ({ user, profile }: AdminBackupProps) => {
             {exporting ? <Loader2 size={14} className="animate-spin" /> : <FileSpreadsheet size={14} className="text-emerald-400" />}
             Export Excel
           </button>
+          <button
+            onClick={openCsvModal}
+            disabled={exporting || selectedCollections.size === 0}
+            className="btn-glass px-4 py-2.5 text-xs flex items-center gap-2 disabled:opacity-40"
+          >
+            {exporting ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} className="text-amber-400" />}
+            Export CSV
+          </button>
         </div>
         {selectedCollections.size > 0 && (
           <p className="text-[10px] text-muted-foreground">

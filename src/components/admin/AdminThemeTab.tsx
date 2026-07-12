@@ -229,6 +229,74 @@ const AdminThemeTab = ({ form, setForm, handleSave }: AdminTabProps) => {
         </div>
       </AdminSection>
 
+      <AdminSection title="เอฟเฟกต์ 3D" icon={<Sparkles size={18} />}>
+        <p className="text-xs text-muted-foreground -mt-1">ควบคุมความแรง glow, มุมเอียง tilt และสี gradient — มีผลทั้งเว็บทันที</p>
+        <div>
+          <label className="block text-xs font-semibold text-foreground mb-2">
+            ความแรง Glow ({form.theme?.fx3d?.glow ?? 55}%)
+          </label>
+          <input
+            type="range" min="0" max="100" step="5"
+            value={form.theme?.fx3d?.glow ?? 55}
+            onChange={(e) => setForm({ ...form, theme: { ...form.theme, fx3d: { ...(form.theme?.fx3d || { glow: 55, tilt: 3, gradientFrom: "#6366f1", gradientTo: "#a855f7" }), glow: parseInt(e.target.value) } } })}
+            className="w-full accent-primary"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-foreground mb-2">
+            มุมเอียง Tilt ({form.theme?.fx3d?.tilt ?? 3}°)
+          </label>
+          <input
+            type="range" min="0" max="8" step="0.5"
+            value={form.theme?.fx3d?.tilt ?? 3}
+            onChange={(e) => setForm({ ...form, theme: { ...form.theme, fx3d: { ...(form.theme?.fx3d || { glow: 55, tilt: 3, gradientFrom: "#6366f1", gradientTo: "#a855f7" }), tilt: parseFloat(e.target.value) } } })}
+            className="w-full accent-primary"
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-semibold text-foreground mb-2">Gradient From</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={form.theme?.fx3d?.gradientFrom || "#6366f1"}
+                onChange={(e) => setForm({ ...form, theme: { ...form.theme, fx3d: { ...(form.theme?.fx3d || { glow: 55, tilt: 3, gradientFrom: "#6366f1", gradientTo: "#a855f7" }), gradientFrom: e.target.value } } })}
+                className="w-10 h-10 rounded-lg border border-border cursor-pointer bg-transparent"
+              />
+              <input
+                type="text"
+                value={form.theme?.fx3d?.gradientFrom || "#6366f1"}
+                onChange={(e) => setForm({ ...form, theme: { ...form.theme, fx3d: { ...(form.theme?.fx3d || { glow: 55, tilt: 3, gradientFrom: "#6366f1", gradientTo: "#a855f7" }), gradientFrom: e.target.value } } })}
+                className="input-glass flex-1 px-3 py-2 text-xs font-mono"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-foreground mb-2">Gradient To</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={form.theme?.fx3d?.gradientTo || "#a855f7"}
+                onChange={(e) => setForm({ ...form, theme: { ...form.theme, fx3d: { ...(form.theme?.fx3d || { glow: 55, tilt: 3, gradientFrom: "#6366f1", gradientTo: "#a855f7" }), gradientTo: e.target.value } } })}
+                className="w-10 h-10 rounded-lg border border-border cursor-pointer bg-transparent"
+              />
+              <input
+                type="text"
+                value={form.theme?.fx3d?.gradientTo || "#a855f7"}
+                onChange={(e) => setForm({ ...form, theme: { ...form.theme, fx3d: { ...(form.theme?.fx3d || { glow: 55, tilt: 3, gradientFrom: "#6366f1", gradientTo: "#a855f7" }), gradientTo: e.target.value } } })}
+                className="input-glass flex-1 px-3 py-2 text-xs font-mono"
+              />
+            </div>
+          </div>
+        </div>
+        {/* Live preview */}
+        <div className="glass-card glass-card-hover mt-1 !p-4 text-center space-y-2">
+          <div className="text-xs text-muted-foreground">ตัวอย่าง</div>
+          <div className="gradient-text text-xl font-bold">Liquid Glass 3D</div>
+          <button type="button" className="btn-gradient px-4 py-2 text-xs">ปุ่มตัวอย่าง</button>
+        </div>
+      </AdminSection>
+
       <AdminSection title="อนุภาคพื้นหลัง" icon={<Sparkles size={16} />}
         headerRight={<div onClick={() => setForm({ ...form, theme: { ...form.theme, particles: { ...(form.theme?.particles || { count: 40, speed: 0.5, size: 2, color: "255, 255, 255", opacity: 0.5, linked: false, linkDistance: 120 }), enabled: !form.theme?.particles?.enabled } as ParticlesConfig } })} className={`toggle-slider ${form.theme?.particles?.enabled ? "toggle-active" : ""}`} />}
       >

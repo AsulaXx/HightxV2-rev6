@@ -1,0 +1,65 @@
+// Bridges Firebase Auth → Supabase Auth so Storage RLS policies that check
+// auth.uid() work. Call syncSupabaseSession() after Firebase login/register.
+//
+// Storage uploads must be nested under `<supabase-user-id>/...` — use
+// getSupabaseUploadPrefix() to obtain the current uid, waiting for the session
+// if syncing is still in flight.
+
+import { supabase } from "@/integrations/supabase/client";
+import { auth } from "@/lib/firebase";
+import { logError } from "@/lib/errorLogger";
+
+let inflight: Promise<string | null> | null = null;
+
+async function doSync(): Promise<string | null> {
+  const fbUser = auth.currentUser;
+  if (!fbUser) return null;
+  try {
+    const idToken = await fbUser.getIdToken();
+    const { data, error } = await supabase.functions.invoke("firebase-supabase-sync", {
+      headers: { Authorization: `Bearer ${idToken}` },
+    });
+    if (error) throw error;
+    if (!data?.success || !data?.token_hash) {
+      throw new Error(data?.error || "sync failed");
+    }
+    const { data: verifyData, error: verifyErr } = await supabase.auth.verifyOtp({
+      type: "magiclink",
+      token_hash: data.token_hash,
+    });
+    if (verifyErr) throw verifyErr;
+    return verifyData.user?.id ?? null;
+  } catch (err) {
+    logError("supabaseSync.doSync", err);
+    return null;
+  }
+}
+
+/** Ensures a Supabase session exists for the current Firebase user. Idempotent. */
+export async function syncSupabaseSession(force = false): Promise<string | null> {
+  if (!force) {
+    const { data } = await supabase.auth.getSession();
+    if (data.session?.user?.id) return data.session.user.id;
+  }
+  if (!inflight) {
+    inflight = doSync().finally(() => {
+      inflight = null;
+    });
+  }
+  return inflight;
+}
+
+/** Returns the Supabase user id to prefix storage paths with. */
+export async function getSupabaseUploadPrefix(): Promise<string> {
+  const uid = await syncSupabaseSession();
+  if (!uid) throw new Error("Supabase session unavailable — please re-login");
+  return uid;
+}
+
+export async function clearSupabaseSession() {
+  try {
+    await supabase.auth.signOut();
+  } catch (err) {
+    logError("supabaseSync.clearSupabaseSession", err);
+  }
+}

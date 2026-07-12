@@ -80,7 +80,7 @@ const Navbar = () => {
   return (
     <>
       <nav className={`nav-glass sticky top-0 z-50 transition-all duration-500 ease-out relative ${scrolled ? "shadow-lg shadow-primary/10" : ""}`}>
-        <div className={`mx-auto flex items-center justify-between gap-4 transition-all duration-500 ease-out ${scrolled ? "h-14 max-w-5xl px-4 sm:px-6 lg:px-8" : "h-20 max-w-7xl px-4 sm:px-8 lg:px-12"}`}>
+        <div className={`mx-auto flex items-center justify-between gap-4 transition-all duration-500 ease-out ${scrolled ? "h-14 max-w-6xl px-4 sm:px-8 lg:px-10" : "h-20 max-w-[1400px] px-4 sm:px-10 lg:px-16"}`}>
           {/* Brand */}
           <Link to="/" className={`flex items-center gap-3 shrink-0 group rounded-xl ${FOCUS_RING}`}>
             <div className={`rounded-2xl overflow-hidden transition-all duration-500 ease-out group-hover:scale-110 group-hover:rotate-6 ring-1 ring-white/10 shadow-lg shadow-primary/10 ${scrolled ? "w-9 h-9" : "w-12 h-12"}`}>

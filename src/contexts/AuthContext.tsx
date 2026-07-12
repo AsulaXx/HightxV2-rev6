@@ -367,6 +367,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <AuthContext.Provider value={{ user, profile, loading, login, register, logout, resetPassword, resendVerification, sendEmailLink, signInWithGoogle, hasPermission, isEmailVerified }}>
       {children}
+      {bannedInfo && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="glass-card !p-6 !rounded-2xl max-w-sm w-full border border-destructive/30 shadow-2xl animate-in fade-in zoom-in-95">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-14 h-14 rounded-full bg-destructive/15 flex items-center justify-center mb-3 ring-1 ring-destructive/30">
+                <Ban size={28} className="text-destructive" />
+              </div>
+              <h2 className="text-lg font-bold text-foreground">บัญชีของคุณถูกระงับ</h2>
+              <p className="text-xs text-muted-foreground mt-1">
+                คุณถูกดีดออกจากระบบโดยอัตโนมัติ
+              </p>
+              <div className="mt-4 w-full p-3 rounded-lg bg-destructive/5 border border-destructive/15 text-left">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle size={14} className="text-destructive shrink-0 mt-0.5" />
+                  <p className="text-xs text-foreground break-words">{bannedInfo.reason}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setBannedInfo(null)}
+                className="mt-5 w-full py-2.5 rounded-xl text-sm font-semibold bg-destructive/90 hover:bg-destructive text-destructive-foreground transition-colors"
+              >
+                รับทราบ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AuthContext.Provider>
   );
 };

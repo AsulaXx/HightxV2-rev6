@@ -126,6 +126,8 @@ async function gcpToken(): Promise<string> {
 
 const fsBase = () =>
   `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents`;
+const fsDocName = (path: string) =>
+  `projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/${path}`;
 
 // ────────────────────────────────────────────────────────────────────────────
 // Atomic credit + duplicate-guard via Firestore transaction
@@ -169,7 +171,7 @@ async function creditWallet(opts: {
     method: "POST",
     headers,
     body: JSON.stringify({
-      documents: [`${fsBase()}/${walletPath}`, `${fsBase()}/${guardPath}`],
+      documents: [fsDocName(walletPath), fsDocName(guardPath)],
       transaction: txn,
     }),
   });
@@ -213,7 +215,7 @@ async function creditWallet(opts: {
   // Wallet upsert
   writes.push({
     update: {
-      name: `${fsBase()}/${walletPath}`,
+      name: fsDocName(walletPath),
       fields: walletExists
         ? {
             balance: { doubleValue: nextBalance },
@@ -236,7 +238,7 @@ async function creditWallet(opts: {
   // Duplicate guard (must not exist — enforced by precondition)
   writes.push({
     update: {
-      name: `${fsBase()}/${guardPath}`,
+      name: fsDocName(guardPath),
       fields: {
         userId: { stringValue: uid },
         amount: { doubleValue: amount },
@@ -252,7 +254,7 @@ async function creditWallet(opts: {
   // Audit ledger entry (keeps dashboards & analytics working)
   writes.push({
     update: {
-      name: `${fsBase()}/${ledgerName}`,
+      name: fsDocName(ledgerName),
       fields: {
         userId: { stringValue: uid },
         type: { stringValue: "topup_voucher" },

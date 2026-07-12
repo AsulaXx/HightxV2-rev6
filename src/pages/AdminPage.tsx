@@ -1,41 +1,42 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth, UserRole, ROLE_HIERARCHY, ROLE_LABELS } from "@/contexts/AuthContext";
 import { useSiteSettings, Product, ProductDuration, ProductCategory, DEFAULT_PERMISSIONS_LIST, DEFAULT_ROLE_PERMISSIONS_MAP, type PermissionItem, type RolePermissions, type SocialLink, type ParticlesConfig, type BannerLayout, type LayoutConfig, type HeroBannerConfig, type QuickNavItem, type TickerConfig, type ServiceItem, type TopUpSettings, type GiftCode, type DiscountSettings, type BgMusicConfig, type LeaderboardSettings } from "@/contexts/SiteSettingsContext";
 import { Navigate, Link } from "react-router-dom";
 import RedirectToLogin from "@/components/RedirectToLogin";
-import { Save, Settings, Users, Palette, Key, Image, Plus, Trash2, Package, Eye, Sparkles, Search, Clock, Shield, CheckCircle, XCircle, ArrowUpDown, Filter, Crown, ChevronDown, ChevronUp, Megaphone, ExternalLink, GripVertical, RotateCcw, FolderOpen, LayoutGrid, Columns, Rows, MoveUp, MoveDown, Monitor, Wallet, Navigation, DollarSign, CreditCard, Receipt, Volume2, Link2, Globe, EyeOff, MousePointerClick, Wrench, Percent, Gift, Tag, Copy, Music, FileText, Upload, Ban, ShieldOff, Ticket, UserPlus, Star, AlertTriangle, Trophy, DatabaseZap, Database, Rocket, Power, AlertCircle, RefreshCw, Bell, FileDown, ClipboardList, CircleDot, Zap } from "lucide-react";
-import AdminWebhooks from "@/components/admin/AdminWebhooks";
-import AdminCoupons from "@/components/admin/AdminCoupons";
-import AdminSection from "@/components/admin/AdminSection";
-import AdminReferral from "@/components/admin/AdminReferral";
-import AdminVipTiers from "@/components/admin/AdminVipTiers";
-import AdminLeaderboard from "@/components/admin/AdminLeaderboard";
-import AdminDataReset from "@/components/admin/AdminDataReset";
-import AdminBackup from "@/components/admin/AdminBackup";
+import { Save, Settings, Users, Palette, Key, Image, Plus, Trash2, Package, Eye, Sparkles, Search, Clock, Shield, CheckCircle, XCircle, ArrowUpDown, Filter, Crown, ChevronDown, ChevronUp, Megaphone, ExternalLink, GripVertical, RotateCcw, FolderOpen, LayoutGrid, Columns, Rows, MoveUp, MoveDown, Monitor, Wallet, Navigation, DollarSign, CreditCard, Receipt, Volume2, Link2, Globe, EyeOff, MousePointerClick, Wrench, Percent, Gift, Tag, Copy, Music, FileText, Upload, Ban, ShieldOff, Ticket, UserPlus, Star, AlertTriangle, Trophy, DatabaseZap, Database, Rocket, Power, AlertCircle, RefreshCw, Bell, FileDown, ClipboardList, CircleDot, Zap, Pin, PinOff } from "lucide-react";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import AdminGeneralTab from "@/components/admin/AdminGeneralTab";
-import AdminUsersTab from "@/components/admin/AdminUsersTab";
-import AdminBrandingTab from "@/components/admin/AdminBrandingTab";
-import AdminThemeTab from "@/components/admin/AdminThemeTab";
-import AdminCategoriesTab from "@/components/admin/AdminCategoriesTab";
-import AdminProductsTab from "@/components/admin/AdminProductsTab";
-import AdminTopUpTab from "@/components/admin/AdminTopUpTab";
-import AdminLayoutTab from "@/components/admin/AdminLayoutTab";
-import AdminMusicTab from "@/components/admin/AdminMusicTab";
-import AdminLegalTab from "@/components/admin/AdminLegalTab";
-import AdminKeysTab from "@/components/admin/AdminKeysTab";
-import AdminQuickNavTab from "@/components/admin/AdminQuickNavTab";
-import AdminServicesTab from "@/components/admin/AdminServicesTab";
-import AdminWheelsTab from "@/components/admin/AdminWheelsTab";
-import AdminWheelClaimsTab from "@/components/admin/AdminWheelClaimsTab";
-import AdminDiscountTab from "@/components/admin/AdminDiscountTab";
-import AdminTransactionsTab from "@/components/admin/AdminTransactionsTab";
-import AdminLinkPagesTab from "@/components/admin/AdminLinkPagesTab";
-import AdminAuditLogTab from "@/components/admin/AdminAuditLogTab";
-import AdminPermissionsTab from "@/components/admin/AdminPermissionsTab";
+// Lazy-load every admin tab so one broken tab doesn't block AdminPage from mounting,
+// and initial JS shrinks dramatically for admins who only use a few tabs.
+const AdminWebhooks = lazy(() => import("@/components/admin/AdminWebhooks"));
+const AdminCoupons = lazy(() => import("@/components/admin/AdminCoupons"));
+const AdminReferral = lazy(() => import("@/components/admin/AdminReferral"));
+const AdminVipTiers = lazy(() => import("@/components/admin/AdminVipTiers"));
+const AdminLeaderboard = lazy(() => import("@/components/admin/AdminLeaderboard"));
+const AdminDataReset = lazy(() => import("@/components/admin/AdminDataReset"));
+const AdminBackup = lazy(() => import("@/components/admin/AdminBackup"));
+const AdminGeneralTab = lazy(() => import("@/components/admin/AdminGeneralTab"));
+const AdminUsersTab = lazy(() => import("@/components/admin/AdminUsersTab"));
+const AdminBrandingTab = lazy(() => import("@/components/admin/AdminBrandingTab"));
+const AdminThemeTab = lazy(() => import("@/components/admin/AdminThemeTab"));
+const AdminCategoriesTab = lazy(() => import("@/components/admin/AdminCategoriesTab"));
+const AdminProductsTab = lazy(() => import("@/components/admin/AdminProductsTab"));
+const AdminTopUpTab = lazy(() => import("@/components/admin/AdminTopUpTab"));
+const AdminLayoutTab = lazy(() => import("@/components/admin/AdminLayoutTab"));
+const AdminMusicTab = lazy(() => import("@/components/admin/AdminMusicTab"));
+const AdminLegalTab = lazy(() => import("@/components/admin/AdminLegalTab"));
+const AdminKeysTab = lazy(() => import("@/components/admin/AdminKeysTab"));
+const AdminQuickNavTab = lazy(() => import("@/components/admin/AdminQuickNavTab"));
+const AdminServicesTab = lazy(() => import("@/components/admin/AdminServicesTab"));
+const AdminWheelsTab = lazy(() => import("@/components/admin/AdminWheelsTab"));
+const AdminWheelClaimsTab = lazy(() => import("@/components/admin/AdminWheelClaimsTab"));
+const AdminDiscountTab = lazy(() => import("@/components/admin/AdminDiscountTab"));
+const AdminTransactionsTab = lazy(() => import("@/components/admin/AdminTransactionsTab"));
+const AdminLinkPagesTab = lazy(() => import("@/components/admin/AdminLinkPagesTab"));
+const AdminAuditLogTab = lazy(() => import("@/components/admin/AdminAuditLogTab"));
+const AdminPermissionsTab = lazy(() => import("@/components/admin/AdminPermissionsTab"));
+const AdminRuzienBypassTab = lazy(() => import("@/components/admin/AdminRuzienBypassTab"));
 
-import AdminRuzienBypassTab from "@/components/admin/AdminRuzienBypassTab";
 import PageBreadcrumb from "@/components/PageBreadcrumb";
 import PermIcon from "@/components/PermIcon";
 import { db } from "@/lib/firebase";
@@ -95,6 +96,16 @@ const AdminPage = () => {
   const [slideDir, setSlideDir] = useState<"left" | "right" | null>(null);
   const [menuQuery, setMenuQuery] = useState("");
   const [collapsedCats, setCollapsedCats] = useState<Record<string, boolean>>({});
+  const [pinnedTabs, setPinnedTabs] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem("admin_pinned_tabs") || "[]"); } catch { return []; }
+  });
+  const togglePin = useCallback((tabId: string) => {
+    setPinnedTabs((prev) => {
+      const next = prev.includes(tabId) ? prev.filter((t) => t !== tabId) : [...prev, tabId];
+      try { localStorage.setItem("admin_pinned_tabs", JSON.stringify(next)); } catch {}
+      return next;
+    });
+  }, []);
 
   const contentScrollRef = useRef<HTMLDivElement | null>(null);
   const subTabRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -373,6 +384,33 @@ const AdminPage = () => {
             </div>
           </nav>
 
+          {/* Pinned tabs strip (quick access) */}
+          {pinnedTabs.length > 0 && (
+            <div className="hidden md:flex items-center gap-1 pb-2 overflow-x-auto scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <Pin size={11} className="text-primary/70 shrink-0" />
+              {pinnedTabs
+                .map((pid) => tabs.find((t) => t.id === pid))
+                .filter((t): t is NonNullable<typeof t> => !!t)
+                .map((tab) => {
+                  const active = activeTab === tab.id;
+                  return (
+                    <button
+                      key={`pin-${tab.id}`}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex items-center gap-1 px-2.5 h-7 rounded-md text-[11px] font-medium whitespace-nowrap transition-all ${
+                        active
+                          ? 'bg-primary/15 text-primary border border-primary/30'
+                          : 'bg-muted/30 text-muted-foreground hover:text-foreground border border-transparent'
+                      }`}
+                    >
+                      <tab.icon size={11} />
+                      {tab.label}
+                    </button>
+                  );
+                })}
+            </div>
+          )}
+
           {/* Row 3: sub-tabs of current category */}
           {activeCategory.tabs.length > 1 && (
             <div className="pb-2 pt-1">
@@ -383,24 +421,35 @@ const AdminPage = () => {
               >
                 {activeCategory.tabs.map((tab, idx) => {
                   const active = activeTab === tab.id;
+                  const pinned = pinnedTabs.includes(tab.id);
                   return (
-                    <button
-                      key={tab.id}
-                      ref={(el) => { subTabRefs.current[idx] = el; }}
-                      role="tab"
-                      aria-selected={active}
-                      tabIndex={active ? 0 : -1}
-                      onClick={() => setActiveTab(tab.id)}
-                      onKeyDown={(e) => handleSubTabKeyDown(e, idx)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all focus:outline-none focus-visible:ring-1 focus-visible:ring-primary ${
-                        active
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
-                      }`}
-                    >
-                      <tab.icon size={12} />
-                      {tab.label}
-                    </button>
+                    <div key={tab.id} className="relative group flex items-center">
+                      <button
+                        ref={(el) => { subTabRefs.current[idx] = el; }}
+                        role="tab"
+                        aria-selected={active}
+                        tabIndex={active ? 0 : -1}
+                        onClick={() => setActiveTab(tab.id)}
+                        onKeyDown={(e) => handleSubTabKeyDown(e, idx)}
+                        className={`flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all focus:outline-none focus-visible:ring-1 focus-visible:ring-primary ${
+                          active
+                            ? 'bg-primary text-primary-foreground'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
+                        }`}
+                      >
+                        <tab.icon size={12} />
+                        {tab.label}
+                        <span
+                          role="button"
+                          tabIndex={-1}
+                          onClick={(e) => { e.stopPropagation(); togglePin(tab.id); }}
+                          title={pinned ? "ยกเลิกปักหมุด" : "ปักหมุดเมนู"}
+                          className={`ml-1 p-0.5 rounded transition-opacity ${pinned ? 'opacity-100' : 'opacity-0 group-hover:opacity-70 hover:!opacity-100'}`}
+                        >
+                          {pinned ? <PinOff size={10} /> : <Pin size={10} />}
+                        </span>
+                      </button>
+                    </div>
                   );
                 })}
               </div>
@@ -477,6 +526,7 @@ const AdminPage = () => {
                   onAnimationComplete={() => setSlideDir(null)}
                 >
                 <ErrorBoundary compact resetKey={activeTab} label={tabs.find(t => t.id === activeTab)?.label}>
+                <Suspense fallback={<div className="py-16 flex items-center justify-center text-xs text-muted-foreground gap-2"><RefreshCw size={14} className="animate-spin" /> กำลังโหลดแท็บ...</div>}>
 
             {activeTab === "general" && (
               <AdminGeneralTab form={form} setForm={setForm} handleSave={handleSave} />
@@ -615,6 +665,7 @@ const AdminPage = () => {
               <AdminPermissionsTab form={form} setForm={setForm} handleSave={handleSave} />
             )}
 
+                </Suspense>
                 </ErrorBoundary>
               </motion.div>
             </div>

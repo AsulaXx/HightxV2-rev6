@@ -1,12 +1,25 @@
-// Generates public/sitemap.xml from the list of public, indexable routes.
-// Runs automatically before `vite dev` and `vite build` via package.json hooks.
+// Generates public/sitemap.xml from VITE_SITE_URL + route list.
+// Runs before `vite dev` and `vite build` via package.json hooks.
 
-import { writeFileSync, mkdirSync } from "node:fs";
+import { writeFileSync, mkdirSync, readFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const BASE_URL = "https://night-petal.lovable.app";
+
+// Load VITE_SITE_URL from .env (Vite ไม่ได้ inject ให้ node scripts)
+function loadEnv() {
+  const envPath = resolve(__dirname, "..", ".env");
+  if (!existsSync(envPath)) return {};
+  const out = {};
+  for (const line of readFileSync(envPath, "utf8").split("\n")) {
+    const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*"?([^"\n]*)"?\s*$/);
+    if (m) out[m[1]] = m[2];
+  }
+  return out;
+}
+const env = { ...loadEnv(), ...process.env };
+const BASE_URL = (env.VITE_SITE_URL || "https://dev-hightx.web.app").replace(/\/+$/, "");
 
 /** @type {{ path: string; changefreq?: string; priority?: string }[]} */
 const entries = [
@@ -45,4 +58,4 @@ const xml = [
 const out = resolve(__dirname, "..", "public", "sitemap.xml");
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, xml);
-console.log(`sitemap.xml written (${entries.length} entries) → ${out}`);
+console.log(`sitemap.xml written (${entries.length} entries) → ${BASE_URL}`);

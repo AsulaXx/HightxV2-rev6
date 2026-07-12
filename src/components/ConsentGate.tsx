@@ -80,6 +80,10 @@ const ConsentGate = ({ children }: { children: React.ReactNode }) => {
       });
       // Optimistically hide the modal — AuthContext doesn't watch profile changes live
       setLocalAccepted({ t: currentTermsV, p: currentPrivacyV });
+      // Persist so reloads/re-logins on this device don't re-prompt until next version bump
+      if (lsKey) {
+        try { localStorage.setItem(lsKey, JSON.stringify({ t: currentTermsV, p: currentPrivacyV })); } catch {}
+      }
       logConsent({
         userId: user.uid,
         userEmail: user.email || "",

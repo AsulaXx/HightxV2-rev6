@@ -360,7 +360,7 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
   .total-summary-card {
     background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
     @apply text-primary-foreground p-6 rounded-2xl text-center;
-    box-shadow: 0 8px 40px hsl(var(--primary) / 0.3);
+    box-shadow: 0 4px 16px hsl(0 0% 0% / 0.15);
   }
 
   .gradient-pink {

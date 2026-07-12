@@ -318,6 +318,16 @@ const TopUpPage = () => {
   const verifyTrueWallet = async () => {
     if (verifyLockRef.current) return;
     if (!truewalletSlip.slipImage) { toast.error("กรุณาอัปโหลดรูปสลิป TrueWallet ก่อน"); return; }
+
+    // SECURITY (Phase 5): must have configured shop TrueWallet phone.
+    // Without it, ANY TrueWallet slip would be accepted — this was the exploit path.
+    const configuredShopPhone = (settings.truewalletPhone || '').replace(/\D/g, '');
+    if (configuredShopPhone.length < 9) {
+      toast.error("Admin ยังไม่ได้ตั้งค่าเบอร์ TrueWallet ปลายทาง — ระบบเติมสลิป TrueWallet ถูกปิดจนกว่าจะตั้งค่า");
+      setVerifyError("ยังไม่ได้ตั้งค่าเบอร์ TrueWallet ของร้าน — กรุณาแจ้ง Admin");
+      return;
+    }
+
     const rl = checkRateLimit("topup", user?.uid);
     if (!rl.allowed) { toast.error(`เติมเงินบ่อยเกินไป กรุณารออีก ${formatRetryTime(rl.retryAfterMs)}`); return; }
 
@@ -328,7 +338,14 @@ const TopUpPage = () => {
       const { getIdToken } = await import("@/lib/firebaseIdToken");
       const idToken = await getIdToken();
       const { data, error } = await supabase.functions.invoke('verify-slip', {
-        body: { provider: settings.truewalletProvider || 'thunder', type: 'truewallet', base64: truewalletSlip.slipImage, checkDuplicate: true, idToken },
+        body: {
+          provider: 'thunder',
+          type: 'truewallet',
+          base64: truewalletSlip.slipImage,
+          checkDuplicate: true,
+          matchAccount: true, // Thunder-side receiver match
+          idToken,
+        },
       });
       if (error) throw new Error(error.message);
       if (!data.success) { const errMsg = data.error?.message || data.error || "ตรวจสอบลิงก์ TrueWallet ไม่สำเร็จ"; setVerifyError(errMsg); toast.error(errMsg); return; }

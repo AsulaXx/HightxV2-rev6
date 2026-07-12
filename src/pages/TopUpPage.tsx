@@ -376,27 +376,26 @@ const TopUpPage = () => {
         }
       } catch (dupErr) { logError("tw.localDedup", dupErr); }
 
-      // Phone match check
-      if (settings.truewalletPhone) {
-        const configuredPhone = (settings.truewalletPhone || '').replace(/\D/g, '');
+      // MANDATORY receiver-phone verification (last-9-digits strict equality).
+      // configuredShopPhone was validated above (>=9 digits guaranteed).
+      {
         const receiverPhone = (raw.receiver?.phone || slipData.receiver.account || '').replace(/\D/g, '');
-        if (configuredPhone.length >= 9 && receiverPhone.length >= 9) {
-          const phoneMatch = configuredPhone.includes(receiverPhone) || receiverPhone.includes(configuredPhone) || configuredPhone.slice(-9) === receiverPhone.slice(-9);
-          if (!phoneMatch) {
-            const errMsg = `เบอร์ TrueWallet ปลายทางไม่ตรง (สลิป: ${receiverPhone}, ร้าน: ${configuredPhone})`;
-            setVerifyError(errMsg); toast.error("❌ สลิปนี้ไม่ได้โอนเข้า TrueWallet ร้าน!");
-            await addDoc(collection(db, "topUpHistory"), { userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "failed", error: errMsg, slipData, createdAt: serverTimestamp(), method: "truewallet" });
-            await logSlipVerification({ method: "truewallet", result: "failed", amount: slipData.amount, transRef: slipData.transRef, senderName: slipData.sender.name, senderBank: slipData.sender.bank, receiverName: slipData.receiver.name, receiverBank: "TrueWallet", errorMessage: errMsg, slipImage: truewalletSlip.slipImage });
-            try {
-              await sendWebhook(settings, "topUp", [wrongAccountTrueWalletEmbed({
-                userDisplay, amount: slipData.amount, transRef: slipData.transRef,
-                senderName: slipData.sender.name, receiverPhone, shopPhone: configuredPhone, brandName: settings.brandName,
-                slipAttachmentName: truewalletSlipAttachment?.name,
-              })], truewalletSlipAttachment ? { attachments: [truewalletSlipAttachment] } : {});
-            } catch (err) { logError("tw.wrongAccountWebhook", err); }
-            await checkAndAutoBan(user!.uid, userDisplay, errMsg);
-            wallet.loadHistory(); return;
-          }
+        const phoneMatch = receiverPhone.length >= 9 &&
+          configuredShopPhone.slice(-9) === receiverPhone.slice(-9);
+        if (!phoneMatch) {
+          const errMsg = `เบอร์ TrueWallet ปลายทางไม่ตรง (สลิป: ${receiverPhone || '-'}, ร้าน: ${configuredShopPhone})`;
+          setVerifyError(errMsg); toast.error("❌ สลิปนี้ไม่ได้โอนเข้า TrueWallet ร้าน!");
+          await addDoc(collection(db, "topUpHistory"), { userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "failed", error: errMsg, slipData, createdAt: serverTimestamp(), method: "truewallet" });
+          await logSlipVerification({ method: "truewallet", result: "failed", amount: slipData.amount, transRef: slipData.transRef, senderName: slipData.sender.name, senderBank: slipData.sender.bank, receiverName: slipData.receiver.name, receiverBank: "TrueWallet", errorMessage: errMsg, slipImage: truewalletSlip.slipImage });
+          try {
+            await sendWebhook(settings, "topUp", [wrongAccountTrueWalletEmbed({
+              userDisplay, amount: slipData.amount, transRef: slipData.transRef,
+              senderName: slipData.sender.name, receiverPhone, shopPhone: configuredShopPhone, brandName: settings.brandName,
+              slipAttachmentName: truewalletSlipAttachment?.name,
+            })], truewalletSlipAttachment ? { attachments: [truewalletSlipAttachment] } : {});
+          } catch (err) { logError("tw.wrongAccountWebhook", err); }
+          await checkAndAutoBan(user!.uid, userDisplay, errMsg);
+          wallet.loadHistory(); return;
         }
       }
 

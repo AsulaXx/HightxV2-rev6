@@ -344,9 +344,9 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
      TICKER
      ═══════════════════════════════════════════ */
   .ticker-bar {
-    background: hsl(var(--card) / 0.4);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid hsl(var(--border) / 0.2);
+    background: linear-gradient(90deg, hsl(var(--card) / 0.20) 0%, hsl(var(--primary) / 0.06) 50%, hsl(var(--card) / 0.20) 100%);
+    backdrop-filter: blur(20px);
+    border-bottom: none;
   }
 
   /* ═══════════════════════════════════════════

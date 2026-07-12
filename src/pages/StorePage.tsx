@@ -528,26 +528,36 @@ const StorePage = () => {
                           <span className="text-[9px] font-semibold leading-none">{optionCount}</span>
                         </div>
                       )}
-                      {isUnavailable && statusMeta && (
-                        <>
-                          <div className="absolute inset-0 bg-black/45 backdrop-blur-[1px]" />
-                          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                            <div className={`absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent ${statusMeta.shine} to-transparent animate-unavail-shine`} />
-                          </div>
-                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
+                      {isUnavailable && statusMeta && (() => {
+                        const tint =
+                          status === "updating" ? { wash: "from-amber-500/25 via-amber-500/5 to-transparent", chipBg: "bg-amber-500/15 border-amber-400/40 text-amber-300", dot: "bg-amber-400" } :
+                          status === "closed"  ? { wash: "from-red-500/25 via-red-500/5 to-transparent",    chipBg: "bg-red-500/15 border-red-400/40 text-red-300",    dot: "bg-red-400" } :
+                                                  { wash: "from-slate-500/25 via-slate-500/5 to-transparent", chipBg: "bg-slate-500/20 border-slate-300/30 text-slate-200", dot: "bg-slate-300" };
+                        return (
+                          <>
+                            {/* Soft color wash — replaces heavy black overlay */}
+                            <div className={`absolute inset-0 bg-gradient-to-tr ${tint.wash} pointer-events-none`} />
+                            {/* Diagonal hairline pattern for texture */}
                             <div
-                              className={`relative flex items-center justify-center w-11 h-11 rounded-full text-white shadow-2xl ring-2 ring-white/30 backdrop-blur-sm animate-unavail-badge-pop ${statusMeta.glow}`}
-                              style={{ background: statusMeta.grad }}
-                            >
-                              <statusMeta.Icon size={22} strokeWidth={2.5} className={statusMeta.iconAnim} />
+                              className="absolute inset-0 opacity-[0.12] pointer-events-none mix-blend-overlay"
+                              style={{ backgroundImage: "repeating-linear-gradient(45deg, currentColor 0 1px, transparent 1px 8px)" }}
+                            />
+                            {/* Shine sweep (kept, subtler) */}
+                            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                              <div className={`absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent ${statusMeta.shine} to-transparent animate-unavail-shine opacity-60`} />
                             </div>
-                            <span
-                              className="text-[8px] font-bold tracking-widest uppercase text-white px-2 py-0.5 rounded-full backdrop-blur-sm"
-                              style={{ background: statusMeta.grad }}
-                            >{statusMeta.label}</span>
-                          </div>
-                        </>
-                      )}
+                            {/* Floating minimal chip */}
+                            <div className={`absolute bottom-2 left-2 right-2 flex items-center gap-1.5 px-2 py-1 rounded-full backdrop-blur-md border ${tint.chipBg} shadow-sm`}>
+                              <span className={`relative flex w-1.5 h-1.5`}>
+                                <span className={`absolute inline-flex h-full w-full rounded-full ${tint.dot} opacity-70 animate-ping`} />
+                                <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${tint.dot}`} />
+                              </span>
+                              <statusMeta.Icon size={11} strokeWidth={2.4} className={`shrink-0 ${statusMeta.iconAnim}`} />
+                              <span className="text-[9px] font-semibold tracking-wide uppercase truncate">{statusMeta.label}</span>
+                            </div>
+                          </>
+                        );
+                      })()}
                       {hasCooldownActive && !isUnavailable && (
                         <div className="absolute bottom-2 left-2 px-1.5 py-0.5 rounded-full bg-background/85 backdrop-blur-sm border border-amber-400/30 flex items-center gap-1">
                           <Timer size={9} className="text-amber-400" />

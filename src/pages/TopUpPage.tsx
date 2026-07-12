@@ -91,11 +91,12 @@ const TopUpPage = () => {
   const [redeemingGiftCode, setRedeemingGiftCode] = useState(false);
   const [slipPayload, setSlipPayload] = useState("");
 
-  const activeSlipProvider = (settings.slipProvider || 'thunder') as 'thunder'|'rdcw'|'slip2go'|'plernpay';
-  const activeTrueWalletProvider = (settings.truewalletProvider || 'thunder') as 'thunder'|'rdcw'|'slip2go'|'plernpay';
-  const slip2goMode = activeSlipProvider === 'slip2go';
-  const bankIsQr = activeSlipProvider === 'plernpay';
-  const providerLabel = (p: string) => (({ thunder: 'Thunder', rdcw: 'RDCW', slip2go: 'Slip2Go', plernpay: 'PlernPay' } as Record<string,string>)[p] || p);
+  // Phase 5: Only Thunder + PlernPay are supported. Legacy provider settings are ignored.
+  const activeSlipProvider = 'thunder' as const;
+  const activeTrueWalletProvider = 'thunder' as const;
+  const slip2goMode = false;
+  const bankIsQr = false;
+  const providerLabel = (p: string) => (({ thunder: 'Thunder', plernpay: 'PlernPay' } as Record<string,string>)[p] || p);
 
   if (!user) return <RedirectToLogin />;
   if (!topUpSettings.enabled) return (
@@ -317,6 +318,16 @@ const TopUpPage = () => {
   const verifyTrueWallet = async () => {
     if (verifyLockRef.current) return;
     if (!truewalletSlip.slipImage) { toast.error("กรุณาอัปโหลดรูปสลิป TrueWallet ก่อน"); return; }
+
+    // SECURITY (Phase 5): must have configured shop TrueWallet phone.
+    // Without it, ANY TrueWallet slip would be accepted — this was the exploit path.
+    const configuredShopPhone = (settings.truewalletPhone || '').replace(/\D/g, '');
+    if (configuredShopPhone.length < 9) {
+      toast.error("Admin ยังไม่ได้ตั้งค่าเบอร์ TrueWallet ปลายทาง — ระบบเติมสลิป TrueWallet ถูกปิดจนกว่าจะตั้งค่า");
+      setVerifyError("ยังไม่ได้ตั้งค่าเบอร์ TrueWallet ของร้าน — กรุณาแจ้ง Admin");
+      return;
+    }
+
     const rl = checkRateLimit("topup", user?.uid);
     if (!rl.allowed) { toast.error(`เติมเงินบ่อยเกินไป กรุณารออีก ${formatRetryTime(rl.retryAfterMs)}`); return; }
 
@@ -327,7 +338,14 @@ const TopUpPage = () => {
       const { getIdToken } = await import("@/lib/firebaseIdToken");
       const idToken = await getIdToken();
       const { data, error } = await supabase.functions.invoke('verify-slip', {
-        body: { provider: settings.truewalletProvider || 'thunder', type: 'truewallet', base64: truewalletSlip.slipImage, checkDuplicate: true, idToken },
+        body: {
+          provider: 'thunder',
+          type: 'truewallet',
+          base64: truewalletSlip.slipImage,
+          checkDuplicate: true,
+          matchAccount: true, // Thunder-side receiver match
+          idToken,
+        },
       });
       if (error) throw new Error(error.message);
       if (!data.success) { const errMsg = data.error?.message || data.error || "ตรวจสอบลิงก์ TrueWallet ไม่สำเร็จ"; setVerifyError(errMsg); toast.error(errMsg); return; }
@@ -358,27 +376,26 @@ const TopUpPage = () => {
         }
       } catch (dupErr) { logError("tw.localDedup", dupErr); }
 
-      // Phone match check
-      if (settings.truewalletPhone) {
-        const configuredPhone = (settings.truewalletPhone || '').replace(/\D/g, '');
+      // MANDATORY receiver-phone verification (last-9-digits strict equality).
+      // configuredShopPhone was validated above (>=9 digits guaranteed).
+      {
         const receiverPhone = (raw.receiver?.phone || slipData.receiver.account || '').replace(/\D/g, '');
-        if (configuredPhone.length >= 9 && receiverPhone.length >= 9) {
-          const phoneMatch = configuredPhone.includes(receiverPhone) || receiverPhone.includes(configuredPhone) || configuredPhone.slice(-9) === receiverPhone.slice(-9);
-          if (!phoneMatch) {
-            const errMsg = `เบอร์ TrueWallet ปลายทางไม่ตรง (สลิป: ${receiverPhone}, ร้าน: ${configuredPhone})`;
-            setVerifyError(errMsg); toast.error("❌ สลิปนี้ไม่ได้โอนเข้า TrueWallet ร้าน!");
-            await addDoc(collection(db, "topUpHistory"), { userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "failed", error: errMsg, slipData, createdAt: serverTimestamp(), method: "truewallet" });
-            await logSlipVerification({ method: "truewallet", result: "failed", amount: slipData.amount, transRef: slipData.transRef, senderName: slipData.sender.name, senderBank: slipData.sender.bank, receiverName: slipData.receiver.name, receiverBank: "TrueWallet", errorMessage: errMsg, slipImage: truewalletSlip.slipImage });
-            try {
-              await sendWebhook(settings, "topUp", [wrongAccountTrueWalletEmbed({
-                userDisplay, amount: slipData.amount, transRef: slipData.transRef,
-                senderName: slipData.sender.name, receiverPhone, shopPhone: configuredPhone, brandName: settings.brandName,
-                slipAttachmentName: truewalletSlipAttachment?.name,
-              })], truewalletSlipAttachment ? { attachments: [truewalletSlipAttachment] } : {});
-            } catch (err) { logError("tw.wrongAccountWebhook", err); }
-            await checkAndAutoBan(user!.uid, userDisplay, errMsg);
-            wallet.loadHistory(); return;
-          }
+        const phoneMatch = receiverPhone.length >= 9 &&
+          configuredShopPhone.slice(-9) === receiverPhone.slice(-9);
+        if (!phoneMatch) {
+          const errMsg = `เบอร์ TrueWallet ปลายทางไม่ตรง (สลิป: ${receiverPhone || '-'}, ร้าน: ${configuredShopPhone})`;
+          setVerifyError(errMsg); toast.error("❌ สลิปนี้ไม่ได้โอนเข้า TrueWallet ร้าน!");
+          await addDoc(collection(db, "topUpHistory"), { userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "failed", error: errMsg, slipData, createdAt: serverTimestamp(), method: "truewallet" });
+          await logSlipVerification({ method: "truewallet", result: "failed", amount: slipData.amount, transRef: slipData.transRef, senderName: slipData.sender.name, senderBank: slipData.sender.bank, receiverName: slipData.receiver.name, receiverBank: "TrueWallet", errorMessage: errMsg, slipImage: truewalletSlip.slipImage });
+          try {
+            await sendWebhook(settings, "topUp", [wrongAccountTrueWalletEmbed({
+              userDisplay, amount: slipData.amount, transRef: slipData.transRef,
+              senderName: slipData.sender.name, receiverPhone, shopPhone: configuredShopPhone, brandName: settings.brandName,
+              slipAttachmentName: truewalletSlipAttachment?.name,
+            })], truewalletSlipAttachment ? { attachments: [truewalletSlipAttachment] } : {});
+          } catch (err) { logError("tw.wrongAccountWebhook", err); }
+          await checkAndAutoBan(user!.uid, userDisplay, errMsg);
+          wallet.loadHistory(); return;
         }
       }
 

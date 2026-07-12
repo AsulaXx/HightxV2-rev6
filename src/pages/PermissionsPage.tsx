@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth, ROLE_LABELS, ROLE_HIERARCHY, type UserRole } from "@/contexts/AuthContext";
 import { useSiteSettings, DEFAULT_PERMISSIONS_LIST, DEFAULT_ROLE_PERMISSIONS_MAP } from "@/contexts/SiteSettingsContext";
-import { Shield, CheckCircle, XCircle, Crown, Info, Award, ClipboardList } from "lucide-react";
+import { Shield, CheckCircle, XCircle, Crown, Info, Award, ClipboardList, Eye } from "lucide-react";
 import PageBreadcrumb from "@/components/PageBreadcrumb";
 import { Link } from "react-router-dom";
 import PermIcon from "@/components/PermIcon";
+import { toast } from "sonner";
 
 const ROLE_COLORS: Record<string, string> = {
   owner: "from-yellow-500 to-amber-400",
@@ -25,6 +27,21 @@ const PermissionsPage = () => {
 
   const roles = ROLE_HIERARCHY.slice().reverse(); // user first, owner last
 
+  const isOwner = profile?.role === "owner";
+  const [viewAsRole, setViewAsRole] = useState<UserRole | "">("");
+  const effectiveRole = (viewAsRole || profile?.role) as UserRole | undefined;
+
+  const applyViewAsRole = (role: UserRole | "") => {
+    setViewAsRole(role);
+    if (role) {
+      sessionStorage.setItem("__view_as_role", role);
+      toast.success(`กำลังดูในมุมของ: ${ROLE_LABELS[role]} (view-only)`);
+    } else {
+      sessionStorage.removeItem("__view_as_role");
+      toast.info("กลับสู่มุมมองปกติ");
+    }
+  };
+
   return (
     <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-6">
       <PageBreadcrumb
@@ -35,20 +52,42 @@ const PermissionsPage = () => {
       />
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
 
+        {/* Owner: View as role (impersonation preview - view only) */}
+        {isOwner && (
+          <div className="glass-card !p-4 mb-4 flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+              <Eye size={14} className="text-primary" /> ดูในมุมของยศ
+            </div>
+            <select
+              value={viewAsRole}
+              onChange={(e) => applyViewAsRole(e.target.value as UserRole | "")}
+              className="input-glass px-3 py-1.5 text-xs"
+            >
+              <option value="">— ปกติ (Owner) —</option>
+              {ROLE_HIERARCHY.filter(r => r !== "owner").map((r) => (
+                <option key={r} value={r}>{ROLE_LABELS[r as UserRole]}</option>
+              ))}
+            </select>
+            {viewAsRole && (
+              <span className="text-[10px] text-amber-400">โหมดดูอย่างเดียว — ไม่มีการเปลี่ยนสิทธิ์จริง</span>
+            )}
+          </div>
+        )}
+
         {/* Current user role badge */}
         {profile && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="glass-card p-5 mb-6">
             <div className="flex items-center gap-4">
-              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${ROLE_COLORS[profile.role] || "from-slate-500 to-zinc-400"} flex items-center justify-center`}>
+              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${ROLE_COLORS[(effectiveRole || profile.role)] || "from-slate-500 to-zinc-400"} flex items-center justify-center`}>
                 <Crown size={24} className="text-white" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">ยศปัจจุบันของคุณ</p>
-                <p className="text-2xl font-bold text-foreground">{ROLE_LABELS[profile.role]}</p>
+                <p className="text-2xl font-bold text-foreground">{ROLE_LABELS[(effectiveRole || profile.role)]}</p>
               </div>
               <div className="ml-auto">
                 <span className="text-sm text-muted-foreground">
-                  {(rolePermissions[profile.role] || []).length} / {permissions.length} สิทธิ์
+                  {(rolePermissions[(effectiveRole || profile.role)] || []).length} / {permissions.length} สิทธิ์
                 </span>
               </div>
             </div>
@@ -88,7 +127,7 @@ const PermissionsPage = () => {
                     </td>
                     {roles.map((role) => {
                       const has = rolePermissions[role]?.includes(perm.id);
-                      const isCurrentRole = profile?.role === role;
+                      const isCurrentRole = effectiveRole === role;
                       return (
                         <td key={role} className={`text-center py-3 px-2 ${isCurrentRole ? "bg-primary/5" : ""}`}>
                           {has ? (
@@ -114,7 +153,7 @@ const PermissionsPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {ROLE_HIERARCHY.map((role, i) => {
               const perms = rolePermissions[role] || [];
-              const isCurrentRole = profile?.role === role;
+              const isCurrentRole = effectiveRole === role;
               return (
                 <motion.div
                   key={role}

@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { checkRateLimit, formatRetryTime } from "@/lib/rateLimiter";
 import { logActivity } from "@/lib/activityLogger";
 import { supabase } from "@/integrations/supabase/client";
-import { sendWebhook } from "@/lib/webhookSender";
+import { parseUserAgent, sendWebhook } from "@/lib/webhookSender";
 import { invalidateCache } from "@/lib/firestoreCache";
 import { logError, getErrorMessage } from "@/lib/errorLogger";
 import { useNotifications } from "@/components/NotificationPanel";
@@ -92,6 +92,19 @@ const TopUpPage = () => {
   const [redeemingGiftCode, setRedeemingGiftCode] = useState(false);
   const [slipPayload, setSlipPayload] = useState("");
 
+  const webhookMeta = {
+    userName: profile?.displayName || user?.displayName || user?.email || "-",
+    userEmail: user?.email || "-",
+    deviceInfo: typeof navigator !== "undefined"
+      ? `${parseUserAgent(navigator.userAgent)} • ${navigator.platform || "Unknown"}`
+      : "Unknown",
+  };
+
+  const topUpWebhookOptions = (event: string, transRef: string, attachment?: ReturnType<typeof imageAttachment> | null) => ({
+    dedupeKey: `topup:${event}:${transRef || "-"}:${user?.uid || "-"}`,
+    ...(attachment ? { attachments: [attachment] } : {}),
+  });
+
   // Phase 5: Only Thunder + PlernPay are supported. Legacy provider settings are ignored.
   const activeSlipProvider = 'thunder' as const;
   const activeTrueWalletProvider = 'thunder' as const;
@@ -163,10 +176,13 @@ const TopUpPage = () => {
       const sendDuplicateWebhook = async (source: string) => {
         try {
           await sendWebhook(settings, "topUp", [duplicateSlipEmbed({
-            userDisplay, amount: slipData.amount, transRef: slipData.transRef,
-            channel: "สลิปธนาคาร", source, senderInfo: `${slipData.sender.bank} - ${slipData.sender.name}`, brandName: settings.brandName,
+            userDisplay, ...webhookMeta, amount: slipData.amount, transRef: slipData.transRef,
+            channel: "สลิปธนาคาร", source, senderInfo: `${slipData.sender.bank} - ${slipData.sender.name}`,
+            senderName: slipData.sender.name, senderBank: slipData.sender.bank,
+            receiverName: slipData.receiver.name, receiverBank: slipData.receiver.bank,
+            date: slipData.date, brandName: settings.brandName,
             slipAttachmentName: bankSlipAttachment?.name,
-          })], bankSlipAttachment ? { attachments: [bankSlipAttachment] } : {});
+          })], topUpWebhookOptions("duplicate", slipData.transRef, bankSlipAttachment));
         } catch (err) { logError("bank.duplicateWebhook", err); }
       };
 
@@ -237,15 +253,16 @@ const TopUpPage = () => {
           await logSlipVerification({ method: "bank", result: "failed", amount: slipData.amount, transRef: slipData.transRef, senderName: slipData.sender.name, senderBank: slipData.sender.bank, receiverName: slipData.receiver.name, receiverBank: slipData.receiver.bank, errorMessage: errMsg, slipImage: bankSlip.slipImage });
           try {
             await sendWebhook(settings, "topUp", [wrongAccountBankEmbed({
-              userDisplay, amount: slipData.amount, transRef: slipData.transRef,
+              userDisplay, ...webhookMeta, amount: slipData.amount, transRef: slipData.transRef,
               senderBank: slipData.sender.bank, senderName: slipData.sender.name,
               receiverBank: slipData.receiver.bank, receiverName: slipData.receiver.name, receiverAccount: slipData.receiver.account,
+              channel: "สลิปธนาคาร", date: slipData.date,
               reasons: verificationErrors,
               thunderMatch: thunderMatchedAccount ? `✅ ${thunderMatchedAccount.nameTh || thunderMatchedAccount.nameEn}` : "❌ ไม่พบใน Whitelist",
               localAccounts: allConfiguredAccounts.length > 0 ? allConfiguredAccounts.join(', ') : undefined,
               brandName: settings.brandName,
               slipAttachmentName: bankSlipAttachment?.name,
-            })], bankSlipAttachment ? { attachments: [bankSlipAttachment] } : {});
+            })], topUpWebhookOptions("wrong-account", slipData.transRef, bankSlipAttachment));
           } catch (err) { logError("bank.wrongAccountWebhook", err); }
           await checkAndAutoBan(user.uid, userDisplay, errMsg);
           wallet.loadHistory(); return;
@@ -288,12 +305,12 @@ const TopUpPage = () => {
 
       try {
         await sendWebhook(settings, "topUp", [topUpSuccessEmbed({
-          userDisplay, amount: slipData.amount, transRef: slipData.transRef,
+          userDisplay, ...webhookMeta, amount: slipData.amount, transRef: slipData.transRef,
           senderBank: slipData.sender.bank, senderName: slipData.sender.name,
           receiverBank: slipData.receiver.bank, receiverName: slipData.receiver.name,
-          date: slipData.date, brandName: settings.brandName,
+          date: slipData.date, channel: "สลิปธนาคาร", brandName: settings.brandName,
           slipAttachmentName: bankSlipAttachment?.name,
-        })], bankSlipAttachment ? { attachments: [bankSlipAttachment] } : {});
+        })], topUpWebhookOptions("success", slipData.transRef, bankSlipAttachment));
       } catch (err) { logError("bank.successWebhook", err); }
 
       wallet.setBalance(prev => prev + slipData.amount);
@@ -371,7 +388,7 @@ const TopUpPage = () => {
           setVerifyError(errMsg); toast.error("สลิปนี้เคยถูกใช้แล้ว!");
           await safeAddTopUpHistory({ userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "duplicate", slipData, createdAt: serverTimestamp(), method: "truewallet" });
           await logSlipVerification({ method: "truewallet", result: "duplicate", amount: slipData.amount, transRef: slipData.transRef, senderName: slipData.sender.name, senderBank: slipData.sender.bank, errorMessage: errMsg, slipImage: truewalletSlip.slipImage });
-          try { await sendWebhook(settings, "topUp", [duplicateSlipEmbed({ userDisplay, amount: slipData.amount, transRef: slipData.transRef, channel: "TrueWallet", source: "ระบบภายใน (Firestore)", brandName: settings.brandName, slipAttachmentName: truewalletSlipAttachment?.name })], truewalletSlipAttachment ? { attachments: [truewalletSlipAttachment] } : {}); } catch (e) { logError("tw.dupWebhook", e); }
+          try { await sendWebhook(settings, "topUp", [duplicateSlipEmbed({ userDisplay, ...webhookMeta, amount: slipData.amount, transRef: slipData.transRef, channel: "TrueWallet", source: "ระบบภายใน (Firestore)", senderName: slipData.sender.name, senderBank: slipData.sender.bank, receiverName: slipData.receiver.name, receiverBank: slipData.receiver.bank, date: slipData.date, brandName: settings.brandName, slipAttachmentName: truewalletSlipAttachment?.name })], topUpWebhookOptions("duplicate", slipData.transRef, truewalletSlipAttachment)); } catch (e) { logError("tw.dupWebhook", e); }
           await checkAndAutoBan(user!.uid, userDisplay, errMsg);
           wallet.loadHistory(); return;
         }
@@ -408,10 +425,10 @@ const TopUpPage = () => {
           await logSlipVerification({ method: "truewallet", result: "failed", amount: slipData.amount, transRef: slipData.transRef, senderName: slipData.sender.name, senderBank: slipData.sender.bank, receiverName: slipData.receiver.name, receiverBank: "TrueWallet", errorMessage: errMsg, slipImage: truewalletSlip.slipImage });
           try {
             await sendWebhook(settings, "topUp", [wrongAccountTrueWalletEmbed({
-              userDisplay, amount: slipData.amount, transRef: slipData.transRef,
-              senderName: slipData.sender.name, receiverPhone: maskedPhoneRaw, shopPhone: configuredShopPhone, brandName: settings.brandName,
+              userDisplay, ...webhookMeta, amount: slipData.amount, transRef: slipData.transRef,
+              senderName: slipData.sender.name, receiverName: slipData.receiver.name, receiverPhone: maskedPhoneRaw, shopPhone: configuredShopPhone, date: slipData.date, brandName: settings.brandName,
               slipAttachmentName: truewalletSlipAttachment?.name,
-            })], truewalletSlipAttachment ? { attachments: [truewalletSlipAttachment] } : {});
+            })], topUpWebhookOptions("wrong-account", slipData.transRef, truewalletSlipAttachment));
           } catch (err) { logError("tw.wrongAccountWebhook", err); }
           await checkAndAutoBan(user!.uid, userDisplay, errMsg);
           wallet.loadHistory(); return;
@@ -425,7 +442,7 @@ const TopUpPage = () => {
         setVerifyError("ลิงก์นี้เคยถูกใช้แล้ว (Thunder API)"); toast.error("ลิงก์นี้เคยถูกใช้แล้ว");
         await safeAddTopUpHistory({ userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "duplicate", slipData, createdAt: serverTimestamp(), method: "truewallet" });
         await logSlipVerification({ method: "truewallet", result: "duplicate", amount: slipData.amount, transRef: slipData.transRef, senderName: slipData.sender.name, senderBank: slipData.sender.bank, slipImage: truewalletSlip.slipImage });
-        try { await sendWebhook(settings, "topUp", [duplicateSlipEmbed({ userDisplay, amount: slipData.amount, transRef: slipData.transRef, channel: "TrueWallet", source: "Thunder API", brandName: settings.brandName, slipAttachmentName: truewalletSlipAttachment?.name })], truewalletSlipAttachment ? { attachments: [truewalletSlipAttachment] } : {}); } catch (e) { logError("tw.thunderDupWebhook", e); }
+        try { await sendWebhook(settings, "topUp", [duplicateSlipEmbed({ userDisplay, ...webhookMeta, amount: slipData.amount, transRef: slipData.transRef, channel: "TrueWallet", source: "Thunder API", senderName: slipData.sender.name, senderBank: slipData.sender.bank, receiverName: slipData.receiver.name, receiverBank: slipData.receiver.bank, date: slipData.date, brandName: settings.brandName, slipAttachmentName: truewalletSlipAttachment?.name })], topUpWebhookOptions("duplicate", slipData.transRef, truewalletSlipAttachment)); } catch (e) { logError("tw.thunderDupWebhook", e); }
         wallet.loadHistory(); return;
       }
 
@@ -449,7 +466,7 @@ const TopUpPage = () => {
           const errMsg = "ลิงก์นี้เคยถูกใช้แล้ว (atomic guard)";
           setVerifyError(errMsg); toast.error("ลิงก์นี้เคยถูกใช้แล้ว!");
           await safeAddTopUpHistory({ userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "duplicate", slipData, createdAt: serverTimestamp(), method: "truewallet" });
-          try { await sendWebhook(settings, "topUp", [duplicateSlipEmbed({ userDisplay, amount: slipData.amount, transRef: slipData.transRef, channel: "TrueWallet", source: "Atomic guard", brandName: settings.brandName, slipAttachmentName: truewalletSlipAttachment?.name })], truewalletSlipAttachment ? { attachments: [truewalletSlipAttachment] } : {}); } catch {}
+          try { await sendWebhook(settings, "topUp", [duplicateSlipEmbed({ userDisplay, ...webhookMeta, amount: slipData.amount, transRef: slipData.transRef, channel: "TrueWallet", source: "Atomic guard", senderName: slipData.sender.name, senderBank: slipData.sender.bank, receiverName: slipData.receiver.name, receiverBank: slipData.receiver.bank, date: slipData.date, brandName: settings.brandName, slipAttachmentName: truewalletSlipAttachment?.name })], topUpWebhookOptions("duplicate", slipData.transRef, truewalletSlipAttachment)); } catch {}
           wallet.loadHistory(); return;
         }
         throw e;
@@ -460,11 +477,12 @@ const TopUpPage = () => {
 
       try {
         await sendWebhook(settings, "topUp", [topUpTrueWalletSuccessEmbed({
-          userDisplay, amount: slipData.amount, creditAmount,
+          userDisplay, ...webhookMeta, amount: slipData.amount, creditAmount,
           feeEnabled: !!topUpSettings.truewalletFeeEnabled, feePercent: topUpSettings.truewalletFeePercent,
-          transRef: slipData.transRef, senderName: slipData.sender.name, brandName: settings.brandName,
+          transRef: slipData.transRef, senderName: slipData.sender.name, receiverName: slipData.receiver.name, receiverBank: slipData.receiver.bank,
+          date: slipData.date, channel: "TrueWallet", brandName: settings.brandName,
           slipAttachmentName: truewalletSlipAttachment?.name,
-        })], truewalletSlipAttachment ? { attachments: [truewalletSlipAttachment] } : {});
+        })], topUpWebhookOptions("success", slipData.transRef, truewalletSlipAttachment));
       } catch (err) { logError("tw.successWebhook", err); }
 
       wallet.setBalance(prev => prev + creditAmount);

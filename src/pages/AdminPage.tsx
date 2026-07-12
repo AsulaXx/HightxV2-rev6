@@ -37,7 +37,6 @@ import AdminPermissionsTab from "@/components/admin/AdminPermissionsTab";
 
 import AdminRuzienBypassTab from "@/components/admin/AdminRuzienBypassTab";
 import PageBreadcrumb from "@/components/PageBreadcrumb";
-import AdminStatusWidget from "@/components/admin/AdminStatusWidget";
 import PermIcon from "@/components/PermIcon";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, doc, onSnapshot } from "firebase/firestore";

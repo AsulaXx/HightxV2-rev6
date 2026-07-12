@@ -161,7 +161,7 @@ const AllClaimHistoryPage = () => {
   const freeClaims = claims.filter(c => !c.price || c.price === 0);
 
   return (
-    <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-6">
+    <div className="relative z-10 max-w-[1720px] mx-auto px-4 sm:px-6 py-6">
       <PageBreadcrumb
         items={[{ label: "เมนู", path: "/hub" }, { label: "Dashboard", path: "/dashboard" }, { label: "ประวัติการกดคีย์ทั้งหมด" }]}
         title="ประวัติการกดคีย์ทั้งหมด"

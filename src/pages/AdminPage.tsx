@@ -450,7 +450,7 @@ const AdminPage = () => {
 
           {/* Content */}
           <div ref={contentScrollRef} className="flex-1 overflow-y-auto" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-            <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-5 pb-24 md:pb-8">
+            <div className="max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8 py-5 pb-24 md:pb-8">
 
 
                 {/* Sub-tab overlay sheet (mobile) */}

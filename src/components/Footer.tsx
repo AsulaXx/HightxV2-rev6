@@ -7,7 +7,7 @@ const Footer = () => {
 
   return (
     <footer className="relative z-10 mt-auto">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
+      <div className="max-w-[1720px] mx-auto px-4 sm:px-6 py-6">
         <div className="glass-panel rounded-xl flex flex-col sm:flex-row justify-between items-center gap-2 px-5 py-3">
           <p className="text-[11px] text-muted-foreground">
             {settings.footerText}

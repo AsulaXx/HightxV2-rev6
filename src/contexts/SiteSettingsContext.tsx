@@ -17,6 +17,17 @@ export interface ParticlesConfig {
   linkDistance: number;
 }
 
+export interface Theme3DConfig {
+  /** 0-100 — ความแรงของ glow บนการ์ด/ปุ่ม */
+  glow: number;
+  /** 0-8 (deg) — องศาเอียง 3D บน hover */
+  tilt: number;
+  /** hex — สี gradient หลัก (from) */
+  gradientFrom: string;
+  /** hex — สี gradient หลัก (to) */
+  gradientTo: string;
+}
+
 interface ThemeSettings {
   primaryColor: string;
   secondaryColor: string;
@@ -29,6 +40,7 @@ interface ThemeSettings {
   particles?: ParticlesConfig;
   fontHeading?: string;
   fontBody?: string;
+  fx3d?: Theme3DConfig;
 }
 
 export interface SocialLink {

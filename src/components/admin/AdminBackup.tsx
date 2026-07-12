@@ -638,6 +638,75 @@ const AdminBackup = ({ user, profile }: AdminBackupProps) => {
           )}
         </AnimatePresence>
       </div>
+
+      {/* CSV Export Choice Modal */}
+      <AnimatePresence>
+        {csvModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => setCsvModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="glass-card !p-5 max-w-md w-full space-y-4 relative"
+            >
+              <button
+                onClick={() => setCsvModalOpen(false)}
+                className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
+              >
+                <X size={16} />
+              </button>
+              <div>
+                <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                  <FileText size={18} className="text-amber-400" /> เลือกรูปแบบ CSV
+                </h3>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  เลือกแล้ว {selectedCollections.size} คอลเลกชัน
+                </p>
+              </div>
+
+              <button
+                onClick={exportCSVKeysOnly}
+                disabled={
+                  ![...selectedCollections].some(c => c === "keys" || c === "archivedKeys")
+                }
+                className="w-full text-left p-4 rounded-xl border border-border/40 bg-card/50 hover:bg-primary/10 hover:border-primary/40 transition-all disabled:opacity-40 disabled:cursor-not-allowed group"
+              >
+                <div className="flex items-start gap-3">
+                  <KeyIcon size={18} className="text-amber-400 mt-0.5 shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-foreground">เฉพาะคีย์ (Keys Only)</p>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      1 คีย์ต่อบรรทัด — เหมาะกับ import กลับเข้าระบบ (ต้องเลือก keys หรือ archivedKeys)
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={exportCSVFull}
+                className="w-full text-left p-4 rounded-xl border border-border/40 bg-card/50 hover:bg-primary/10 hover:border-primary/40 transition-all group"
+              >
+                <div className="flex items-start gap-3">
+                  <FileText size={18} className="text-emerald-400 mt-0.5 shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-foreground">CSV ปกติ (ทุก field)</p>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      Export ทุก field เป็นตาราง CSV มาตรฐาน (1 ไฟล์/คอลเลกชัน) เปิดใน Excel ได้
+                    </p>
+                  </div>
+                </div>
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

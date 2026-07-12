@@ -2,7 +2,9 @@ import { Save, Upload } from "lucide-react";
 import { AdminTabProps } from "./AdminTabProps";
 import type { BgMusicConfig } from "@/contexts/SiteSettingsContext";
 import { supabase } from "@/integrations/supabase/client";
+import { getSupabaseUploadPrefix } from "@/lib/supabaseSync";
 import { toast } from "sonner";
+
 
 const AdminMusicTab = ({ form, setForm, handleSave }: AdminTabProps) => {
   const music = form.bgMusic || { enabled: false, url: "", coverUrl: "", title: "", artist: "", startTime: 0, autoPlay: true };
@@ -38,10 +40,18 @@ const AdminMusicTab = ({ form, setForm, handleSave }: AdminTabProps) => {
                   if (!file) return;
                   if (file.size > 20 * 1024 * 1024) { toast.error("ไฟล์ใหญ่เกิน 20MB"); return; }
                   const ext = file.name.split(".").pop() || "mp3";
-                  const path = `main/${Date.now()}.${ext}`;
                   toast.loading("กำลังอัปโหลดเพลง...", { id: "music-upload" });
+                  let path: string;
+                  try {
+                    const prefix = await getSupabaseUploadPrefix();
+                    path = `${prefix}/${Date.now()}.${ext}`;
+                  } catch (err: any) {
+                    toast.error("เซสชันหมดอายุ กรุณา login ใหม่", { id: "music-upload" });
+                    return;
+                  }
                   const { error } = await supabase.storage.from("music").upload(path, file, { cacheControl: "3600", upsert: false });
                   if (error) { toast.error("อัปโหลดล้มเหลว: " + error.message, { id: "music-upload" }); return; }
+
                   const { data: urlData } = supabase.storage.from("music").getPublicUrl(path);
                   updateMusic({ url: urlData.publicUrl });
                   toast.success("อัปโหลดเพลงสำเร็จ!", { id: "music-upload" });

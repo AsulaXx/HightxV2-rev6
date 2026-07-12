@@ -1011,12 +1011,21 @@ const LinkTreePage = () => {
                                   const ext = file.name.split('.').pop() || 'mp3';
                                   // Delete old file if replacing
                                   if (formBgMusicUrl) await deleteOldMusicFile(formBgMusicUrl);
-                                  const path = `${user!.uid}/${Date.now()}.${ext}`;
                                   toast.loading("กำลังอัพโหลดเพลง...", { id: "music-upload" });
+                                  let path: string;
+                                  try {
+                                    const { getSupabaseUploadPrefix } = await import("@/lib/supabaseSync");
+                                    const prefix = await getSupabaseUploadPrefix();
+                                    path = `${prefix}/${Date.now()}.${ext}`;
+                                  } catch (err: any) {
+                                    toast.error("เซสชันหมดอายุ กรุณา login ใหม่", { id: "music-upload" });
+                                    return;
+                                  }
                                   const { error } = await supabase.storage.from("music").upload(path, file, {
                                     cacheControl: "3600",
                                     upsert: false,
                                   });
+
                                   if (error) {
                                     toast.error("อัพโหลดไม่สำเร็จ: " + error.message, { id: "music-upload" });
                                     return;

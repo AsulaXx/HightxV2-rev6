@@ -4,6 +4,8 @@ import { logActivity } from "@/lib/activityLogger";
 import { sendWebhook, getClientInfo, parseUserAgent } from "@/lib/webhookSender";
 import { loginEmbed, signupEmbed, maskEmail, maskIp, isPiiMaskingEnabled } from "@/lib/webhookTemplates";
 import { logError } from "@/lib/errorLogger";
+import { syncSupabaseSession, clearSupabaseSession } from "@/lib/supabaseSync";
+
 import {
   onAuthStateChanged, 
   signInWithEmailAndPassword, 

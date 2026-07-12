@@ -3,6 +3,7 @@ import { Save, Image, Palette, Sparkles } from "lucide-react";
 import AdminSection from "./AdminSection";
 import { AdminTabProps } from "./AdminTabProps";
 import { type ParticlesConfig } from "@/contexts/SiteSettingsContext";
+import ImageUploadField from "./ImageUploadField";
 
 const hslToHex = (hslStr: string): string => {
   try {

@@ -526,7 +526,7 @@ const GlobalCartPanel = () => {
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.92 }}
             onClick={() => setShowCart(true)}
-            className="fixed bottom-6 right-6 z-[9999] w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/25 flex items-center justify-center"
+            className="fixed bottom-6 right-6 z-[9999] w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-md hover:shadow-xl hover:shadow-primary/25 transition-shadow flex items-center justify-center"
           >
             <ShoppingCart size={18} />
             <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center ring-2 ring-background">
@@ -561,7 +561,7 @@ const GlobalCartPanel = () => {
               className="flex items-center justify-between px-4 sm:px-8 py-4 border-b border-border/15"
             >
               <div className="flex items-center gap-3">
-                <motion.div whileHover={{ rotate: 12, scale: 1.06 }} className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary/25 to-accent/15 border border-primary/20 flex items-center justify-center shadow-lg shadow-primary/20">
+                <motion.div whileHover={{ rotate: 12, scale: 1.06 }} className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary/25 to-accent/15 border border-primary/20 flex items-center justify-center hover:shadow-lg hover:shadow-primary/20 transition-shadow">
                   <ShoppingCart size={20} className="text-primary" />
                 </motion.div>
                 <div>
@@ -584,7 +584,7 @@ const GlobalCartPanel = () => {
                       <motion.div
                         animate={{ y: [0, -12, 0], rotate: [0, -4, 4, 0] }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                        className="relative w-32 h-32 rounded-[2rem] bg-gradient-to-br from-primary/20 via-accent/10 to-transparent border border-primary/15 flex items-center justify-center mb-6 shadow-2xl shadow-primary/20"
+                        className="relative w-32 h-32 rounded-[2rem] bg-gradient-to-br from-primary/20 via-accent/10 to-transparent border border-primary/15 flex items-center justify-center mb-6"
                       >
                         <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-primary/10 to-transparent blur-2xl" />
                         <ShoppingCart size={56} strokeWidth={1.4} className="text-primary/70 relative z-10" />
@@ -718,7 +718,7 @@ const GlobalCartPanel = () => {
                       initial={{ opacity: 0, scale: 0.96 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.15 }}
-                      className="relative overflow-hidden p-4 rounded-2xl border border-primary/25 shadow-xl shadow-primary/10"
+                      className="relative overflow-hidden p-4 rounded-2xl border border-primary/25"
                       style={{ background: "linear-gradient(135deg, hsl(var(--primary) / 0.12), hsl(var(--accent) / 0.08))" }}
                     >
                       <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-primary/15 blur-3xl pointer-events-none" />
@@ -789,7 +789,7 @@ const GlobalCartPanel = () => {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setShowConfirmDialog(true)}
                     disabled={claiming || cart.length === 0 || (!canFreeClaim && totalCartPrice > 0 && walletBalance < totalCartPrice)}
-                    className="relative w-full py-4 text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed rounded-2xl text-primary-foreground overflow-hidden shadow-2xl shadow-primary/30 transition-all"
+                    className="relative w-full py-4 text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed rounded-2xl text-primary-foreground overflow-hidden shadow-md hover:shadow-2xl hover:shadow-primary/30 transition-all"
                     style={{ background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))" }}
                   >
                     <motion.div

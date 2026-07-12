@@ -83,7 +83,7 @@ const Navbar = () => {
         <div className={`mx-auto flex items-center justify-between gap-4 transition-all duration-500 ease-out ${scrolled ? "h-14 max-w-6xl px-4 sm:px-8 lg:px-10" : "h-20 max-w-[1400px] px-4 sm:px-10 lg:px-16"}`}>
           {/* Brand */}
           <Link to="/" className={`flex items-center gap-3 shrink-0 group rounded-xl ${FOCUS_RING}`}>
-            <div className={`rounded-2xl overflow-hidden transition-all duration-500 ease-out group-hover:scale-110 group-hover:rotate-6 ring-1 ring-white/10 shadow-lg shadow-primary/10 ${scrolled ? "w-9 h-9" : "w-12 h-12"}`}>
+            <div className={`rounded-2xl overflow-hidden transition-all duration-500 ease-out group-hover:scale-110 group-hover:rotate-6 ring-1 ring-white/10 group-hover:shadow-lg group-hover:shadow-primary/10 ${scrolled ? "w-9 h-9" : "w-12 h-12"}`}>
               <img src={logo} alt="Logo" className="w-full h-full object-contain" />
             </div>
             <span className={`font-bold gradient-text tracking-tight hidden sm:block transition-all duration-500 ${scrolled ? "text-sm" : "text-lg"}`}>

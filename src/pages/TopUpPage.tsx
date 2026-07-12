@@ -377,27 +377,47 @@ const TopUpPage = () => {
         }
       } catch (dupErr) { logError("tw.localDedup", dupErr); }
 
-      // MANDATORY receiver-phone verification (last-9-digits strict equality).
-      // configuredShopPhone was validated above (>=9 digits guaranteed).
+      // MANDATORY receiver-phone verification.
+      // Thunder v2 คืน receiver.phone แบบ MASKED เช่น "09*-***-5604" — เทียบตรงๆ ไม่ได้
+      // ลำดับความเชื่อถือ:
+      //  1) data.data.matchedAccount.bankNumber (เลขเต็มไม่มาสก์ จาก Thunder ที่ match กับบัญชีที่ลงทะเบียนไว้)
+      //  2) fallback: เทียบ last-4 digits ของเบอร์มาสก์ + prefix "09" (ยอมรับได้เพราะรวมกับ transactionId dedup แล้ว)
       {
-        const receiverPhone = (raw.receiver?.phone || slipData.receiver.account || '').replace(/\D/g, '');
-        const phoneMatch = receiverPhone.length >= 9 &&
-          configuredShopPhone.slice(-9) === receiverPhone.slice(-9);
+        const matchedBankNumber = (data.data?.matchedAccount?.bankNumber || '').replace(/\D/g, '');
+        const maskedPhoneRaw = (raw.receiver?.phone || slipData.receiver.account || '');
+        const maskedDigits = maskedPhoneRaw.replace(/\D/g, '');
+        const shopLast9 = configuredShopPhone.slice(-9);
+        const shopLast4 = configuredShopPhone.slice(-4);
+
+        let phoneMatch = false;
+        let matchMethod = '';
+        if (matchedBankNumber.length >= 9 && matchedBankNumber.slice(-9) === shopLast9) {
+          phoneMatch = true; matchMethod = 'matchedAccount';
+        } else if (maskedDigits.length >= 4 && maskedDigits.slice(-4) === shopLast4) {
+          // ตรวจสอบว่าเบอร์เริ่มด้วยเลข 2 ตัวแรกตรงกันด้วย (ถ้าดึงได้)
+          const maskedPrefix = (maskedPhoneRaw.match(/^\D*(\d{1,3})/)?.[1] || '').replace(/\D/g, '');
+          const shopPrefix = configuredShopPhone.slice(0, maskedPrefix.length);
+          phoneMatch = maskedPrefix.length === 0 || maskedPrefix === shopPrefix;
+          if (phoneMatch) matchMethod = 'masked-last4';
+        }
+
         if (!phoneMatch) {
-          const errMsg = `เบอร์ TrueWallet ปลายทางไม่ตรง (สลิป: ${receiverPhone || '-'}, ร้าน: ${configuredShopPhone})`;
+          const errMsg = `เบอร์ TrueWallet ปลายทางไม่ตรง (สลิป: ${maskedPhoneRaw || '-'}, ร้าน: ${configuredShopPhone})`;
           setVerifyError(errMsg); toast.error("❌ สลิปนี้ไม่ได้โอนเข้า TrueWallet ร้าน!");
           await safeAddTopUpHistory({ userId: user!.uid, userEmail: user!.email, userName: userDisplay, amount: slipData.amount, transRef: slipData.transRef, status: "failed", error: errMsg, slipData, createdAt: serverTimestamp(), method: "truewallet" });
           await logSlipVerification({ method: "truewallet", result: "failed", amount: slipData.amount, transRef: slipData.transRef, senderName: slipData.sender.name, senderBank: slipData.sender.bank, receiverName: slipData.receiver.name, receiverBank: "TrueWallet", errorMessage: errMsg, slipImage: truewalletSlip.slipImage });
           try {
             await sendWebhook(settings, "topUp", [wrongAccountTrueWalletEmbed({
               userDisplay, amount: slipData.amount, transRef: slipData.transRef,
-              senderName: slipData.sender.name, receiverPhone, shopPhone: configuredShopPhone, brandName: settings.brandName,
+              senderName: slipData.sender.name, receiverPhone: maskedPhoneRaw, shopPhone: configuredShopPhone, brandName: settings.brandName,
               slipAttachmentName: truewalletSlipAttachment?.name,
             })], truewalletSlipAttachment ? { attachments: [truewalletSlipAttachment] } : {});
           } catch (err) { logError("tw.wrongAccountWebhook", err); }
           await checkAndAutoBan(user!.uid, userDisplay, errMsg);
           wallet.loadHistory(); return;
         }
+        // eslint-disable-next-line no-console
+        console.info(`[TW] receiver verified via ${matchMethod}`);
       }
 
       // Thunder API duplicate

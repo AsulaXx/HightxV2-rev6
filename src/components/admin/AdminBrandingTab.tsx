@@ -49,7 +49,7 @@ const AdminBrandingTab = ({ form, setForm, handleSave }: AdminTabProps) => {
         </div>
         <div>
           <label className="block text-sm font-semibold text-foreground mb-2">Favicon URL</label>
-          <input type="url" value={form.faviconUrl || ""} onChange={(e) => setForm({ ...form, faviconUrl: e.target.value })} className="input-glass w-full px-4 py-3 text-sm" placeholder="https://... (ถ้าว่างจะใช้ Logo)" />
+          <ImageUploadField value={form.faviconUrl || ""} onChange={(url) => setForm({ ...form, faviconUrl: url })} folder="favicon" placeholder="https://... (ถ้าว่างจะใช้ Logo)" previewClassName="w-10 h-10 rounded-xl object-contain border border-border shrink-0" />
         </div>
       </AdminSection>
 

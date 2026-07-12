@@ -286,19 +286,14 @@ const Index = () => {
 
       {/* Stats Bar */}
       {(settings.homeSectionVisibility?.stats !== false) && (
-      <motion.section
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className={`${maxWidthClass()} mx-auto px-4 sm:px-6 ${spacingClass()}`}
-      >
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+      <section className={`${maxWidthClass()} mx-auto px-4 sm:px-6 ${spacingClass()}`}>
+        <RevealGroup step={90} className="grid grid-cols-3 gap-2 sm:gap-3">
           {[
             { icon: Users, label: "ผู้ใช้งาน", value: siteStats.users.toLocaleString(), unit: "คน" },
             { icon: BoxesIcon, label: "สต็อก", value: siteStats.stock.toLocaleString(), unit: "ชิ้น" },
             { icon: ShoppingCart, label: "ยอดขาย", value: siteStats.sales.toLocaleString(), unit: "ชิ้น" },
           ].map((stat) => (
-            <div key={stat.label} className={`glass-card flex items-center gap-2.5 sm:gap-3 !p-3 sm:!p-4 ${radiusClass()}`}>
+            <Reveal key={stat.label} className={`glass-card glass-card-hover flex items-center gap-2.5 sm:gap-3 !p-3 sm:!p-4 ${radiusClass()}`}>
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-muted/50 border border-border/30 flex items-center justify-center shrink-0">
                 <stat.icon size={16} className="text-muted-foreground sm:w-5 sm:h-5" />
               </div>
@@ -306,10 +301,10 @@ const Index = () => {
                 <p className="text-[10px] sm:text-xs text-muted-foreground/60 leading-tight">{stat.label}</p>
                 <p className="text-sm sm:text-base font-bold text-foreground leading-tight">{stat.value} <span className="text-[10px] sm:text-xs font-normal text-muted-foreground">{stat.unit}</span></p>
               </div>
-            </div>
+            </Reveal>
           ))}
-        </div>
-      </motion.section>
+        </RevealGroup>
+      </section>
       )}
 
 

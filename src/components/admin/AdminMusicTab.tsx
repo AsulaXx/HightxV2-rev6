@@ -76,9 +76,8 @@ const AdminMusicTab = ({ form, setForm, handleSave }: AdminTabProps) => {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-foreground mb-2">URL รูปหน้าปก</label>
-          <input type="url" value={music.coverUrl} onChange={(e) => updateMusic({ coverUrl: e.target.value })} className="input-glass w-full px-4 py-3 text-sm" placeholder="https://example.com/cover.jpg" />
-          {music.coverUrl && <img src={music.coverUrl} alt="cover" className="w-16 h-16 rounded-xl object-cover mt-2" />}
+          <label className="block text-sm font-semibold text-foreground mb-2">รูปหน้าปก</label>
+          <ImageUploadField value={music.coverUrl || ""} onChange={(url) => updateMusic({ coverUrl: url })} folder="music-cover" previewClassName="w-16 h-16 rounded-xl object-cover" />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

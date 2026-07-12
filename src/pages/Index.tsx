@@ -10,6 +10,8 @@ import { db } from "@/lib/firebase";
 import { collection, getDocs, query, orderBy, limit as fbLimit, getCountFromServer, where } from "firebase/firestore";
 import { cachedQuery, invalidateCache } from "@/lib/firestoreCache";
 import TypingText from "@/components/TypingText";
+import Reveal, { RevealGroup } from "@/components/Reveal";
+import { useMouseParallax } from "@/hooks/useMouseParallax";
 
 interface Announcement {
   id: string;

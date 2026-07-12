@@ -803,7 +803,7 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="relative z-10 max-w-[1720px] mx-auto px-3 sm:px-4 py-3">
+    <div className="relative z-10 max-w-6xl mx-auto px-3 sm:px-4 py-3">
       <PageBreadcrumb
         items={[{ label: "เมนู", path: "/hub" }, { label: "Dashboard" }]}
         title="Dashboard"

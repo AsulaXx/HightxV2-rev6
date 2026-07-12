@@ -188,11 +188,13 @@ const App = () => (
                    <GlowOrbs />
                    <BackgroundParticles />
                    <div className="relative z-10 flex flex-col min-h-screen">
-                     <AnimatedRoutes />
-                   <GlobalMusicPlayer />
-                   <GlobalCartPanel />
-                   <NotificationPanel />
-                 </div>
+                     <ConsentGate>
+                       <AnimatedRoutes />
+                       <GlobalMusicPlayer />
+                       <GlobalCartPanel />
+                       <NotificationPanel />
+                     </ConsentGate>
+                   </div>
               </BrowserRouter>
               </NotificationProvider>
               </CartProvider>

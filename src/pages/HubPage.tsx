@@ -72,15 +72,11 @@ const HubPage = () => {
     { icon: Trophy, title: "Leaderboard", desc: "อันดับลูกค้าซื้อสินค้ามากที่สุด", path: "/leaderboard" },
   ];
 
-  // ─── Section: เครื่องมือทีมงาน (Moderator+ เข้า Dashboard, HightXCrew+ เครื่องมืออื่น) ───
+  // ─── Section: เครื่องมือทีมงาน (HightXCrew+) ───
   const teamTools: Item[] = [];
-  if (isMod) {
-    teamTools.push(
-      { icon: LayoutDashboard, title: "Dashboard", desc: "ภาพรวมระบบ สถิติและจำนวนผู้ใช้", path: "/dashboard" },
-    );
-  }
   if (isHightXCrew) {
     teamTools.push(
+      { icon: LayoutDashboard, title: "Dashboard", desc: "ภาพรวมระบบ สถิติและจำนวนผู้ใช้", path: "/dashboard" },
       { icon: BarChart3, title: "วิเคราะห์ยอดขาย", desc: "วิเคราะห์ข้อมูลการขายพร้อมกราฟ", path: "/analytics" },
       { icon: Package, title: "จัดการสต็อก", desc: "แปลงรหัสสินค้า จัดการสต็อก", path: "/stock" },
       { icon: Share2, title: "Link รวม", desc: "สร้างหน้ารวมลิงก์แบบ Linktree", path: "/links" },

@@ -789,7 +789,7 @@ const GlobalCartPanel = () => {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setShowConfirmDialog(true)}
                     disabled={claiming || cart.length === 0 || (!canFreeClaim && totalCartPrice > 0 && walletBalance < totalCartPrice)}
-                    className="relative w-full py-4 text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed rounded-2xl text-primary-foreground overflow-hidden shadow-2xl shadow-primary/30 transition-all"
+                    className="relative w-full py-4 text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed rounded-2xl text-primary-foreground overflow-hidden shadow-md hover:shadow-2xl hover:shadow-primary/30 transition-all"
                     style={{ background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))" }}
                   >
                     <motion.div

@@ -70,6 +70,7 @@ const Navbar = () => {
   const navItems = [
     { path: "/", label: "หน้าหลัก", icon: Home },
     ...(user ? [{ path: "/store", label: "ร้านค้า", icon: ShoppingBag }] : []),
+    ...(user && !scrolled ? [{ path: "/history", label: "ประวัติการซื้อ", icon: History }] : []),
   ];
 
   const pillBase = `flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${TRANSITION} ${FOCUS_RING}`;
@@ -79,7 +80,7 @@ const Navbar = () => {
   return (
     <>
       <nav className={`nav-glass sticky top-0 z-50 transition-all duration-500 ease-out relative ${scrolled ? "shadow-lg shadow-primary/10" : ""}`}>
-        <div className={`max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4 transition-all duration-500 ease-out ${scrolled ? "h-14" : "h-20"}`}>
+        <div className={`mx-auto flex items-center justify-between gap-4 transition-all duration-500 ease-out ${scrolled ? "h-14 max-w-4xl px-3 sm:px-4" : "h-20 max-w-7xl px-4 sm:px-8 lg:px-12"}`}>
           {/* Brand */}
           <Link to="/" className={`flex items-center gap-3 shrink-0 group rounded-xl ${FOCUS_RING}`}>
             <div className={`rounded-2xl overflow-hidden transition-all duration-500 ease-out group-hover:scale-110 group-hover:rotate-6 ring-1 ring-white/10 shadow-lg shadow-primary/10 ${scrolled ? "w-9 h-9" : "w-12 h-12"}`}>

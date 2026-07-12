@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Save, FileText, Shield, Rocket, Info } from "lucide-react";
 import { AdminTabProps } from "./AdminTabProps";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { toast } from "sonner";
 
 const defaultTosContentTh = `ข้อตกลงการใช้บริการ
@@ -123,6 +124,7 @@ const defaultPrivacyContentEn = `Privacy Policy
 
 const AdminLegalTab = ({ form, setForm, handleSave }: AdminTabProps) => {
   const [legalLang, setLegalLang] = useState<"th" | "en">("th");
+  const { updateSettings } = useSiteSettings();
 
   const termsVersion = Number(form.termsVersion || 1);
   const privacyVersion = Number(form.privacyVersion || 1);
@@ -131,9 +133,8 @@ const AdminLegalTab = ({ form, setForm, handleSave }: AdminTabProps) => {
     const patch: any = { legalUpdatedAt: new Date().toISOString() };
     if (which === "terms" || which === "both") patch.termsVersion = termsVersion + 1;
     if (which === "privacy" || which === "both") patch.privacyVersion = privacyVersion + 1;
-    const next = { ...form, ...patch };
-    setForm(next);
-    handleSave(next);
+    setForm({ ...form, ...patch });
+    updateSettings(patch);
     toast.success(`เผยแพร่เวอร์ชันใหม่ — ผู้ใช้ทุกคนจะเห็นหน้ายอมรับข้อตกลง (${which === "both" ? "ทั้งสองไฟล์" : which === "terms" ? "TOS" : "Privacy"})`);
   };
 

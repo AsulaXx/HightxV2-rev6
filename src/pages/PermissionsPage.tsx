@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth, ROLE_LABELS, ROLE_HIERARCHY, type UserRole } from "@/contexts/AuthContext";
 import { useSiteSettings, DEFAULT_PERMISSIONS_LIST, DEFAULT_ROLE_PERMISSIONS_MAP } from "@/contexts/SiteSettingsContext";
-import { Shield, CheckCircle, XCircle, Crown, Info, Award, ClipboardList } from "lucide-react";
+import { Shield, CheckCircle, XCircle, Crown, Info, Award, ClipboardList, Eye } from "lucide-react";
 import PageBreadcrumb from "@/components/PageBreadcrumb";
 import { Link } from "react-router-dom";
 import PermIcon from "@/components/PermIcon";
+import { toast } from "sonner";
 
 const ROLE_COLORS: Record<string, string> = {
   owner: "from-yellow-500 to-amber-400",

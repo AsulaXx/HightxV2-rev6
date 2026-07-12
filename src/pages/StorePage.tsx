@@ -492,6 +492,150 @@ const StorePage = () => {
                 : status === "oos"
                 ? { label: "สินค้าหมด", Icon: PackageX, ring: "ring-slate-400/40", glow: "animate-unavail-glow-slate", iconAnim: "animate-unavail-bob", grad: "linear-gradient(135deg, hsl(215 20% 45% / 0.95), hsl(220 15% 30% / 0.95))", ribbon: "linear-gradient(90deg, hsl(215 20% 45% / 0.92), hsl(220 15% 30% / 0.92))", shine: "via-slate-200/30", msg: "สินค้าหมดชั่วคราว" }
                 : null;
+              const cardVariant = layout.productCardVariant || "split";
+
+              // Shared status tint for minimal overlay
+              const tint = statusMeta ? (
+                status === "updating" ? { wash: "from-amber-500/25 via-amber-500/5 to-transparent", chip: "bg-amber-500/15 border-amber-400/40 text-amber-300", dot: "bg-amber-400" } :
+                status === "closed"  ? { wash: "from-red-500/25 via-red-500/5 to-transparent",    chip: "bg-red-500/15 border-red-400/40 text-red-300",    dot: "bg-red-400" } :
+                                        { wash: "from-slate-500/25 via-slate-500/5 to-transparent", chip: "bg-slate-500/20 border-slate-300/30 text-slate-200", dot: "bg-slate-300" }
+              ) : null;
+
+              // ═══ POSTER variant: image top, info bottom ═══
+              if (cardVariant === "poster") {
+                return (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 14, scale: 0.94 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ delay: i * 0.05, type: "spring", stiffness: 320, damping: 20, mass: 0.6 }}
+                    whileHover={{ y: -4, scale: 1.02, transition: { type: "spring", stiffness: 400, damping: 14 } }}
+                    whileTap={{ scale: 0.97 }}
+                    className={`glass-card-hover overflow-hidden !p-0 group ${radiusClass()} cursor-pointer relative ${isUnavailable && statusMeta ? `ring-1 ${statusMeta.ring}` : ''}`}
+                    onClick={() => navigate(`/product/${product.id}`)}
+                  >
+                    {product.imageUrl && layout.showProductImage !== false && (
+                      <div className={`overflow-hidden relative bg-muted/20 ${layout.productImageDisplay === "ratio" ? imageRatioClass() : "h-32 sm:h-36"}`}>
+                        <img src={product.thumbnailUrl || product.imageUrl} alt={product.name} loading="lazy" className={`w-full h-full ${layout.productImageFit === "contain" ? "object-contain p-2" : "object-cover"} group-hover:scale-105 transition-transform duration-700 ${isUnavailable ? 'grayscale-[35%] opacity-80' : ''}`} />
+                        {allLinkOnly ? (
+                          <div className="absolute top-2 right-2 z-20 px-1.5 py-0.5 rounded-full bg-sky-500/95 backdrop-blur-sm border border-sky-300/40 text-white flex items-center gap-1 shadow-sm pointer-events-none">
+                            <ExternalLink size={9} />
+                            <span className="text-[9px] font-bold leading-none tracking-wide">LINK</span>
+                          </div>
+                        ) : optionCount > 0 && (
+                          <div className="absolute top-2 right-2 z-20 px-1.5 py-0.5 rounded-full bg-background/85 backdrop-blur-sm border border-primary/30 text-primary flex items-center gap-1 shadow-sm pointer-events-none">
+                            {hasLink && <ExternalLink size={9} className="text-sky-400" />}
+                            <Layers size={9} />
+                            <span className="text-[9px] font-semibold leading-none">{optionCount} ตัวเลือก</span>
+                          </div>
+                        )}
+                        {isUnavailable && statusMeta && tint && (
+                          <>
+                            <div className={`absolute inset-0 bg-gradient-to-tr ${tint.wash} pointer-events-none`} />
+                            <div className="absolute inset-0 opacity-[0.12] pointer-events-none mix-blend-overlay" style={{ backgroundImage: "repeating-linear-gradient(45deg, currentColor 0 1px, transparent 1px 8px)" }} />
+                            <div className={`absolute bottom-2 left-2 right-2 flex items-center gap-1.5 px-2 py-1 rounded-full backdrop-blur-md border ${tint.chip} shadow-sm`}>
+                              <span className="relative flex w-1.5 h-1.5">
+                                <span className={`absolute inline-flex h-full w-full rounded-full ${tint.dot} opacity-70 animate-ping`} />
+                                <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${tint.dot}`} />
+                              </span>
+                              <statusMeta.Icon size={11} strokeWidth={2.4} className={`shrink-0 ${statusMeta.iconAnim}`} />
+                              <span className="text-[9px] font-semibold tracking-wide uppercase truncate">{statusMeta.label}</span>
+                            </div>
+                          </>
+                        )}
+                        {hasCooldownActive && !isUnavailable && (
+                          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-background/80 backdrop-blur-sm border border-border/30 flex items-center gap-1">
+                            <Timer size={9} className="text-amber-400" />
+                            <span className="text-[9px] font-medium text-amber-400">Cooldown</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <div className={cardPaddingClass()}>
+                      <h3 className="text-xs font-bold text-foreground">{product.name}</h3>
+                      {productRatings[product.id] && (
+                        <StarDisplay rating={productRatings[product.id].avg} count={productRatings[product.id].count} size={10} />
+                      )}
+                      {product.description && <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{product.description}</p>}
+                      {priceLabel && (
+                        <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gradient-to-r from-primary/15 to-accent/15 border border-primary/25">
+                          <Coins size={10} className="text-primary" />
+                          <span className="text-[11px] font-bold text-primary">
+                            {priceLabel}
+                            {!allFree && <span className="ml-1 text-[9px] font-medium text-primary/70">เครดิต</span>}
+                          </span>
+                        </div>
+                      )}
+                      <motion.button
+                        onClick={(e) => { e.stopPropagation(); navigate(`/product/${product.id}`); }}
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold text-primary hover:text-primary-foreground rounded-lg border border-primary/30 hover:bg-primary/90 hover:border-primary transition-colors"
+                      >
+                        สั่งซื้อสินค้า
+                        <ChevronDownIcon size={12} className="-rotate-90" />
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                );
+              }
+
+              // ═══ COMPACT variant: single-row list card ═══
+              if (cardVariant === "compact") {
+                return (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.03, type: "spring", stiffness: 320, damping: 22 }}
+                    whileHover={{ x: 3, transition: { type: "spring", stiffness: 400, damping: 14 } }}
+                    whileTap={{ scale: 0.98 }}
+                    className={`glass-card-hover overflow-hidden !p-2.5 group ${radiusClass()} cursor-pointer relative flex items-center gap-3 ${isUnavailable && statusMeta ? `ring-1 ${statusMeta.ring}` : ''}`}
+                    onClick={() => navigate(`/product/${product.id}`)}
+                  >
+                    {product.imageUrl && layout.showProductImage !== false ? (
+                      <div className="relative shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-gradient-to-br from-primary/15 to-accent/10">
+                        <img src={product.thumbnailUrl || product.imageUrl} alt={product.name} loading="lazy" className={`w-full h-full ${layout.productImageFit === "contain" ? "object-contain p-1" : "object-cover"} ${isUnavailable ? 'grayscale-[35%] opacity-80' : ''}`} />
+                        {tint && <div className={`absolute inset-0 bg-gradient-to-tr ${tint.wash}`} />}
+                      </div>
+                    ) : (
+                      <div className="shrink-0 w-14 h-14 rounded-lg bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center">
+                        <ShoppingBag size={20} className="text-primary/70" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-xs font-bold text-foreground truncate">{product.name}</h3>
+                      <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                        {priceLabel && (
+                          <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/10 border border-primary/20">
+                            <Coins size={9} className="text-primary" />
+                            <span className="text-[10px] font-bold text-primary">{priceLabel}</span>
+                          </div>
+                        )}
+                        {optionCount > 0 && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-muted/30 text-muted-foreground text-[9px] font-medium">
+                            <Layers size={9} /> {optionCount}
+                          </span>
+                        )}
+                        {isUnavailable && statusMeta && tint && (
+                          <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full border ${tint.chip} text-[9px] font-semibold uppercase`}>
+                            <statusMeta.Icon size={9} className={statusMeta.iconAnim} />
+                            {statusMeta.label}
+                          </span>
+                        )}
+                        {hasCooldownActive && !isUnavailable && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-400 text-[9px] font-medium">
+                            <Timer size={9} /> CD
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <ChevronDownIcon size={14} className="text-muted-foreground -rotate-90 shrink-0" />
+                  </motion.div>
+                );
+              }
+
+              // ═══ SPLIT variant (default) ═══
               return (
                 <motion.div
                   key={product.id}

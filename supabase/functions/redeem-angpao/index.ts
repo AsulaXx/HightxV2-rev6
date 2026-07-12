@@ -126,6 +126,8 @@ async function gcpToken(): Promise<string> {
 
 const fsBase = () =>
   `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents`;
+const fsDocName = (path: string) =>
+  `projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/${path}`;
 
 // ────────────────────────────────────────────────────────────────────────────
 // Atomic credit + duplicate-guard via Firestore transaction

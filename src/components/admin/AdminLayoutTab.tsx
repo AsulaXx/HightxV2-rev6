@@ -96,6 +96,75 @@ const AdminLayoutTab = ({ form, setForm, handleSave }: AdminTabProps) => {
         </div>
       </div>
 
+      {/* ═══ Card Variant + Live Preview ═══ */}
+      <div className="glass-card space-y-5">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+            <Sparkles size={16} className="text-primary" /> รูปแบบการ์ดสินค้า (Variant)
+          </h3>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold">
+            ● Live Preview
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {([
+            { v: "split", label: "Split", desc: "รูปซ้าย ข้อมูลขวา" },
+            { v: "poster", label: "Poster", desc: "รูปด้านบน ข้อมูลด้านล่าง" },
+            { v: "compact", label: "Compact", desc: "แถวเดียว กะทัดรัด" },
+          ] as const).map((opt) => (
+            <button
+              key={opt.v}
+              onClick={() => updateLayout({ productCardVariant: opt.v })}
+              className={`text-left p-3 rounded-xl border transition-all ${
+                cardVariant === opt.v
+                  ? "bg-primary/10 border-primary/50 ring-1 ring-primary/40"
+                  : "bg-muted/10 border-border/40 hover:border-primary/30"
+              }`}
+            >
+              <p className="text-sm font-bold text-foreground">{opt.label}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{opt.desc}</p>
+            </button>
+          ))}
+        </div>
+
+        {/* Status simulator */}
+        <div>
+          <label className="block text-xs font-semibold text-foreground mb-2">จำลองสถานะสินค้า</label>
+          <div className="flex gap-1.5 flex-wrap">
+            {([
+              { v: "available", label: "พร้อมขาย" },
+              { v: "updating", label: "กำลังอัพเดท" },
+              { v: "closed", label: "ปิดการขาย" },
+              { v: "oos", label: "สินค้าหมด" },
+            ] as const).map((s) => (
+              <button
+                key={s.v}
+                onClick={() => setPreviewStatus(s.v)}
+                className={`text-[11px] px-2.5 py-1 rounded-full border transition-colors ${
+                  previewStatus === s.v
+                    ? "bg-primary/90 text-primary-foreground border-primary"
+                    : "bg-muted/20 text-muted-foreground border-border/40 hover:border-primary/40"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Live preview panel */}
+        <div className="rounded-2xl border border-dashed border-primary/25 bg-gradient-to-br from-background/60 via-primary/[0.03] to-accent/[0.05] p-5 sm:p-8">
+          <p className="text-[10px] text-muted-foreground mb-3 flex items-center gap-1.5">
+            <Eye size={11} /> ตัวอย่างการ์ด — อัปเดตอัตโนมัติเมื่อเปลี่ยนค่า
+          </p>
+          <div className={`mx-auto ${cardVariant === "compact" ? "max-w-md" : cardVariant === "split" ? "max-w-lg" : "max-w-xs"}`}>
+            <AdminCardPreview variant={cardVariant} layout={layoutForm} status={previewStatus} />
+          </div>
+        </div>
+      </div>
+
+
       <div className="glass-card space-y-5">
         <h3 className="text-base font-bold text-foreground flex items-center gap-2"><Eye size={16} className="text-primary" /> รูปภาพสินค้า</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

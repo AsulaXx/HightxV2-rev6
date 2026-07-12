@@ -6,7 +6,8 @@ import { useLayoutConfig } from "@/hooks/useLayoutConfig";
 import { useWallet } from "@/hooks/useWallet";
 import { Navigate } from "react-router-dom";
 import RedirectToLogin from "@/components/RedirectToLogin";
-import { Wallet, ArrowUpRight, ArrowDownRight, Clock, Search, Filter } from "lucide-react";
+import { Wallet, ArrowUpRight, ArrowDownRight, Clock, Search, Filter, Copy, Check } from "lucide-react";
+import { toast } from "sonner";
 import PageBreadcrumb from "@/components/PageBreadcrumb";
 import { db } from "@/lib/firebase";
 import { collection, query, where, orderBy, getDocs, limit } from "firebase/firestore";
@@ -37,6 +38,18 @@ const WalletHistoryPage = () => {
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [copiedRef, setCopiedRef] = useState<string | null>(null);
+
+  const copyRef = async (ref: string) => {
+    try {
+      await navigator.clipboard.writeText(ref);
+      setCopiedRef(ref);
+      toast.success("คัดลอก Ref แล้ว");
+      setTimeout(() => setCopiedRef(null), 1500);
+    } catch {
+      toast.error("คัดลอกไม่สำเร็จ");
+    }
+  };
 
   const loadTransactions = useCallback(async () => {
     if (!user) return;
@@ -63,7 +76,7 @@ const WalletHistoryPage = () => {
           amount: data.amount,
           description: isAdmin
             ? `แอดเครดิตโดยแอดมิน${data.adminNote ? ` (${data.adminNote})` : ""}`
-            : `${methodLabel(method)}${data.provider ? ` · ${data.provider}` : ""} (Ref: ${data.transRef || "-"})`,
+            : `${methodLabel(method)}${data.provider ? ` · ${data.provider}` : ""}`,
           createdAt: data.createdAt,
           transRef: data.transRef,
           status: data.status,
@@ -183,14 +196,25 @@ const WalletHistoryPage = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{tx.description}</p>
-                  <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                  <div className="text-[11px] text-muted-foreground flex items-center gap-1.5 flex-wrap">
                     <Clock size={10} /> {formatDate(tx.createdAt)}
+                    {tx.transRef && (
+                      <button
+                        type="button"
+                        onClick={() => copyRef(tx.transRef!)}
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition font-mono text-[10px] max-w-[180px]"
+                        title="คัดลอก Ref"
+                      >
+                        <span className="truncate">Ref: {tx.transRef}</span>
+                        {copiedRef === tx.transRef ? <Check size={10} className="shrink-0" /> : <Copy size={10} className="shrink-0" />}
+                      </button>
+                    )}
                     {tx.status && tx.status !== "success" && (
-                      <span className={`ml-1 px-1.5 py-0.5 rounded text-[10px] ${
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] ${
                         tx.status === "failed" ? "bg-red-500/10 text-red-500" : "bg-yellow-500/10 text-yellow-500"
                       }`}>{tx.status}</span>
                     )}
-                  </p>
+                  </div>
                 </div>
                 <p className={`text-sm font-bold shrink-0 ${tx.amount > 0 ? "text-green-500" : "text-red-500"}`}>
                   {tx.amount > 0 ? "+" : ""}฿{Math.abs(tx.amount).toLocaleString()}

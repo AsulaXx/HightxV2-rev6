@@ -430,7 +430,7 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
   }
   .glass-shine::after {
     content: "";
-    @apply absolute -top-1/2 -left-1/2 w-[200%] h-[200%] opacity-0 transition-opacity duration-700;
+    @apply absolute -top-1/2 -left-1/2 w-[200%] h-[200%] opacity-0 transition-opacity duration-700 pointer-events-none;
     background: transparent;
     animation: none;
   }

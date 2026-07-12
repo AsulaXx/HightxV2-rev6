@@ -96,6 +96,16 @@ const AdminPage = () => {
   const [slideDir, setSlideDir] = useState<"left" | "right" | null>(null);
   const [menuQuery, setMenuQuery] = useState("");
   const [collapsedCats, setCollapsedCats] = useState<Record<string, boolean>>({});
+  const [pinnedTabs, setPinnedTabs] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem("admin_pinned_tabs") || "[]"); } catch { return []; }
+  });
+  const togglePin = useCallback((tabId: string) => {
+    setPinnedTabs((prev) => {
+      const next = prev.includes(tabId) ? prev.filter((t) => t !== tabId) : [...prev, tabId];
+      try { localStorage.setItem("admin_pinned_tabs", JSON.stringify(next)); } catch {}
+      return next;
+    });
+  }, []);
 
   const contentScrollRef = useRef<HTMLDivElement | null>(null);
   const subTabRefs = useRef<(HTMLButtonElement | null)[]>([]);

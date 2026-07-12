@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Download, Upload, Database, Package, Users, Receipt, Settings, CheckCircle, AlertTriangle, FileJson, FileSpreadsheet, Loader2, Shield, Clock, RefreshCw, Timer } from "lucide-react";
+import { Download, Upload, Database, Package, Users, Receipt, Settings, CheckCircle, AlertTriangle, FileJson, FileSpreadsheet, FileText, Loader2, Shield, Clock, RefreshCw, Timer, Key as KeyIcon, X } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, doc, setDoc, writeBatch, serverTimestamp, getDoc } from "firebase/firestore";
 import { toast } from "sonner";

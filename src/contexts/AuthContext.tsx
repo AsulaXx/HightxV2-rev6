@@ -21,7 +21,8 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
+import { AlertTriangle, Ban } from "lucide-react";
 
 export type UserRole = "owner" | "admin" | "moderator" | "reseller" | "hightxcrew" | "vip" | "user";
 

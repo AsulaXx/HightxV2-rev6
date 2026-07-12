@@ -444,6 +444,45 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
     animation: shineSlide 3s ease-in-out infinite;
   }
   .glass-shine:hover::after { opacity: 1; }
+
+  /* ═══════════════════════════════════════════
+     3D DEPTH UTILITIES
+     ═══════════════════════════════════════════ */
+  .perspective-scene { perspective: 1400px; perspective-origin: 50% 30%; }
+  .card-3d {
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.6s ease;
+    will-change: transform;
+  }
+  .card-3d:hover {
+    transform: perspective(1200px) rotateX(4deg) rotateY(-4deg) translateZ(12px);
+  }
+  .depth-lift {
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
+  }
+  .depth-lift:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 24px 60px -20px hsl(var(--primary) / 0.25),
+      0 0 0 1px hsl(var(--primary) / 0.12);
+  }
+
+  /* Soft floating animation for hero elements */
+  .float-soft { animation: floatSoft 6s ease-in-out infinite; }
+  .float-soft-delay { animation: floatSoft 7s ease-in-out infinite 0.5s; }
+
+  /* Aurora conic gradient blob */
+  .aurora-bg {
+    background:
+      radial-gradient(60% 50% at 20% 20%, hsl(var(--primary) / 0.20), transparent 70%),
+      radial-gradient(50% 50% at 80% 30%, hsl(var(--accent) / 0.18), transparent 70%),
+      radial-gradient(55% 55% at 50% 100%, hsl(var(--secondary) / 0.14), transparent 70%);
+  }
+}
+
+@keyframes floatSoft {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-10px) rotate(0.5deg); }
 }
 
 /* Dynamic responsive grid using CSS custom properties */

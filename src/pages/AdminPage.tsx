@@ -272,158 +272,185 @@ const AdminPage = () => {
 
   // (categories / tabs / swipe handlers are defined above before early returns)
 
+  const filteredCategories = useMemo(() => {
+    const q = menuQuery.trim().toLowerCase();
+    if (!q) return categories;
+    return categories
+      .map((c) => ({ ...c, tabs: c.tabs.filter((t) => t.label.toLowerCase().includes(q) || c.label.toLowerCase().includes(q)) }))
+      .filter((c) => c.tabs.length > 0);
+  }, [categories, menuQuery]);
+
+  const currentTab = tabs.find((t) => t.id === activeTab);
+  const hideSaveTabs = ["users", "permissions", "transactions", "linkpages", "auditlog", "wheelclaims", "datareset", "backup", "keys"];
+  const showSave = !hideSaveTabs.includes(activeTab);
+
   return (
     <div className="relative z-10 h-[calc(100vh-4rem)] overflow-hidden">
-      <div className="flex h-full flex-col">
-        <div className="max-w-6xl mx-auto w-full px-3 sm:px-6 pt-4 sm:pt-6 shrink-0">
-          <PageBreadcrumb
-            items={[{ label: "เมนู", path: "/hub" }, { label: "ตั้งค่าเว็บไซต์" }]}
-            title="ตั้งค่าเว็บไซต์"
-            subtitle="จัดการระบบ ธีม และการตั้งค่าต่างๆ"
-            icon={Settings}
-          />
-        </div>
-        <div className="flex flex-1 min-h-0">
-          {/* Sidebar — main categories only */}
-          <aside className={`${sidebarOpen ? 'w-56' : 'w-0 overflow-hidden'} h-full shrink-0 transition-all duration-300 hidden md:block`}>
-            <div className="p-3 space-y-1 h-full overflow-y-auto scrollbar-thin pb-20">
-              {categories.map((cat) => {
-                const isActive = activeCategory.id === cat.id;
-                return (
+      <div className="flex h-full">
+        {/* Sidebar */}
+        <aside className={`${sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'} h-full shrink-0 transition-all duration-300 hidden md:flex flex-col border-r border-border/40 bg-card/30`}>
+          <div className="p-3 border-b border-border/40">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-xl bg-primary/15 text-primary flex items-center justify-center">
+                <Settings size={16} />
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm font-bold truncate">ตั้งค่าเว็บไซต์</div>
+                <div className="text-[10px] text-muted-foreground truncate">Admin Panel</div>
+              </div>
+            </div>
+            <div className="relative">
+              <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                value={menuQuery}
+                onChange={(e) => setMenuQuery(e.target.value)}
+                placeholder="ค้นหาเมนู..."
+                className="w-full h-8 pl-7 pr-2 rounded-lg bg-muted/40 border border-border/40 text-xs focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/40"
+              />
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto scrollbar-thin p-2 space-y-1 pb-24">
+            {filteredCategories.map((cat) => {
+              const isCatActive = cat.tabs.some((t) => t.id === activeTab);
+              const collapsed = collapsedCats[cat.id] ?? false;
+              return (
+                <div key={cat.id} className="space-y-0.5">
                   <button
-                    key={cat.id}
-                    onClick={() => {
-                      setActiveTab(cat.tabs[0].id);
-                      contentScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition-all duration-200 active:scale-[0.98] ${
-                      isActive
-                        ? "glass-panel text-foreground"
-                        : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
+                    onClick={() => setCollapsedCats((s) => ({ ...s, [cat.id]: !collapsed }))}
+                    className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] font-semibold uppercase tracking-wider transition-colors ${
+                      isCatActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
-                    <cat.icon size={16} className={isActive ? "text-primary" : ""} />
-                    {cat.label}
+                    <cat.icon size={12} />
+                    <span className="flex-1 text-left">{cat.label}</span>
+                    <ChevronDown size={12} className={`transition-transform ${collapsed ? '-rotate-90' : ''}`} />
                   </button>
-                );
-              })}
-              {isAdmin && (
-                <Link to="/announcements" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium text-muted-foreground hover:bg-muted/30 hover:text-foreground transition-all">
-                  <Megaphone size={16} /> ประกาศ
-                </Link>
-              )}
-              <div className="mt-4 pt-3">
-                <AdminStatusWidget />
-              </div>
-            </div>
-          </aside>
-
-          {/* Mobile Bottom Nav */}
-          <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
-            <div className="bg-card/95 backdrop-blur-xl border-t border-border/40 px-4 py-3 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                {(() => { const current = tabs.find(t => t.id === activeTab); return current ? <><current.icon size={16} className="text-primary" /><span className="text-sm font-semibold text-foreground">{current.label}</span></> : null; })()}
-              </div>
-              <button
-                onClick={() => setMobileMenuOpen(true)}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-primary/10 text-primary text-xs font-semibold transition-all active:scale-95"
-              >
-                <LayoutGrid size={14} />
-                เมนูทั้งหมด
-              </button>
-            </div>
-
-            {mobileMenuOpen && (
-              <div className="fixed inset-0 z-[60]" onClick={() => setMobileMenuOpen(false)}>
-                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-                <div
-                  className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl border-t border-border/40 max-h-[75vh] overflow-hidden animate-in slide-in-from-bottom duration-300"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="flex justify-center pt-3 pb-1">
-                    <div className="w-10 h-1.5 rounded-full bg-muted-foreground/30" />
-                  </div>
-                  <div className="px-4 pb-2 flex items-center justify-between">
-                    <h3 className="text-base font-bold text-foreground">เมนูตั้งค่า</h3>
-                    <button onClick={() => setMobileMenuOpen(false)} className="p-1.5 rounded-lg hover:bg-muted/50 text-muted-foreground">
-                      <XCircle size={20} />
-                    </button>
-                  </div>
-                  <div className="overflow-y-auto max-h-[60vh] px-3 pb-8 space-y-3">
-                    {categories.map((cat) => (
-                      <div key={cat.id}>
-                        <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider px-2 py-1.5 flex items-center gap-1.5">
-                          <cat.icon size={12} /> {cat.label}
-                        </h4>
-                        <div className="grid grid-cols-3 gap-1.5">
-                          {cat.tabs.map((tab) => (
-                            <button
-                              key={tab.id}
-                              onClick={() => {
-                                setActiveTab(tab.id);
-                                setMobileMenuOpen(false);
-                                contentScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-                              }}
-                              className={`flex flex-col items-center gap-1.5 px-2 py-3 rounded-2xl text-xs font-medium transition-all active:scale-95 ${
-                                activeTab === tab.id
-                                  ? "glass-panel text-primary"
-                                  : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
-                              }`}
-                            >
-                              <tab.icon size={18} />
-                              <span className="truncate w-full text-center text-[11px]">{tab.label}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                    {isAdmin && (
-                      <Link to="/announcements" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-all">
-                        <Megaphone size={16} /> ประกาศ
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Main Content */}
-          <div className="flex-1 min-w-0 min-h-0">
-            <div ref={contentScrollRef} className="h-full overflow-y-auto" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-              <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 md:pb-8">
-                {activeCategory.tabs.length > 1 && (
-                  <div className="sticky top-0 z-20 mb-4 py-2 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8">
-                    <div
-                      role="tablist"
-                      aria-label={`${activeCategory.label} sub-tabs`}
-                      className="glass-pill flex md:flex-wrap items-center gap-1.5 p-1.5 w-full overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none scrollbar-none [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-                    >
-                      {activeCategory.tabs.map((tab, idx) => {
+                  {!collapsed && (
+                    <div className="space-y-0.5">
+                      {cat.tabs.map((tab) => {
                         const active = activeTab === tab.id;
                         return (
                           <button
                             key={tab.id}
-                            ref={(el) => { subTabRefs.current[idx] = el; }}
-                            role="tab"
-                            aria-selected={active}
-                            tabIndex={active ? 0 : -1}
-                            onClick={() => setActiveTab(tab.id)}
-                            onKeyDown={(e) => handleSubTabKeyDown(e, idx)}
-                            className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 active:scale-[0.97] shrink-0 snap-start md:snap-align-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
+                            onClick={() => {
+                              setActiveTab(tab.id);
+                              contentScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+                            }}
+                            className={`w-full flex items-center gap-2.5 pl-6 pr-2 py-1.5 rounded-lg text-xs font-medium transition-all ${
                               active
-                                ? "bg-primary text-primary-foreground shadow-sm"
-                                : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
+                                ? 'bg-primary/12 text-foreground border-l-2 border-primary'
+                                : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground border-l-2 border-transparent'
                             }`}
                           >
-                            <tab.icon size={14} />
-                            {tab.label}
+                            <tab.icon size={13} className={active ? 'text-primary' : ''} />
+                            <span className="truncate">{tab.label}</span>
                           </button>
                         );
                       })}
                     </div>
+                  )}
+                </div>
+              );
+            })}
+            {filteredCategories.length === 0 && (
+              <div className="text-center text-xs text-muted-foreground py-6">ไม่พบเมนู</div>
+            )}
+            {isAdmin && !menuQuery && (
+              <Link to="/announcements" className="mt-3 w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-all">
+                <Megaphone size={13} /> ประกาศ
+              </Link>
+            )}
+            <div className="pt-3">
+              <AdminStatusWidget />
+            </div>
+          </div>
+        </aside>
+
+        {/* Main */}
+        <div className="flex-1 min-w-0 min-h-0 flex flex-col">
+          {/* Header */}
+          <header className="shrink-0 border-b border-border/40 bg-background/60 backdrop-blur-md">
+            <div className="flex items-center gap-2 px-3 sm:px-5 h-14">
+              <button
+                onClick={() => setSidebarOpen((s) => !s)}
+                className="hidden md:flex w-8 h-8 rounded-lg hover:bg-muted/40 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                title="ซ่อน/แสดง sidebar"
+              >
+                <LayoutGrid size={15} />
+              </button>
+              <button
+                onClick={() => setMobileMenuOpen(true)}
+                className="md:hidden flex w-8 h-8 rounded-lg hover:bg-muted/40 items-center justify-center text-muted-foreground"
+              >
+                <LayoutGrid size={15} />
+              </button>
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                {activeCategory && (
+                  <>
+                    <span className="text-[11px] text-muted-foreground hidden sm:inline">{activeCategory.label}</span>
+                    <ChevronDown size={12} className="text-muted-foreground -rotate-90 hidden sm:inline" />
+                  </>
+                )}
+                {currentTab && (
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <currentTab.icon size={14} className="text-primary shrink-0" />
+                    <span className="text-sm font-semibold truncate">{currentTab.label}</span>
                   </div>
                 )}
+              </div>
+              {showSave && (
+                <button
+                  onClick={handleSave}
+                  className={`flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold transition-all ${
+                    saved
+                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-400/40'
+                      : 'btn-gradient text-white shadow-sm hover:brightness-110 active:scale-95'
+                  }`}
+                >
+                  {saved ? <CheckCircle size={14} /> : <Save size={14} />}
+                  <span className="hidden sm:inline">{saved ? 'บันทึกแล้ว' : 'บันทึก'}</span>
+                </button>
+              )}
+            </div>
+            {activeCategory.tabs.length > 1 && (
+              <div className="px-3 sm:px-5 pb-2 -mt-1">
+                <div
+                  role="tablist"
+                  aria-label={`${activeCategory.label} sub-tabs`}
+                  className="flex items-center gap-1 overflow-x-auto scrollbar-none [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                >
+                  {activeCategory.tabs.map((tab, idx) => {
+                    const active = activeTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        ref={(el) => { subTabRefs.current[idx] = el; }}
+                        role="tab"
+                        aria-selected={active}
+                        tabIndex={active ? 0 : -1}
+                        onClick={() => setActiveTab(tab.id)}
+                        onKeyDown={(e) => handleSubTabKeyDown(e, idx)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all focus:outline-none focus-visible:ring-1 focus-visible:ring-primary ${
+                          active
+                            ? 'bg-primary/12 text-primary'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
+                        }`}
+                      >
+                        <tab.icon size={12} />
+                        {tab.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </header>
+
+          {/* Content */}
+          <div ref={contentScrollRef} className="flex-1 overflow-y-auto" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+            <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-5 pb-24 md:pb-8">
+
 
                 {/* Sub-tab overlay sheet (mobile) */}
                 <AnimatePresence>

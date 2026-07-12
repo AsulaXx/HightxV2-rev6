@@ -699,7 +699,7 @@ const DashboardPage = () => {
 
   if (authLoading) return <div className="min-h-[80vh] flex items-center justify-center"><p className="text-muted-foreground">กำลังโหลด...</p></div>;
   if (!user) return <RedirectToLogin />;
-  if (!hasPermission("hightxcrew")) return <Navigate to="/" replace />;
+  if (!hasPermission("moderator")) return <Navigate to="/" replace />;
 
   // Filter daily data by period
   const filteredDaily = dailyData.slice(-trendPeriod);
@@ -803,7 +803,7 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-6">
+    <div className="relative z-10 max-w-6xl mx-auto px-3 sm:px-4 py-3">
       <PageBreadcrumb
         items={[{ label: "เมนู", path: "/hub" }, { label: "Dashboard" }]}
         title="Dashboard"
@@ -811,18 +811,18 @@ const DashboardPage = () => {
         icon={TrendingUp}
       />
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-3">
           <button
             onClick={sendDailySummaryFromDashboard}
             disabled={sendingSummary}
-            className="btn-glass px-4 py-2 text-xs flex items-center gap-2"
+            className="btn-glass px-3 py-1.5 text-[11px] flex items-center gap-2"
           >
             <Send size={14} /> {sendingSummary ? "กำลังส่ง..." : "ส่งสรุปไป Discord"}
           </button>
           <button
             onClick={exportToExcel}
             disabled={loading}
-            className="btn-glass px-4 py-2 text-xs flex items-center gap-2"
+            className="btn-glass px-3 py-1.5 text-[11px] flex items-center gap-2"
           >
             <Download size={14} /> Export Excel
           </button>
@@ -842,7 +842,7 @@ const DashboardPage = () => {
           <>
             {/* Low Stock Alerts */}
             {lowStockAlerts.length > 0 && (
-              <div className="mb-6 p-5 rounded-2xl bg-destructive/10 border border-destructive/30">
+              <div className="mb-3 p-3 rounded-xl bg-destructive/10 border border-destructive/30">
                 <button onClick={toggleLowStock} className="w-full flex items-center justify-between">
                   <h3 className="text-sm font-bold text-destructive flex items-center gap-2">
                     <AlertTriangle size={16} /> แจ้งเตือน: คีย์ใกล้หมด! ({lowStockAlerts.length})
@@ -878,7 +878,7 @@ const DashboardPage = () => {
             </Suspense>
 
             {/* Today Sales Summary */}
-            <div className="mb-6">
+            <div className="mb-3">
               <CollapsibleSection title="ยอดขายสินค้าวันนี้" icon={<ShoppingCart size={18} />} isOpen={showPurchaseAnalytics} onToggle={togglePurchaseAnalytics} glass>
                 <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
                   <TodaySalesSummary dailyProductClaims={dailyProductClaims} />
@@ -887,7 +887,7 @@ const DashboardPage = () => {
             </div>
 
             {/* Purchase Analytics */}
-            <div className="mb-6">
+            <div className="mb-3">
               <CollapsibleSection title="ข้อมูลการซื้อสินค้า (เติมเงิน)" icon={<BarChart3 size={18} />} isOpen={showCharts} onToggle={toggleCharts} glass>
                 <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
                   <PurchaseAnalytics dailyData={dailyData} productStats={productStats} dailyProductClaims={dailyProductClaims} />
@@ -896,7 +896,7 @@ const DashboardPage = () => {
             </div>
 
             {/* Top-Up Breakdown */}
-            <div className="mb-6">
+            <div className="mb-3">
               <CollapsibleSection title="สรุปยอดเติมเงินแยกช่องทาง" icon={<Wallet size={18} />} isOpen={showTopUp} onToggle={toggleTopUp} glass>
                 <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
                   <DashboardTopUpBreakdown topUpBreakdown={topUpBreakdown} />
@@ -906,7 +906,7 @@ const DashboardPage = () => {
 
             {/* Provider Quota — show only when Thunder is the active slip provider */}
             {(settings.slipProvider || 'thunder') === 'thunder' && (
-              <div className="mb-6">
+              <div className="mb-3">
                 <CollapsibleSection title="โควต้า Thunder API" icon={<Zap size={18} />} isOpen={showThunder} onToggle={toggleThunder} glass>
                   <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
                     <DashboardThunderQuota
@@ -921,18 +921,18 @@ const DashboardPage = () => {
               </div>
             )}
             {(settings.slipProvider || 'thunder') !== 'thunder' && (
-              <div className="mb-6 glass-card text-center text-sm text-muted-foreground py-3">
+              <div className="mb-3 glass-card text-center text-sm text-muted-foreground py-3">
                 กำลังใช้ผู้ให้บริการตรวจสลิป: <strong className="text-foreground">{(settings.slipProvider || 'thunder').toUpperCase()}</strong> — ระบบนี้ไม่รองรับการแสดงโควต้า
               </div>
             )}
-            <div className="mb-6">
+            <div className="mb-3">
               <CollapsibleSection title="กิจกรรมวงล้อ (Wheel)" icon={<RotateCcw size={18} />} isOpen={showWheel} onToggle={toggleWheel} glass>
                 <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
                   <DashboardWheelActivity />
                 </Suspense>
               </CollapsibleSection>
             </div>
-            <div className="mb-6">
+            <div className="mb-3">
               <CollapsibleSection title="สรุปการกดคีย์รายวันแยกประเภท" icon={<ListChecks size={18} />} isOpen={showDailyClaims} onToggle={toggleDailyClaims} glass>
                 <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
                   <DailyClaimBreakdown
@@ -944,7 +944,7 @@ const DashboardPage = () => {
             </div>
 
             {/* Product Claim Breakdown */}
-            <div className="mb-6">
+            <div className="mb-3">
               <CollapsibleSection title="สรุปการกดคีย์แยกประเภท" icon={<BarChart3 size={18} />} isOpen={showProductBreakdown} onToggle={toggleProductBreakdown} glass>
                 <div className="space-y-3">
                   {productStats.filter(p => p.totalClaimed > 0).map((ps) => (
@@ -972,7 +972,7 @@ const DashboardPage = () => {
             </div>
 
             {/* Revenue Trend Chart */}
-            <div className="mb-6">
+            <div className="mb-3">
               <CollapsibleSection title="กราฟแนวโน้มรายได้ & การกดคีย์" icon={<TrendingUp size={18} />} isOpen={showRevenue} onToggle={toggleRevenue}>
                 <div className="glass-card">
                   <div className="flex items-center justify-between mb-4">
@@ -989,7 +989,7 @@ const DashboardPage = () => {
                       ))}
                     </div>
                   </div>
-                  <div className="h-[300px]">
+                  <div className="h-[220px]">
                     <Line data={lineChartData} options={lineChartOptions} />
                   </div>
                 </div>
@@ -998,7 +998,7 @@ const DashboardPage = () => {
 
             {/* Charts */}
             {productStats.length > 0 && (
-              <div className="mb-6">
+              <div className="mb-3">
                 <CollapsibleSection title="กราฟสถิติสินค้า" icon={<TrendingUp size={18} />} isOpen={showCharts} onToggle={toggleCharts}>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div className="glass-card">
@@ -1018,7 +1018,7 @@ const DashboardPage = () => {
 
             {/* Stock Details */}
             {productStats.length > 0 && (
-              <div className="mb-6">
+              <div className="mb-3">
                 <CollapsibleSection title="รายละเอียดสต็อก" icon={<Package size={18} />} isOpen={showStockDetail} onToggle={toggleStockDetail} glass>
                   <div className="space-y-4">
                     {productStats.map((ps) => (
@@ -1049,7 +1049,7 @@ const DashboardPage = () => {
             )}
 
             {/* Role + Recent */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               <CollapsibleSection title="สัดส่วนยศผู้ใช้" icon={<Shield size={18} />} isOpen={showRoles} onToggle={toggleRoles} glass>
                 <div className="space-y-3">
                   {Object.entries(roleBreakdown).map(([role, count]) => {
@@ -1092,7 +1092,7 @@ const DashboardPage = () => {
                     </div>
                   )}
 
-                  <div className={`space-y-2 max-h-[300px] overflow-y-auto ${!canSeeRecentKeys ? "blur-md select-none pointer-events-none" : ""}`}>
+                  <div className={`space-y-2 max-h-[220px] overflow-y-auto ${!canSeeRecentKeys ? "blur-md select-none pointer-events-none" : ""}`}>
                     {recentClaims.length > 0 ? recentClaims.map((claim, i) => (
                       <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-3 rounded-xl bg-muted/30 border border-border">
                         <div className="min-w-0">
@@ -1113,7 +1113,7 @@ const DashboardPage = () => {
             </div>
 
             {/* Dashboard Settings & Reset */}
-            <div className="mt-6">
+            <div className="mt-3">
               <CollapsibleSection title="ตั้งค่า & รีเซ็ต Dashboard" icon={<Settings size={18} />} isOpen={showSettings} onToggle={toggleSettings} glass>
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

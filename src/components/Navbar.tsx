@@ -78,14 +78,14 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className={`nav-glass sticky top-0 z-50 transition-all duration-300 ease-out ${scrolled ? "shadow-lg shadow-primary/5 backdrop-blur-xl" : ""}`}>
-        <div className={`max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4 transition-all duration-300 ease-out ${scrolled ? "h-12" : "h-16"}`}>
+      <nav className={`nav-glass sticky top-0 z-50 transition-all duration-500 ease-out relative ${scrolled ? "shadow-lg shadow-primary/10" : ""}`}>
+        <div className={`max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4 transition-all duration-500 ease-out ${scrolled ? "h-14" : "h-20"}`}>
           {/* Brand */}
           <Link to="/" className={`flex items-center gap-3 shrink-0 group rounded-xl ${FOCUS_RING}`}>
-            <div className={`rounded-2xl overflow-hidden transition-all duration-300 ease-out group-hover:scale-105 group-hover:rotate-3 ${scrolled ? "w-8 h-8" : "w-10 h-10"}`}>
+            <div className={`rounded-2xl overflow-hidden transition-all duration-500 ease-out group-hover:scale-110 group-hover:rotate-6 ring-1 ring-white/10 shadow-lg shadow-primary/10 ${scrolled ? "w-9 h-9" : "w-12 h-12"}`}>
               <img src={logo} alt="Logo" className="w-full h-full object-contain" />
             </div>
-            <span className={`font-bold text-foreground tracking-tight hidden sm:block transition-all duration-300 ${scrolled ? "text-sm" : "text-base"}`}>
+            <span className={`font-bold gradient-text tracking-tight hidden sm:block transition-all duration-500 ${scrolled ? "text-sm" : "text-lg"}`}>
               {settings.brandName}
             </span>
           </Link>
@@ -247,7 +247,7 @@ const Navbar = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-              className={`lg:hidden fixed inset-x-0 bottom-0 bg-background/60 backdrop-blur-md z-40 ${scrolled ? "top-12" : "top-16"}`}
+              className={`lg:hidden fixed inset-x-0 bottom-0 bg-background/60 backdrop-blur-md z-40 ${scrolled ? "top-14" : "top-20"}`}
               onClick={() => setMobileMenuOpen(false)}
             />
             <motion.div
@@ -255,7 +255,7 @@ const Navbar = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.98 }}
               transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-              className={`lg:hidden fixed inset-x-3 z-40 glass-card p-2 max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain backdrop-blur-xl shadow-2xl ${scrolled ? "top-[calc(3rem+0.5rem)]" : "top-[calc(4rem+0.5rem)]"}`}
+              className={`lg:hidden fixed inset-x-3 z-40 glass-card p-2 max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain backdrop-blur-xl shadow-2xl ${scrolled ? "top-[calc(3.5rem+0.5rem)]" : "top-[calc(5rem+0.5rem)]"}`}
             >
               <div className="space-y-0.5">
                 {navItems.map((item) => {

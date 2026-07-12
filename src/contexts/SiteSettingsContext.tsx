@@ -540,6 +540,12 @@ const defaultTheme: ThemeSettings = {
   backgroundBlur: 0,
   backgroundColor: "",
   backgroundLayerOrder: "image-on-top",
+  fx3d: {
+    glow: 55,
+    tilt: 3,
+    gradientFrom: "#6366f1",
+    gradientTo: "#a855f7",
+  },
 };
 
 const DEFAULT_PERMISSIONS: PermissionItem[] = [

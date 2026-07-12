@@ -235,18 +235,12 @@ const AdminCategoriesTab = ({ form, setForm, handleSave }: AdminTabProps) => {
                       <input type="text" value={cat.description || ""} onChange={(e) => updateCategory(cat.id, { description: e.target.value })} className="input-glass w-full px-3 py-2.5 text-sm" placeholder="คำอธิบายสั้นๆ เช่น สินค้าเกมทุกชนิด" />
                     </div>
                     <div>
-                      <label className="block text-xs text-muted-foreground mb-1">URL รูปภาพหมวดหมู่ (Card)</label>
-                      <div className="flex items-center gap-3">
-                        <input type="url" value={cat.imageUrl || ""} onChange={(e) => updateCategory(cat.id, { imageUrl: e.target.value })} className="input-glass flex-1 px-3 py-2.5 text-sm" placeholder="https://..." />
-                        {cat.imageUrl && <img src={cat.imageUrl} alt={cat.name} className="w-12 h-12 rounded-xl object-cover border border-border shrink-0" onError={(e) => (e.currentTarget.style.display = "none")} />}
-                      </div>
+                      <label className="block text-xs text-muted-foreground mb-1">รูปภาพหมวดหมู่ (Card)</label>
+                      <ImageUploadField value={cat.imageUrl || ""} onChange={(url) => updateCategory(cat.id, { imageUrl: url })} folder={`category/${cat.id}`} />
                     </div>
                     <div>
-                      <label className="block text-xs text-muted-foreground mb-1">URL รูปป้าย Banner (แนวนอน)</label>
-                      <div className="flex items-center gap-3">
-                        <input type="url" value={cat.bannerUrl || ""} onChange={(e) => updateCategory(cat.id, { bannerUrl: e.target.value })} className="input-glass flex-1 px-3 py-2.5 text-sm" placeholder="https://..." />
-                        {cat.bannerUrl && <img src={cat.bannerUrl} alt={cat.name} className="w-24 h-10 rounded-lg object-cover border border-border shrink-0" onError={(e) => (e.currentTarget.style.display = "none")} />}
-                      </div>
+                      <label className="block text-xs text-muted-foreground mb-1">รูปป้าย Banner (แนวนอน)</label>
+                      <ImageUploadField value={cat.bannerUrl || ""} onChange={(url) => updateCategory(cat.id, { bannerUrl: url })} folder={`category-banner/${cat.id}`} compact />
                     </div>
                     <div>
                       <label className="block text-xs text-muted-foreground mb-1">ความสูง Banner ({cat.bannerHeight || 128}px)</label>

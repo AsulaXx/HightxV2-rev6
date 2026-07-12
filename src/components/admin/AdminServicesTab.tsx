@@ -1,6 +1,7 @@
 import { Save, Plus, Trash2, Wrench, MoveUp, MoveDown } from "lucide-react";
 import { AdminTabProps, generateId } from "./AdminTabProps";
 import type { ServiceItem } from "@/contexts/SiteSettingsContext";
+import ImageUploadField from "./ImageUploadField";
 
 const AdminServicesTab = ({ form, setForm, handleSave }: AdminTabProps) => {
   const filteredServices = (form.serviceItems || [])

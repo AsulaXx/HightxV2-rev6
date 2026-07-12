@@ -104,13 +104,9 @@ const NotificationAuthBridge = () => {
 const AnimatedRoutes = () => {
   const location = useLocation();
   const isLinkView = location.pathname.startsWith("/l/");
-  const { settings } = useSiteSettings();
-  const isV2 = settings.uiVersion === "v2";
-  const NavComponent = isV2 ? V2Navbar : Navbar;
-  const FooterComponent = isV2 ? V2Footer : Footer;
   return (
     <>
-      {!isLinkView && <NavComponent />}
+      {!isLinkView && <Navbar />}
       
       {!isLinkView && <AnnouncementTicker />}
       <main className="flex-1">

@@ -19,11 +19,22 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+const FIREBASE_SA = Deno.env.get("FIREBASE_SERVICE_ACCOUNT") || "";
+// Extract project_id from the service-account JSON if the env var is not set
+function extractProjectIdFromSA(sa: string): string {
+  if (!sa) return "";
+  try {
+    const raw = sa.trim();
+    const parsed = JSON.parse(raw.startsWith("{") ? raw : atob(raw));
+    return parsed.project_id || "";
+  } catch {
+    return "";
+  }
+}
 const FIREBASE_PROJECT_ID =
   Deno.env.get("FIREBASE_PROJECT_ID") ||
   Deno.env.get("VITE_FIREBASE_PROJECT_ID") ||
-  "";
-const FIREBASE_SA = Deno.env.get("FIREBASE_SERVICE_ACCOUNT") || "";
+  extractProjectIdFromSA(FIREBASE_SA);
 
 const TRUEMONEY_BASE =
   "https://gift.truemoney.com/campaign/vouchers";

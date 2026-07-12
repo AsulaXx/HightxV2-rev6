@@ -21,7 +21,8 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
+import { AlertTriangle, Ban } from "lucide-react";
 
 export type UserRole = "owner" | "admin" | "moderator" | "reseller" | "hightxcrew" | "vip" | "user";
 
@@ -134,8 +135,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     })();
   };
 
+  // Popup state for ban notification (replaces window.alert + adds real-time kick)
+  const [bannedInfo, setBannedInfo] = useState<{ reason: string } | null>(null);
+  const banListenerRef = useRef<null | (() => void)>(null);
+
+  const forceSignOutBanned = async (reason: string) => {
+    setBannedInfo({ reason: reason || "ไม่ระบุเหตุผล" });
+    try { await signOut(auth); } catch (err) { logError("AuthContext.forceSignOutBanned", err); }
+    setUser(null);
+    setProfile(null);
+    clearSupabaseSession();
+    setLoading(false);
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      // Tear down previous real-time ban listener on any auth change
+      if (banListenerRef.current) { banListenerRef.current(); banListenerRef.current = null; }
+
       if (firebaseUser) {
         try {
           const docRef = doc(db, "users", firebaseUser.uid);
@@ -144,11 +161,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const data = docSnap.data() as Partial<UserProfile> & { role?: string };
             // Check if user is banned
             if (data.banned) {
-              await signOut(auth);
-              setUser(null);
-              setProfile(null);
-              setLoading(false);
-              alert(`บัญชีของคุณถูกระงับ${data.bannedReason ? `: ${data.bannedReason}` : ''}`);
+              await forceSignOutBanned(data.bannedReason || "");
               return;
             }
             const normalizedProfile: UserProfile = {
@@ -187,15 +200,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
              role: "user",
            });
          } finally {
-           // Always clear pending login flag after auth state settles —
-           // prevents a stale `true` from firing a fake login webhook on next refresh
-           // when the previous Firestore profile load failed.
            pendingLoginWebhookRef.current = false;
          }
          setUser(firebaseUser);
-         // Bridge Firebase session → Supabase Auth (fire-and-forget; storage
-         // uploads await the same promise via getSupabaseUploadPrefix).
          syncSupabaseSession(true).catch((err) => logError("AuthContext.syncSupabase", err));
+
+         // Real-time ban listener — kicks user out instantly when admin bans them
+         try {
+           const liveRef = doc(db, "users", firebaseUser.uid);
+           banListenerRef.current = onSnapshot(liveRef, (snap) => {
+             if (!snap.exists()) return;
+             const d = snap.data() as Partial<UserProfile>;
+             if (d.banned && auth.currentUser?.uid === firebaseUser.uid) {
+               forceSignOutBanned(d.bannedReason || "");
+             }
+           }, (err) => logError("AuthContext.banListener", err));
+         } catch (err) { logError("AuthContext.banListener.setup", err); }
       } else {
         setUser(null);
         setProfile(null);
@@ -203,7 +223,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       setLoading(false);
     });
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      if (banListenerRef.current) { banListenerRef.current(); banListenerRef.current = null; }
+    };
   }, []);
 
 
@@ -344,6 +367,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <AuthContext.Provider value={{ user, profile, loading, login, register, logout, resetPassword, resendVerification, sendEmailLink, signInWithGoogle, hasPermission, isEmailVerified }}>
       {children}
+      {bannedInfo && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="glass-card !p-6 !rounded-2xl max-w-sm w-full border border-destructive/30 shadow-2xl animate-in fade-in zoom-in-95">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-14 h-14 rounded-full bg-destructive/15 flex items-center justify-center mb-3 ring-1 ring-destructive/30">
+                <Ban size={28} className="text-destructive" />
+              </div>
+              <h2 className="text-lg font-bold text-foreground">บัญชีของคุณถูกระงับ</h2>
+              <p className="text-xs text-muted-foreground mt-1">
+                คุณถูกดีดออกจากระบบโดยอัตโนมัติ
+              </p>
+              <div className="mt-4 w-full p-3 rounded-lg bg-destructive/5 border border-destructive/15 text-left">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle size={14} className="text-destructive shrink-0 mt-0.5" />
+                  <p className="text-xs text-foreground break-words">{bannedInfo.reason}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setBannedInfo(null)}
+                className="mt-5 w-full py-2.5 rounded-xl text-sm font-semibold bg-destructive/90 hover:bg-destructive text-destructive-foreground transition-colors"
+              >
+                รับทราบ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AuthContext.Provider>
   );
 };

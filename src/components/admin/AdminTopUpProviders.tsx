@@ -73,19 +73,7 @@ export default function AdminTopUpProviders() {
 
   const reload = async () => {
     setLoading(true);
-    setNeedsClaim(false);
     try {
-      const own = await supabase.functions.invoke("topup-qr", { body: { action: "has_owner" } });
-      const o = own.data || {};
-      setOwnerInfo({
-        hasOwner: !!o.hasOwner,
-        count: o.count || 0,
-        latestClaimedAt: o.latestClaimedAt || null,
-        latestUid: o.latestUid || null,
-        owners: o.owners || [],
-      });
-      if (!o.hasOwner) setNeedsClaim(true);
-
       const idToken = await getIdToken();
       const { data, error } = await supabase.functions.invoke("topup-qr", {
         body: { action: "load_config", idToken },
@@ -98,9 +86,7 @@ export default function AdminTopUpProviders() {
           plernpay: { ...DEFAULT.plernpay, ...(d.plernpay || {}) },
         });
       } else {
-        const msg = data?.error?.message || "";
-        if (msg.includes("requires owner") || msg.includes("ยึดสิทธิ์")) setNeedsClaim(true);
-        else toast.warning("โหลดค่าไม่สำเร็จ: " + msg);
+        toast.warning("โหลดค่าไม่สำเร็จ: " + (data?.error?.message || ""));
       }
     } catch (e: any) {
       toast.error("โหลดการตั้งค่าไม่สำเร็จ: " + (e?.message || e));
@@ -111,19 +97,6 @@ export default function AdminTopUpProviders() {
 
   useEffect(() => { reload(); }, []);
 
-  const handleClaim = async () => {
-    setClaiming(true);
-    try {
-      const idToken = await getIdToken();
-      const { data, error } = await supabase.functions.invoke("topup-qr", { body: { action: "claim_owner", idToken } });
-      if (error) throw new Error(error.message);
-      if (!data?.success) throw new Error(data?.error?.message || "claim failed");
-      toast.success("ยึดสิทธิ์เจ้าของระบบสำเร็จ");
-      await reload();
-    } catch (e: any) {
-      toast.error("ยึดสิทธิ์ไม่สำเร็จ: " + (e?.message || e));
-    } finally { setClaiming(false); }
-  };
 
   const update = <K extends ProviderKey>(k: K, patch: Partial<ProviderCreds[K]>) => {
     setCreds(prev => ({ ...prev, [k]: { ...prev[k], ...patch } }));

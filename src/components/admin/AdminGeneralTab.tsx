@@ -156,11 +156,8 @@ const AdminGeneralTab = ({ form, setForm, handleSave }: AdminTabProps) => (
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs text-muted-foreground mb-1">URL ไอคอน (กำหนดเอง)</label>
-                        <div className="flex items-center gap-2">
-                          <input type="url" value={link.iconUrl} onChange={(e) => { const links = [...(form.socialLinks || [])]; links[idx] = { ...links[idx], iconUrl: e.target.value }; setForm({ ...form, socialLinks: links }); }} className="input-glass flex-1 px-3 py-2.5 text-sm" placeholder="https://..." />
-                          {link.iconUrl && <img src={link.iconUrl} alt="" className="w-8 h-8 object-contain rounded-lg border border-border" onError={(e) => (e.currentTarget.style.display = 'none')} />}
-                        </div>
+                        <label className="block text-xs text-muted-foreground mb-1">ไอคอน (กำหนดเอง)</label>
+                        <ImageUploadField value={link.iconUrl || ""} onChange={(url) => { const links = [...(form.socialLinks || [])]; links[idx] = { ...links[idx], iconUrl: url }; setForm({ ...form, socialLinks: links }); }} folder={`social/${link.id || idx}`} previewClassName="w-8 h-8 object-contain rounded-lg border border-border" />
                       </div>
                     </div>
                   )}

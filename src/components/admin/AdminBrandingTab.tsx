@@ -31,10 +31,8 @@ const AdminBrandingTab = ({ form, setForm, handleSave }: AdminTabProps) => {
       <AdminSection title="Logo" icon={<Image size={18} />}>
         <div>
           <label className="block text-sm font-semibold text-foreground mb-2">URL Logo</label>
-          <div className="flex items-center gap-3">
-            <input type="url" value={form.logoUrl || ""} onChange={(e) => setForm({ ...form, logoUrl: e.target.value })} className="input-glass flex-1 px-4 py-3 text-sm" placeholder="https://..." />
-            {form.logoUrl && <img src={form.logoUrl} alt="Logo" className="w-10 h-10 rounded-xl object-contain border border-border shrink-0" onError={(e) => (e.currentTarget.style.display = "none")} />}
-          </div>
+          <ImageUploadField value={form.logoUrl || ""} onChange={(url) => setForm({ ...form, logoUrl: url })} folder="logo" previewClassName="w-10 h-10 rounded-xl object-contain border border-border shrink-0" />
+        </div>
         </div>
         <div>
           <label className="block text-sm font-semibold text-foreground mb-2">ขนาด Logo ({form.logoSize || 32}px)</label>

@@ -37,12 +37,8 @@ export default function AdminTopUpProviders() {
   const [testing, setTesting] = useState<ProviderKey | null>(null);
   const [show, setShow] = useState<Record<string, boolean>>({});
   const [results, setResults] = useState<Partial<Record<ProviderKey, { ok: boolean; message: string }>>>({});
-  const [needsClaim, setNeedsClaim] = useState(false);
-  const [claiming, setClaiming] = useState(false);
-  const [ownerInfo, setOwnerInfo] = useState<{
-    hasOwner: boolean; count: number; latestClaimedAt: string | null; latestUid: string | null;
-    owners?: Array<{ uid: string; addedAt: string; note?: string }>;
-  } | null>(null);
+
+
 
   const getIdToken = async (): Promise<string> => {
     const u = auth.currentUser;

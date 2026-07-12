@@ -27,6 +27,7 @@ const Index = () => {
   const { settings } = useSiteSettings();
   const { user, hasPermission } = useAuth();
   const { layout, colsToStyle, spacingClass, gapClass, radiusClass, maxWidthClass, imageRatioClass, cardPaddingClass } = useLayoutConfig();
+  const heroRef = useMouseParallax<HTMLElement>();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [showAnnouncementPopup, setShowAnnouncementPopup] = useState(false);
   const [popupAnnouncement, setPopupAnnouncement] = useState<Announcement | null>(null);

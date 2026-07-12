@@ -215,7 +215,7 @@ const AllUserHistoryPage = () => {
   const copy = (s?: string) => { if (!s) return; navigator.clipboard?.writeText(s); toast.success("คัดลอกแล้ว"); };
 
   return (
-    <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-6">
+    <div className="relative z-10 max-w-[1720px] mx-auto px-4 sm:px-6 py-6">
       <PageBreadcrumb
         items={[{ label: "เมนู", path: "/hub" }, { label: "เครื่องมือจัดการ", path: "/hub" }, { label: "ประวัติทั้งหมดของผู้ใช้" }]}
         title="ประวัติทั้งหมดของผู้ใช้"

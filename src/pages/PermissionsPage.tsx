@@ -26,7 +26,7 @@ const PermissionsPage = () => {
   const roles = ROLE_HIERARCHY.slice().reverse(); // user first, owner last
 
   return (
-    <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-6">
+    <div className="relative z-10 max-w-[1720px] mx-auto px-4 sm:px-6 py-6">
       <PageBreadcrumb
         items={[{ label: "เมนู", path: "/hub" }, { label: "สิทธิ์การใช้งาน" }]}
         title="สิทธิ์การใช้งาน"

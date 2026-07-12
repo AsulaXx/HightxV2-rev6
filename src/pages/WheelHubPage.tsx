@@ -16,7 +16,7 @@ const WheelHubPage = () => {
 
   return (
     <div className="min-h-screen px-4 py-8 sm:py-12 relative z-10">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-[1720px] mx-auto">
         <Link to="/hub" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground mb-4">
           <ArrowLeft size={12} /> กลับไปหน้าบริการ
         </Link>

@@ -37,7 +37,6 @@ import AdminPermissionsTab from "@/components/admin/AdminPermissionsTab";
 
 import AdminRuzienBypassTab from "@/components/admin/AdminRuzienBypassTab";
 import PageBreadcrumb from "@/components/PageBreadcrumb";
-import AdminStatusWidget from "@/components/admin/AdminStatusWidget";
 import PermIcon from "@/components/PermIcon";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, doc, onSnapshot } from "firebase/firestore";
@@ -362,9 +361,6 @@ const AdminPage = () => {
                 <Megaphone size={13} /> ประกาศ
               </Link>
             )}
-            <div className="pt-3">
-              <AdminStatusWidget />
-            </div>
           </div>
         </aside>
 
@@ -450,7 +446,7 @@ const AdminPage = () => {
 
           {/* Content */}
           <div ref={contentScrollRef} className="flex-1 overflow-y-auto" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-            <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-5 pb-24 md:pb-8">
+            <div className="max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8 py-5 pb-24 md:pb-8">
 
 
                 {/* Sub-tab overlay sheet (mobile) */}

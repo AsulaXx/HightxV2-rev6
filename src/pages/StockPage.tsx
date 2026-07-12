@@ -41,7 +41,7 @@ const StockPage = () => {
   );
 
   return (
-    <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-6">
+    <div className="relative z-10 max-w-[1720px] mx-auto px-4 sm:px-6 py-6">
       <PageBreadcrumb
         items={[{ label: "เมนู", path: "/hub" }, { label: "Tools", path: "/hub" }, { label: "จัดการสต๊อก" }]}
         title="จัดการสต๊อกสินค้า"

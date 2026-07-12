@@ -285,8 +285,9 @@ const AdminPage = () => {
   const showSave = !hideSaveTabs.includes(activeTab);
 
   return (
-    <div className="relative z-10 h-[calc(100vh-4rem)] overflow-hidden">
+    <><div className="relative z-10 h-[calc(100vh-4rem)] overflow-hidden">
       <div className="flex h-full">
+
         {/* Sidebar */}
         <aside className={`${sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'} h-full shrink-0 transition-all duration-300 hidden md:flex flex-col border-r border-border/40 bg-card/30`}>
           <div className="p-3 border-b border-border/40">

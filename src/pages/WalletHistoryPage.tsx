@@ -76,7 +76,7 @@ const WalletHistoryPage = () => {
           amount: data.amount,
           description: isAdmin
             ? `แอดเครดิตโดยแอดมิน${data.adminNote ? ` (${data.adminNote})` : ""}`
-            : `${methodLabel(method)}${data.provider ? ` · ${data.provider}` : ""} (Ref: ${data.transRef || "-"})`,
+            : `${methodLabel(method)}${data.provider ? ` · ${data.provider}` : ""}`,
           createdAt: data.createdAt,
           transRef: data.transRef,
           status: data.status,

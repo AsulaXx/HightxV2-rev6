@@ -223,10 +223,10 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
   .btn-gradient {
     background: linear-gradient(135deg, var(--fx-grad-from) 0%, var(--fx-grad-to) 100%);
     @apply text-primary-foreground font-semibold rounded-xl transition-all duration-300;
-    box-shadow: 0 4px 20px hsl(var(--primary) / calc(0.15 + 0.30 * var(--fx-glow)));
+    box-shadow: 0 2px 6px hsl(0 0% 0% / 0.12);
   }
   .btn-gradient:hover {
-    box-shadow: 0 8px 32px hsl(var(--primary) / calc(0.20 + 0.40 * var(--fx-glow)));
+    box-shadow: 0 4px 10px hsl(0 0% 0% / 0.16);
     transform: translateY(-1px);
     filter: brightness(1.05);
   }
@@ -242,7 +242,6 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
   .btn-glass:hover {
     background: hsl(var(--card) / 0.8);
     border-color: hsl(var(--primary) / 0.25);
-    box-shadow: 0 4px 20px hsl(var(--primary) / 0.06);
   }
 
   /* ═══════════════════════════════════════════

@@ -52,11 +52,8 @@ const AdminGeneralTab = ({ form, setForm, handleSave }: AdminTabProps) => (
           <textarea value={form.ogDescription || ""} onChange={(e) => setForm({ ...form, ogDescription: e.target.value })} className="input-glass w-full px-4 py-3 text-sm min-h-[60px] resize-y" placeholder="คำอธิบายสั้นๆ" />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-foreground mb-2">OG Image URL</label>
-          <div className="flex items-center gap-3">
-            <input type="url" value={form.ogImage || ""} onChange={(e) => setForm({ ...form, ogImage: e.target.value })} className="input-glass flex-1 px-4 py-3 text-sm" placeholder="https://example.com/og-image.png" />
-            {form.ogImage && <img src={form.ogImage} alt="OG" className="w-16 h-10 rounded-lg object-cover border border-border shrink-0" referrerPolicy="no-referrer" onError={(e) => (e.currentTarget.style.display = "none")} />}
-          </div>
+          <label className="block text-sm font-semibold text-foreground mb-2">OG Image</label>
+          <ImageUploadField value={form.ogImage || ""} onChange={(url) => setForm({ ...form, ogImage: url })} folder="og" placeholder="https://example.com/og-image.png" previewClassName="w-16 h-10 rounded-lg object-cover border border-border shrink-0" />
         </div>
         <div>
           <label className="block text-sm font-semibold text-foreground mb-2">OG Type</label>

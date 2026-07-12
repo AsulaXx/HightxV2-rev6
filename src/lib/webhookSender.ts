@@ -37,7 +37,7 @@ export type WebhookType =
   | "topUp"
   | "purchase"
   | "slipVerify"
-  | "booster"
+  
   | "signup"
   | "login"
   | "wheelSpin"
@@ -66,7 +66,7 @@ const keyMap: Record<WebhookType, string> = {
   topUp: "webhookTopUp",
   purchase: "webhookPurchase",
   slipVerify: "webhookSlipVerify",
-  booster: "webhookBooster",
+  
   signup: "webhookSignup",
   login: "webhookLogin",
   wheelSpin: "webhookWheelSpin",

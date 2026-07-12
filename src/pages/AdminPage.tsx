@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth, UserRole, ROLE_HIERARCHY, ROLE_LABELS } from "@/contexts/AuthContext";
-import { useSiteSettings, Product, ProductDuration, ProductCategory, DEFAULT_PERMISSIONS_LIST, DEFAULT_ROLE_PERMISSIONS_MAP, type PermissionItem, type RolePermissions, type SocialLink, type ParticlesConfig, type BannerLayout, type LayoutConfig, type HeroBannerConfig, type QuickNavItem, type TickerConfig, type ServiceItem, type TopUpSettings, type GiftCode, type DiscountSettings, type BgMusicConfig, type LeaderboardSettings, type BoosterSettings } from "@/contexts/SiteSettingsContext";
+import { useSiteSettings, Product, ProductDuration, ProductCategory, DEFAULT_PERMISSIONS_LIST, DEFAULT_ROLE_PERMISSIONS_MAP, type PermissionItem, type RolePermissions, type SocialLink, type ParticlesConfig, type BannerLayout, type LayoutConfig, type HeroBannerConfig, type QuickNavItem, type TickerConfig, type ServiceItem, type TopUpSettings, type GiftCode, type DiscountSettings, type BgMusicConfig, type LeaderboardSettings } from "@/contexts/SiteSettingsContext";
 import { Navigate, Link } from "react-router-dom";
 import RedirectToLogin from "@/components/RedirectToLogin";
 import { Save, Settings, Users, Palette, Key, Image, Plus, Trash2, Package, Eye, Sparkles, Search, Clock, Shield, CheckCircle, XCircle, ArrowUpDown, Filter, Crown, ChevronDown, ChevronUp, Megaphone, ExternalLink, GripVertical, RotateCcw, FolderOpen, LayoutGrid, Columns, Rows, MoveUp, MoveDown, Monitor, Wallet, Navigation, DollarSign, CreditCard, Receipt, Volume2, Link2, Globe, EyeOff, MousePointerClick, Wrench, Percent, Gift, Tag, Copy, Music, FileText, Upload, Ban, ShieldOff, Ticket, UserPlus, Star, AlertTriangle, Trophy, DatabaseZap, Database, Rocket, Power, AlertCircle, RefreshCw, Bell, FileDown, ClipboardList, CircleDot, Zap } from "lucide-react";
@@ -34,7 +34,7 @@ import AdminTransactionsTab from "@/components/admin/AdminTransactionsTab";
 import AdminLinkPagesTab from "@/components/admin/AdminLinkPagesTab";
 import AdminAuditLogTab from "@/components/admin/AdminAuditLogTab";
 import AdminPermissionsTab from "@/components/admin/AdminPermissionsTab";
-import AdminBoosterTab from "@/components/admin/AdminBoosterTab";
+
 import AdminRuzienBypassTab from "@/components/admin/AdminRuzienBypassTab";
 import PageBreadcrumb from "@/components/PageBreadcrumb";
 import AdminStatusWidget from "@/components/admin/AdminStatusWidget";
@@ -152,7 +152,7 @@ const AdminPage = () => {
         { id: "services", label: "บริการ", icon: Wrench },
         { id: "wheels", label: "วงล้อสุ่ม", icon: CircleDot },
         ...(isAdmin ? [{ id: "wheelclaims", label: "ตรวจ Wheel Claims", icon: ClipboardList }] : []),
-        ...(isOwner ? [{ id: "booster", label: "Booster", icon: Rocket }] : []),
+        
         ...(isOwner ? [{ id: "ruzienbypass", label: "Ruizen Bypass", icon: Zap }] : []),
       ],
     },
@@ -526,9 +526,6 @@ const AdminPage = () => {
               <AdminWheelClaimsTab />
             )}
 
-            {activeTab === "booster" && isOwner && (
-              <AdminBoosterTab form={form} setForm={setForm} handleSave={handleSave} />
-            )}
 
             {activeTab === "ruzienbypass" && isOwner && (
               <AdminRuzienBypassTab form={form} setForm={setForm} handleSave={handleSave} />

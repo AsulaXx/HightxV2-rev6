@@ -14,7 +14,7 @@ export type LedgerType =
   | "purchase"
   | "wheel_spend"
   | "wheel_prize"
-  | "booster_spend"
+  
   | "refund"
   | "adjust";
 

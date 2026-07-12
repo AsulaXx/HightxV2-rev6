@@ -10,7 +10,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 const URL_BASE_KEYS = [
   "discordWebhookUrl",
   "webhookKeyClaim", "webhookLowStock", "webhookDailySummary", "webhookLinkPage",
-  "webhookTopUp", "webhookPurchase", "webhookSlipVerify", "webhookBooster",
+  "webhookTopUp", "webhookPurchase", "webhookSlipVerify",
   "webhookSignup", "webhookLogin", "webhookWheelSpin", "webhookWheelKey",
   "webhookTopUpQR", "webhookGiftCode", "webhookKeyImport", "webhookKeyDelete",
   "webhookFreeClaim",
@@ -66,7 +66,7 @@ const testWebhook = async (url: string, type: string, brandName: string) => {
     topUp: { title: "🧪 ทดสอบ Webhook เติมเงิน", color: 0x22c55e, fields: [{ name: "👤 ผู้ใช้", value: "ทดสอบ", inline: true }, { name: "💰 จำนวน", value: "฿100", inline: true }, { name: "📝 Ref", value: "`TEST-REF-1234`", inline: true }], footer: { text: brandName } },
     purchase: { title: "🧪 ทดสอบ Webhook ซื้อสินค้า", color: 0xf59e0b, fields: [{ name: "👤 ผู้ใช้", value: "ทดสอบ", inline: true }, { name: "🛒 สินค้า", value: "Test Product x1", inline: true }, { name: "💰 ราคา", value: "฿100", inline: true }], footer: { text: brandName } },
     slipVerify: { title: "🧪 ทดสอบ Webhook ตรวจสลิป", color: 0x8b5cf6, fields: [{ name: "👤 ผู้ใช้", value: "ทดสอบ", inline: true }, { name: "💵 จำนวน", value: "฿100", inline: true }, { name: "📝 Ref", value: "`TEST-REF-1234`", inline: true }, { name: "📱 ช่องทาง", value: "web", inline: true }, { name: "✅ ผลลัพธ์", value: "สำเร็จ", inline: true }], footer: { text: brandName } },
-    booster: { title: "🧪 ทดสอบ Webhook Booster", color: 0xf97316, fields: [{ name: "👤 ผู้ใช้", value: "ทดสอบ", inline: true }, { name: "🚀 บริการ", value: "Test Followers x1000", inline: true }, { name: "💰 ราคา", value: "฿50.00", inline: true }, { name: "📈 กำไร", value: "฿10.00", inline: true }, { name: "🔗 ลิงก์", value: "https://example.com/test" }], footer: { text: brandName } },
+    
     signup: { title: "🧪 ทดสอบ Webhook สมัครสมาชิก", color: 0x22c55e, fields: [{ name: "👤 ชื่อ", value: "ทดสอบ", inline: true }, { name: "📧 อีเมล", value: "test@example.com", inline: true }, { name: "🌐 IP", value: "`127.0.0.1`", inline: true }, { name: "📱 อุปกรณ์", value: "Windows / Chrome", inline: true }, { name: "🕐 Timezone", value: "Asia/Bangkok", inline: true }, { name: "🖥️ หน้าจอ", value: "1920x1080", inline: true }], footer: { text: brandName } },
     login: { title: "🧪 ทดสอบ Webhook เข้าสู่ระบบ", color: 0x3b82f6, fields: [{ name: "👤 ชื่อ", value: "ทดสอบ", inline: true }, { name: "📧 อีเมล", value: "test@example.com", inline: true }, { name: "🎭 ยศ", value: "user", inline: true }], footer: { text: brandName } },
     keyImport: { title: "🧪 ทดสอบ Webhook เพิ่มคีย์", color: 0x22c55e, fields: [{ name: "👤 ผู้เพิ่ม", value: "Admin (test@example.com)", inline: true }, { name: "🎭 บทบาท", value: "admin", inline: true }, { name: "🔢 เพิ่มสำเร็จ", value: "10 คีย์", inline: true }, { name: "📦 สินค้า", value: "Test Product — 30 วัน", inline: false }], footer: { text: brandName } },
@@ -447,7 +447,7 @@ const AdminWebhooks = ({ form, setForm, settings, updateSettings, handleSave, se
           const userKeys = ["signup", "login"];
           const shopKeys = ["keyClaim", "freeClaim", "keyImport", "keyDelete", "lowStock", "purchase"];
           const topupKeys = ["topUp", "topUpQR", "giftCode", "slipVerify"];
-          const otherKeys = ["wheelSpin", "wheelKey", "dailySummary", "linkPage", "booster"];
+          const otherKeys = ["wheelSpin", "wheelKey", "dailySummary", "linkPage"];
           return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <CategoryGroup icon={Users} title="ผู้ใช้งาน" count={2} eventKeys={userKeys} events={events} onBulkToggle={(v) => bulkSet(userKeys, v)}>
@@ -475,12 +475,11 @@ const AdminWebhooks = ({ form, setForm, settings, updateSettings, handleSave, se
             <MultiWebhookField {...wf("slipVerify")} emoji="🔍" label="ตรวจสลิป (Log)" primaryValue={form.webhookSlipVerify || ""} onPrimaryChange={(v) => setForm({ ...form, webhookSlipVerify: v })} extraUrls={form.webhookSlipVerifyUrls || []} onExtraUrlsChange={(urls) => setForm({ ...form, webhookSlipVerifyUrls: urls })} hint="บันทึกทุกการตรวจสลิปทั้งสำเร็จ ซ้ำ และล้มเหลว — แนะนำปิดถ้าซ้ำกับ 'เติมเงิน'" brandName={form.brandName} testType="slipVerify" />
           </CategoryGroup>
 
-          <CategoryGroup icon={BarChart3} title="อื่นๆ" count={5} eventKeys={otherKeys} events={events} onBulkToggle={(v) => bulkSet(otherKeys, v)}>
+          <CategoryGroup icon={BarChart3} title="อื่นๆ" count={4} eventKeys={otherKeys} events={events} onBulkToggle={(v) => bulkSet(otherKeys, v)}>
             <MultiWebhookField {...wf("wheelSpin")} emoji="🎡" label="หมุนวงล้อ" primaryValue={form.webhookWheelSpin || ""} onPrimaryChange={(v) => setForm({ ...form, webhookWheelSpin: v })} extraUrls={form.webhookWheelSpinUrls || []} onExtraUrlsChange={(urls) => setForm({ ...form, webhookWheelSpinUrls: urls })} hint="แจ้งเตือนทุกครั้งที่ผู้ใช้หมุนวงล้อ" brandName={form.brandName} testType="wheelSpin" />
             <MultiWebhookField {...wf("wheelKey")} emoji="🔑" label="คีย์จากวงล้อ" primaryValue={form.webhookWheelKey || ""} onPrimaryChange={(v) => setForm({ ...form, webhookWheelKey: v })} extraUrls={form.webhookWheelKeyUrls || []} onExtraUrlsChange={(urls) => setForm({ ...form, webhookWheelKeyUrls: urls })} hint="คีย์ที่ออกจากการหมุนวงล้อ (แยกจาก keyClaim)" brandName={form.brandName} testType="wheelKey" />
             <MultiWebhookField {...wf("dailySummary")} emoji="📊" label="สรุปรายวัน" primaryValue={form.webhookDailySummary || ""} onPrimaryChange={(v) => setForm({ ...form, webhookDailySummary: v })} extraUrls={form.webhookDailySummaryUrls || []} onExtraUrlsChange={(urls) => setForm({ ...form, webhookDailySummaryUrls: urls })} brandName={form.brandName} testType="dailySummary" />
             <MultiWebhookField {...wf("linkPage")} emoji="🔗" label="Link รวม" primaryValue={form.webhookLinkPage || ""} onPrimaryChange={(v) => setForm({ ...form, webhookLinkPage: v })} extraUrls={form.webhookLinkPageUrls || []} onExtraUrlsChange={(urls) => setForm({ ...form, webhookLinkPageUrls: urls })} brandName={form.brandName} testType="linkPage" />
-            <MultiWebhookField {...wf("booster")} emoji="🚀" label="Booster สั่งซื้อ" primaryValue={form.webhookBooster || ""} onPrimaryChange={(v) => setForm({ ...form, webhookBooster: v })} extraUrls={form.webhookBoosterUrls || []} onExtraUrlsChange={(urls) => setForm({ ...form, webhookBoosterUrls: urls })} hint="แจ้งเตือนเมื่อมีการสั่งซื้อ Booster" brandName={form.brandName} testType="booster" />
           </CategoryGroup>
         </div>
           );

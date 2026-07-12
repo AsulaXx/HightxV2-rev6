@@ -189,21 +189,6 @@ export interface TopUpSettings {
   qrExpireMinutes?: number;
 }
 
-export interface BoosterSettings {
-  enabled: boolean;
-  brandName: string;
-  description: string;
-  notice: string;
-  autoRefundOnFail: boolean;
-  minOrderQty: number;
-  maxOrderQty: number;
-  lowBalanceThreshold: number;
-  lowBalanceWebhookEnabled: boolean;
-  allowedRoles: string[];
-  maintenanceMode: boolean;
-  maintenanceMessage: string;
-  apiKey: string;
-}
 
 export interface QuickNavItem {
   id: string;
@@ -459,8 +444,6 @@ interface SiteSettings {
   webhookPurchaseUrls: string[];
   webhookSlipVerify: string;
   webhookSlipVerifyUrls: string[];
-  webhookBooster: string;
-  webhookBoosterUrls: string[];
   webhookSignup: string;
   webhookSignupUrls: string[];
   webhookLogin: string;
@@ -517,7 +500,7 @@ interface SiteSettings {
   referral: ReferralSettings;
   vipTiers: VipTierSettings;
   leaderboard: LeaderboardSettings;
-  booster: BoosterSettings;
+  
   autoBanEnabled: boolean;
   autoBanMaxAttempts: number;
   autoBanWindowHours: number;
@@ -625,8 +608,6 @@ const defaultSettings: SiteSettings = {
   webhookPurchaseUrls: [],
   webhookSlipVerify: "",
   webhookSlipVerifyUrls: [],
-  webhookBooster: "",
-  webhookBoosterUrls: [],
   webhookSignup: "",
   webhookSignupUrls: [],
   webhookLogin: "",
@@ -786,21 +767,6 @@ const defaultSettings: SiteSettings = {
       { id: "r4", rankFrom: 4, rankTo: 10, label: "🏅 Top 10", reward: "ส่วนลด 5% ทั้งร้าน", color: "from-blue-400 to-indigo-500" },
     ],
   },
-  booster: {
-    enabled: true,
-    brandName: "HightX Follower Booster",
-    description: "บริการปั๊มผู้ติดตามและยอดไลค์บนโซเชียลมีเดีย",
-    notice: "",
-    autoRefundOnFail: true,
-    minOrderQty: 100,
-    maxOrderQty: 1000000,
-    lowBalanceThreshold: 500,
-    lowBalanceWebhookEnabled: true,
-    allowedRoles: ["user", "vip", "reseller", "hightxcrew", "moderator", "admin", "owner"],
-    maintenanceMode: false,
-    maintenanceMessage: "ระบบ Booster อยู่ระหว่างปรับปรุง กรุณารอสักครู่",
-    apiKey: "",
-  },
   autoBanEnabled: true,
   autoBanMaxAttempts: 3,
   autoBanWindowHours: 24,
@@ -859,7 +825,7 @@ const SENSITIVE_KEYS = new Set<string>([
   "bankAccountInfo", "bankAccounts",
   "matchReceiverAccount", "matchReceiverAccounts", "matchReceiverName",
   "truewalletPhone", "giftCodes", "coupons",
-  "topUp", "booster", "ruzienBypass", "referral",
+  "topUp", "ruzienBypass", "referral",
 ]);
 const sanitizeForStorage = (s: SiteSettings): Partial<SiteSettings> => {
   const out: any = { ...s };

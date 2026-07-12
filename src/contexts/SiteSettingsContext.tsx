@@ -921,24 +921,9 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   }, [settings.theme]);
 
-  // Apply UI version (v1 = Liquid Glass, v2 = Tactical, v3 = SaaS)
-  // Allow ?uiv=v1|v2|v3 URL override for previewing without admin access.
+  // Apply UI version (v1 = Liquid Glass only)
   useEffect(() => {
-    let v: "v1" | "v2" | "v3" =
-      settings.uiVersion === "v2" ? "v2" : settings.uiVersion === "v3" ? "v3" : "v1";
-    try {
-      const override = new URLSearchParams(window.location.search).get("uiv");
-      if (override === "v1" || override === "v2" || override === "v3") v = override;
-    } catch {}
-    document.documentElement.setAttribute("data-ui-version", v);
-    if (v === "v2") {
-      loadGoogleFont("Rajdhani");
-      loadGoogleFont("JetBrains Mono");
-      loadGoogleFont("IBM Plex Sans Thai");
-    } else if (v === "v3") {
-      loadGoogleFont("Inter");
-      loadGoogleFont("IBM Plex Sans Thai");
-    }
+    document.documentElement.setAttribute("data-ui-version", "v1");
   }, [settings.uiVersion]);
 
   // Apply OG meta tags from settings

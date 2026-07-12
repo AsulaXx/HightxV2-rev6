@@ -68,6 +68,7 @@ const AdminBackup = ({ user, profile }: AdminBackupProps) => {
   const [importPreview, setImportPreview] = useState<{ fileName: string; collections: { name: string; count: number }[] } | null>(null);
   const [importData, setImportData] = useState<Record<string, any[]> | null>(null);
   const [confirmText, setConfirmText] = useState("");
+  const [csvModalOpen, setCsvModalOpen] = useState(false);
 
   // Auto backup state
   const [autoBackupInterval, setAutoBackupInterval] = useState(0);

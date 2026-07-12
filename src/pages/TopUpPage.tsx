@@ -12,6 +12,7 @@ import TopUpTrueWallet from "@/components/topup/TopUpTrueWallet";
 import TopUpVoucher from "@/components/topup/TopUpVoucher";
 import TopUpGiftCode from "@/components/topup/TopUpGiftCode";
 import TopUpQR from "@/components/topup/TopUpQR";
+import SlipQuotaLive from "@/components/topup/SlipQuotaLive";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, query, where, getDocs, limit, runTransaction } from "firebase/firestore";
 import { applyLedger, generateAttemptId } from "@/lib/walletLedger";
@@ -632,6 +633,9 @@ const TopUpPage = () => {
       <PageBreadcrumb items={[{ label: "เมนู", path: "/hub" }, { label: "เติมเงิน" }]} title="เติมเงิน" subtitle="อัปโหลดสลิปโอนเงินเพื่อเติมเงินเข้ากระเป๋า" icon={Wallet} />
 
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
+        {/* Realtime Slip Quota — visible to everyone */}
+        <SlipQuotaLive />
+
         {/* Top-Up Notice Message */}
         {topUpSettings.noticeMessage && (() => {
           const colorMap: Record<string, any> = {

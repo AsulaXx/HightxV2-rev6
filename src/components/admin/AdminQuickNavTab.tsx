@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Save, Plus, Trash2, Search, ChevronDown, ChevronUp, Navigation, LayoutGrid, Rows, MoveUp, MoveDown, GripVertical } from "lucide-react";
 import { AdminTabProps, generateId } from "./AdminTabProps";
 import type { QuickNavItem, BannerLayout } from "@/contexts/SiteSettingsContext";
+import ImageUploadField from "./ImageUploadField";
 
 const AdminQuickNavTab = ({ form, setForm, handleSave }: AdminTabProps) => {
   const [quickNavSearch, setQuickNavSearch] = useState("");

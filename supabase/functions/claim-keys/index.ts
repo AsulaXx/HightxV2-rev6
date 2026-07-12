@@ -59,6 +59,11 @@ serve(async (req) => {
     const uid = auth.uid;
     const email = auth.email || "";
 
+    // Server-side rate limit: 10/min per uid + 30/min per IP
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    if (bump(uidRl, uid, 60_000, 10)) return ok({ success: false, error: "ใช้งานบ่อยเกินไป กรุณารอสักครู่" });
+    if (bump(ipRl, ip, 60_000, 30)) return ok({ success: false, error: "IP ใช้งานบ่อยเกินไป กรุณารอสักครู่" });
+
     const body = await req.json().catch(() => ({}));
     const items: ClaimItem[] = Array.isArray(body?.items) ? body.items : [];
     const batchId: string = String(body?.batchId || "");

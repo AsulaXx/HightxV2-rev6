@@ -421,24 +421,35 @@ const AdminPage = () => {
               >
                 {activeCategory.tabs.map((tab, idx) => {
                   const active = activeTab === tab.id;
+                  const pinned = pinnedTabs.includes(tab.id);
                   return (
-                    <button
-                      key={tab.id}
-                      ref={(el) => { subTabRefs.current[idx] = el; }}
-                      role="tab"
-                      aria-selected={active}
-                      tabIndex={active ? 0 : -1}
-                      onClick={() => setActiveTab(tab.id)}
-                      onKeyDown={(e) => handleSubTabKeyDown(e, idx)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all focus:outline-none focus-visible:ring-1 focus-visible:ring-primary ${
-                        active
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
-                      }`}
-                    >
-                      <tab.icon size={12} />
-                      {tab.label}
-                    </button>
+                    <div key={tab.id} className="relative group flex items-center">
+                      <button
+                        ref={(el) => { subTabRefs.current[idx] = el; }}
+                        role="tab"
+                        aria-selected={active}
+                        tabIndex={active ? 0 : -1}
+                        onClick={() => setActiveTab(tab.id)}
+                        onKeyDown={(e) => handleSubTabKeyDown(e, idx)}
+                        className={`flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all focus:outline-none focus-visible:ring-1 focus-visible:ring-primary ${
+                          active
+                            ? 'bg-primary text-primary-foreground'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
+                        }`}
+                      >
+                        <tab.icon size={12} />
+                        {tab.label}
+                        <span
+                          role="button"
+                          tabIndex={-1}
+                          onClick={(e) => { e.stopPropagation(); togglePin(tab.id); }}
+                          title={pinned ? "ยกเลิกปักหมุด" : "ปักหมุดเมนู"}
+                          className={`ml-1 p-0.5 rounded transition-opacity ${pinned ? 'opacity-100' : 'opacity-0 group-hover:opacity-70 hover:!opacity-100'}`}
+                        >
+                          {pinned ? <PinOff size={10} /> : <Pin size={10} />}
+                        </span>
+                      </button>
+                    </div>
                   );
                 })}
               </div>

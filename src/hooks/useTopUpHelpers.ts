@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { sendWebhook } from "@/lib/webhookSender";
-import { slipVerifyEmbed, autoBanEmbed } from "@/lib/webhookTemplates";
+import { autoBanEmbed } from "@/lib/webhookTemplates";
 import { logError } from "@/lib/errorLogger";
 import { query, where, getDocs, limit, updateDoc, doc } from "firebase/firestore";
 import { logActivity } from "@/lib/activityLogger";

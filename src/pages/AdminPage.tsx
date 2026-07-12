@@ -616,12 +616,11 @@ const AdminPage = () => {
             )}
 
                 </ErrorBoundary>
-                </motion.div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>
-      </div>
+
 
       {/* Mobile menu drawer */}
       {mobileMenuOpen && (

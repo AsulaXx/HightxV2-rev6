@@ -375,7 +375,7 @@ const AdminPage = () => {
 
           {/* Row 3: sub-tabs of current category */}
           {activeCategory.tabs.length > 1 && (
-            <div className="pb-2 border-t border-border/30 pt-2">
+            <div className="pb-2 pt-1">
               <div
                 role="tablist"
                 aria-label={`${activeCategory.label} sub-tabs`}

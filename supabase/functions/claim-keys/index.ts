@@ -29,6 +29,18 @@ const ok = (body: unknown) => new Response(JSON.stringify(body), {
   headers: { ...corsHeaders, "Content-Type": "application/json" },
 });
 
+// ── In-memory server-side rate limit (per uid + per ip) ──
+// Complements client-side rateLimiter; cannot be bypassed via devtools.
+const uidRl = new Map<string, { c: number; ts: number }>();
+const ipRl = new Map<string, { c: number; ts: number }>();
+function bump(map: Map<string, { c: number; ts: number }>, key: string, windowMs: number, max: number): boolean {
+  const now = Date.now();
+  const rec = map.get(key);
+  if (!rec || now - rec.ts > windowMs) { map.set(key, { c: 1, ts: now }); return false; }
+  rec.c++;
+  return rec.c > max;
+}
+
 type ClaimItem = {
   productId: string;
   durationId: string;

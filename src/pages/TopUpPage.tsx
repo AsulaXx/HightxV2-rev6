@@ -91,11 +91,12 @@ const TopUpPage = () => {
   const [redeemingGiftCode, setRedeemingGiftCode] = useState(false);
   const [slipPayload, setSlipPayload] = useState("");
 
-  const activeSlipProvider = (settings.slipProvider || 'thunder') as 'thunder'|'rdcw'|'slip2go'|'plernpay';
-  const activeTrueWalletProvider = (settings.truewalletProvider || 'thunder') as 'thunder'|'rdcw'|'slip2go'|'plernpay';
-  const slip2goMode = activeSlipProvider === 'slip2go';
-  const bankIsQr = activeSlipProvider === 'plernpay';
-  const providerLabel = (p: string) => (({ thunder: 'Thunder', rdcw: 'RDCW', slip2go: 'Slip2Go', plernpay: 'PlernPay' } as Record<string,string>)[p] || p);
+  // Phase 5: Only Thunder + PlernPay are supported. Legacy provider settings are ignored.
+  const activeSlipProvider = 'thunder' as const;
+  const activeTrueWalletProvider = 'thunder' as const;
+  const slip2goMode = false;
+  const bankIsQr = false;
+  const providerLabel = (p: string) => (({ thunder: 'Thunder', plernpay: 'PlernPay' } as Record<string,string>)[p] || p);
 
   if (!user) return <RedirectToLogin />;
   if (!topUpSettings.enabled) return (

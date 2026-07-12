@@ -148,33 +148,6 @@ const AdminThemeTab = ({ form, setForm, handleSave }: AdminTabProps) => {
         <p className="text-sm text-muted-foreground mt-1">ปรับแต่งสี ฟอนต์ พื้นหลัง และเอฟเฟกต์</p>
       </div>
 
-      <AdminSection title="เวอร์ชัน UI (ทั้งระบบ)" icon={<Sparkles size={18} />}>
-        <p className="text-xs text-muted-foreground -mt-1">เลือกธีม UI ที่ใช้กับผู้ใช้ทุกคน — เปลี่ยนทันทีหลังบันทึก</p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {([
-            { id: "v1", name: "V1 — Liquid Glass (มินิมอล)", desc: "ดีไซน์ปัจจุบัน นุ่มตา ขอบมน เน้นความสวยงาม", accent: "linear-gradient(135deg,#6366f1,#a855f7)" },
-            { id: "v2", name: "V2 — Tactical (คมเข้ม ดุดัน)", desc: "พื้นคาร์บอน, มุมคม, แถบ Hazard แดง, ฟอนต์ Mono/Rajdhani uppercase, มุมการ์ด bracket", accent: "linear-gradient(135deg,#ef2b2b,#ff6a00)" },
-            { id: "v3", name: "V3 — SaaS (สะอาดทันสมัย)", desc: "พื้นสว่าง การ์ดขาว เงานุ่ม Indigo accent ฟอนต์ Inter สไตล์ Linear/Stripe/Vercel", accent: "linear-gradient(135deg,#4f46e5,#8b5cf6)" },
-          ] as const).map((opt) => {
-            const active = (form.uiVersion || "v1") === opt.id;
-            return (
-              <button
-                key={opt.id}
-                type="button"
-                onClick={() => setForm({ ...form, uiVersion: opt.id })}
-                className={`btn-glass p-4 rounded-xl text-left space-y-2 transition-all ${active ? "border-primary ring-2 ring-primary/40" : "hover:border-primary/30"}`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-foreground">{opt.name}</span>
-                  <span className="h-5 w-5 rounded-md" style={{ background: opt.accent }} />
-                </div>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">{opt.desc}</p>
-                {active && <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-primary">กำลังใช้งาน</span>}
-              </button>
-            );
-          })}
-        </div>
-      </AdminSection>
 
       <AdminSection title="สีและฟอนต์" icon={<Palette size={18} />}>
         <div>

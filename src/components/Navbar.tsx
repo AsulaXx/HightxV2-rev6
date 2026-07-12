@@ -6,7 +6,7 @@ import logo from "@/assets/logo.png";
 import { LogOut, LogIn, Home, User, ExternalLink, Menu, X, ShoppingBag, History, Wallet, Bell, Compass, Settings, ChevronDown, Shield } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useNotifications } from "@/components/NotificationPanel";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { prefetchRoute } from "@/lib/routePrefetch";
@@ -48,8 +48,16 @@ const Navbar = () => {
   const { settings } = useSiteSettings();
   const { balance, loading: walletLoading } = useWallet();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   const isMod = !!user && hasPermission("moderator");
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Centralized, reference-counted scroll lock (iOS-safe). See useScrollLock.
   useScrollLock(mobileMenuOpen);
@@ -70,14 +78,14 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="nav-glass sticky top-0 z-50 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <nav className={`nav-glass sticky top-0 z-50 transition-all duration-300 ease-out ${scrolled ? "shadow-lg shadow-primary/5 backdrop-blur-xl" : ""}`}>
+        <div className={`max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4 transition-all duration-300 ease-out ${scrolled ? "h-12" : "h-16"}`}>
           {/* Brand */}
           <Link to="/" className={`flex items-center gap-3 shrink-0 group rounded-xl ${FOCUS_RING}`}>
-            <div className="w-10 h-10 rounded-2xl overflow-hidden transition-transform duration-300 group-hover:scale-105">
+            <div className={`rounded-2xl overflow-hidden transition-all duration-300 ease-out group-hover:scale-105 group-hover:rotate-3 ${scrolled ? "w-8 h-8" : "w-10 h-10"}`}>
               <img src={logo} alt="Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="text-base font-bold text-foreground tracking-tight hidden sm:block">
+            <span className={`font-bold text-foreground tracking-tight hidden sm:block transition-all duration-300 ${scrolled ? "text-sm" : "text-base"}`}>
               {settings.brandName}
             </span>
           </Link>
@@ -239,7 +247,7 @@ const Navbar = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-              className="lg:hidden fixed inset-x-0 top-16 bottom-0 bg-background/60 backdrop-blur-md z-40"
+              className={`lg:hidden fixed inset-x-0 bottom-0 bg-background/60 backdrop-blur-md z-40 ${scrolled ? "top-12" : "top-16"}`}
               onClick={() => setMobileMenuOpen(false)}
             />
             <motion.div
@@ -247,7 +255,7 @@ const Navbar = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.98 }}
               transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-              className="lg:hidden fixed inset-x-3 top-[calc(4rem+0.5rem)] z-40 glass-card p-2 max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain backdrop-blur-xl shadow-2xl"
+              className={`lg:hidden fixed inset-x-3 z-40 glass-card p-2 max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain backdrop-blur-xl shadow-2xl ${scrolled ? "top-[calc(3rem+0.5rem)]" : "top-[calc(4rem+0.5rem)]"}`}
             >
               <div className="space-y-0.5">
                 {navItems.map((item) => {

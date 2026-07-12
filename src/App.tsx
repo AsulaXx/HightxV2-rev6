@@ -5,12 +5,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { SiteSettingsProvider, useSiteSettings } from "@/contexts/SiteSettingsContext";
+import { SiteSettingsProvider } from "@/contexts/SiteSettingsContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { CartProvider, useCart } from "@/contexts/CartContext";
 import Navbar from "@/components/Navbar";
-import V2Navbar from "@/components/v2/V2Navbar";
-import V2Footer from "@/components/v2/V2Footer";
 import AnnouncementTicker from "@/components/AnnouncementTicker";
 import BackgroundParticles from "@/components/BackgroundParticles";
 import GlowOrbs from "@/components/GlowOrbs";
@@ -106,13 +104,9 @@ const NotificationAuthBridge = () => {
 const AnimatedRoutes = () => {
   const location = useLocation();
   const isLinkView = location.pathname.startsWith("/l/");
-  const { settings } = useSiteSettings();
-  const isV2 = settings.uiVersion === "v2";
-  const NavComponent = isV2 ? V2Navbar : Navbar;
-  const FooterComponent = isV2 ? V2Footer : Footer;
   return (
     <>
-      {!isLinkView && <NavComponent />}
+      {!isLinkView && <Navbar />}
       
       {!isLinkView && <AnnouncementTicker />}
       <main className="flex-1">
@@ -170,7 +164,7 @@ const AnimatedRoutes = () => {
         </ErrorBoundary>
         </Suspense>
       </main>
-      {!isLinkView && <FooterComponent />}
+      {!isLinkView && <Footer />}
     </>
   );
 };

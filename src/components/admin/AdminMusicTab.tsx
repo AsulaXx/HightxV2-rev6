@@ -4,6 +4,7 @@ import type { BgMusicConfig } from "@/contexts/SiteSettingsContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getSupabaseUploadPrefix } from "@/lib/supabaseSync";
 import { toast } from "sonner";
+import ImageUploadField from "./ImageUploadField";
 
 
 const AdminMusicTab = ({ form, setForm, handleSave }: AdminTabProps) => {

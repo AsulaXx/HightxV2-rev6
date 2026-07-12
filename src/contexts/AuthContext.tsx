@@ -116,9 +116,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fireLoginWebhook = (userProfile: UserProfile, method: string = "Email/Password") => {
     (async () => {
       try {
-        const siteSettingsRef = doc(db, "siteSettings", "main");
+        const siteSettingsRef = doc(db, "settings", "site");
         const siteSettingsSnap = await getDoc(siteSettingsRef);
         if (!siteSettingsSnap.exists()) return;
+
         const siteSettings = siteSettingsSnap.data();
         const clientInfo = await getClientInfo();
         const mask = isPiiMaskingEnabled(siteSettings);
@@ -254,7 +255,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Signup webhook
     try {
-      const siteSettingsRef = doc(db, "siteSettings", "main");
+      const siteSettingsRef = doc(db, "settings", "site");
+
       const siteSettingsSnap = await getDoc(siteSettingsRef);
       if (siteSettingsSnap.exists()) {
         const siteSettings = siteSettingsSnap.data();
@@ -321,7 +323,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Signup webhook for Google
       try {
-        const siteSettingsRef = doc(db, "siteSettings", "main");
+        const siteSettingsRef = doc(db, "settings", "site");
         const siteSettingsSnap = await getDoc(siteSettingsRef);
         if (siteSettingsSnap.exists()) {
           const siteSettings = siteSettingsSnap.data();

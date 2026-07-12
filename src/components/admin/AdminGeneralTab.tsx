@@ -2,6 +2,7 @@ import { Settings, Image, ExternalLink, Plus, Trash2, GripVertical, ChevronDown,
 import AdminSection from "./AdminSection";
 import { AdminTabProps, generateId } from "./AdminTabProps";
 import { type SocialLink } from "@/contexts/SiteSettingsContext";
+import ImageUploadField from "./ImageUploadField";
 
 const AdminGeneralTab = ({ form, setForm, handleSave }: AdminTabProps) => (
   <div className="space-y-6">

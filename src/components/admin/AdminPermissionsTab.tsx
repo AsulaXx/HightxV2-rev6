@@ -127,11 +127,24 @@ const AdminPermissionsTab = ({ form }: AdminTabProps) => {
             <thead>
               <tr className="border-b border-border">
                 <th className="text-left text-xs font-bold text-foreground py-2 px-3">ฟังก์ชัน</th>
-                {ROLE_HIERARCHY.map((role) => (
-                  <th key={role} className="text-center text-[10px] font-bold text-foreground py-2 px-1">
-                    {ROLE_LABELS[role as UserRole]?.replace(/[^\w\s\u0E00-\u0E7F]/g, '').trim()}
-                  </th>
-                ))}
+                {ROLE_HIERARCHY.map((role) => {
+                  const allIds = editPermissions.map((p) => p.id);
+                  const hasAll = allIds.length > 0 && allIds.every((id) => (editRolePerms[role] || []).includes(id));
+                  return (
+                    <th key={role} className="text-center text-[10px] font-bold text-foreground py-2 px-1">
+                      <button
+                        onClick={() => toggleAllForRole(role)}
+                        title={hasAll ? "ยกเลิกทั้งหมด" : "เลือกทั้งหมด"}
+                        className="inline-flex flex-col items-center gap-0.5 hover:text-primary transition-colors"
+                      >
+                        <span>{ROLE_LABELS[role as UserRole]?.replace(/[^\w\s\u0E00-\u0E7F]/g, '').trim()}</span>
+                        <span className={`text-[8px] ${hasAll ? 'text-emerald-400' : 'text-muted-foreground/60'}`}>
+                          {hasAll ? '✓ all' : 'toggle'}
+                        </span>
+                      </button>
+                    </th>
+                  );
+                })}
               </tr>
             </thead>
             <tbody>

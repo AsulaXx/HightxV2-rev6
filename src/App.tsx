@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { SiteSettingsProvider, useSiteSettings } from "@/contexts/SiteSettingsContext";
+import { SiteSettingsProvider } from "@/contexts/SiteSettingsContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { CartProvider, useCart } from "@/contexts/CartContext";
 import Navbar from "@/components/Navbar";

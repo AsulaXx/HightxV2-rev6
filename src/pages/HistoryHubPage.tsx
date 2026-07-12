@@ -21,14 +21,6 @@ const categories = [
     accent: "text-primary",
   },
   {
-    title: "ประวัติปั้มผู้ติดตาม",
-    desc: "ออเดอร์บูสต์ผู้ติดตามและสถานะการดำเนินงาน",
-    icon: Users,
-    path: "/booster-orders",
-    gradient: "from-pink-500/30 to-rose-500/20",
-    accent: "text-pink-400",
-  },
-  {
     title: "ประวัติสุ่มวงล้อ",
     desc: "ผลการหมุนวงล้อทั้งหมด พร้อมตัวกรองตามรางวัล",
     icon: Sparkles,

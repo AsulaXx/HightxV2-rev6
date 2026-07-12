@@ -58,9 +58,6 @@ const LeaderboardPage = lazy(() => import("./pages/LeaderboardPage"));
 const BannedUsersPage = lazy(() => import("./pages/BannedUsersPage"));
 
 const SetupGuidePage = lazy(() => import("./pages/SetupGuidePage"));
-const BoosterStorePage = lazy(() => import("./pages/BoosterStorePage"));
-const BoosterAdminPage = lazy(() => import("./pages/BoosterAdminPage"));
-const BoosterOrderHistoryPage = lazy(() => import("./pages/BoosterOrderHistoryPage"));
 const StatusPage = lazy(() => import("./pages/StatusPage"));
 const ProductStatusPage = lazy(() => import("./pages/ProductStatusPage"));
 const ReferralDashboardPage = lazy(() => import("./pages/ReferralDashboardPage"));
@@ -154,9 +151,6 @@ const AnimatedRoutes = () => {
             <Route path="/banned-users" element={<PageTransition><BannedUsersPage /></PageTransition>} />
             
             <Route path="/setup-guide" element={<PageTransition><SetupGuidePage /></PageTransition>} />
-            <Route path="/hightxfollowerbooster" element={<PageTransition><BoosterStorePage /></PageTransition>} />
-            <Route path="/boosteradminpanel" element={<PageTransition><BoosterAdminPage /></PageTransition>} />
-            <Route path="/booster-orders" element={<PageTransition><BoosterOrderHistoryPage /></PageTransition>} />
             <Route path="/status" element={<PageTransition><StatusPage /></PageTransition>} />
             <Route path="/product-status" element={<PageTransition><ProductStatusPage /></PageTransition>} />
             <Route path="/referral" element={<PageTransition><ReferralDashboardPage /></PageTransition>} />

@@ -187,7 +187,7 @@ const KEY_MAP: Record<string, string> = {
   topUp: "webhookTopUp",
   purchase: "webhookPurchase",
   slipVerify: "webhookSlipVerify",
-  booster: "webhookBooster",
+  
   signup: "webhookSignup",
   login: "webhookLogin",
   wheelSpin: "webhookWheelSpin",

@@ -511,7 +511,7 @@ const StorePage = () => {
                           src={product.thumbnailUrl || product.imageUrl}
                           alt={product.name}
                           loading="lazy"
-                          className={`w-full h-full ${layout.productImageFit === "contain" ? "object-contain p-2" : "object-cover"} transition-transform duration-500 ease-out group-hover:scale-110 group-hover:rotate-1 ${isUnavailable ? 'grayscale-[70%] blur-[1px]' : ''}`}
+                          className={`w-full h-full ${layout.productImageFit === "contain" ? "object-contain p-2" : "object-cover"} transition-transform duration-500 ease-out group-hover:scale-110 group-hover:rotate-1 ${isUnavailable ? 'grayscale-[35%] opacity-80' : ''}`}
                         />
                       </div>
                       {/* Right-edge fade into content */}

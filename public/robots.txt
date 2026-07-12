@@ -1,4 +1,4 @@
-# robots.txt — https://night-petal.lovable.app
+# robots.txt — https://dev-hightx.web.app
 # Allow all crawlers on public pages, block admin/account/internal routes.
 
 User-agent: *
@@ -48,4 +48,4 @@ Allow: /
 User-agent: Discordbot
 Allow: /
 
-Sitemap: https://night-petal.lovable.app/sitemap.xml
+Sitemap: https://dev-hightx.web.app/sitemap.xml

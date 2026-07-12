@@ -164,7 +164,7 @@ const AnimatedRoutes = () => {
         </ErrorBoundary>
         </Suspense>
       </main>
-      {!isLinkView && <FooterComponent />}
+      {!isLinkView && <Footer />}
     </>
   );
 };

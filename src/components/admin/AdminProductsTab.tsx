@@ -348,9 +348,19 @@ const AdminProductsTab = ({ form, setForm, handleSave }: AdminTabProps) => {
                                   if (file.size > 5 * 1024 * 1024) { toast.error("ไฟล์ใหญ่เกิน 5MB"); return; }
                                   const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
                                   const stamp = Date.now();
-                                  const origPath = `${product.id}/${stamp}.${ext}`;
-                                  const thumbPath = `${product.id}/${stamp}-thumb.webp`;
                                   toast.loading("กำลังอัพโหลดรูป...", { id: `pimg-${product.id}` });
+                                  let origPath: string;
+                                  let thumbPath: string;
+                                  try {
+                                    const { getSupabaseUploadPrefix } = await import("@/lib/supabaseSync");
+                                    const prefix = await getSupabaseUploadPrefix();
+                                    origPath = `${prefix}/${product.id}/${stamp}.${ext}`;
+                                    thumbPath = `${prefix}/${product.id}/${stamp}-thumb.webp`;
+                                  } catch (err: any) {
+                                    toast.error("เซสชันหมดอายุ กรุณา login ใหม่", { id: `pimg-${product.id}` });
+                                    return;
+                                  }
+
                                   try {
                                     // Generate thumbnail (max 400px wide, webp ~0.82)
                                     const dataUrl = await new Promise<string>((resolve, reject) => {

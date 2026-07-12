@@ -4,6 +4,8 @@ import { logActivity } from "@/lib/activityLogger";
 import { sendWebhook, getClientInfo, parseUserAgent } from "@/lib/webhookSender";
 import { loginEmbed, signupEmbed, maskEmail, maskIp, isPiiMaskingEnabled } from "@/lib/webhookTemplates";
 import { logError } from "@/lib/errorLogger";
+import { syncSupabaseSession, clearSupabaseSession } from "@/lib/supabaseSync";
+
 import {
   onAuthStateChanged, 
   signInWithEmailAndPassword, 
@@ -191,14 +193,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
            pendingLoginWebhookRef.current = false;
          }
          setUser(firebaseUser);
+         // Bridge Firebase session → Supabase Auth (fire-and-forget; storage
+         // uploads await the same promise via getSupabaseUploadPrefix).
+         syncSupabaseSession(true).catch((err) => logError("AuthContext.syncSupabase", err));
       } else {
         setUser(null);
         setProfile(null);
+        clearSupabaseSession();
       }
       setLoading(false);
     });
     return unsubscribe;
   }, []);
+
 
   const login = async (email: string, password: string) => {
     pendingLoginWebhookRef.current = true;

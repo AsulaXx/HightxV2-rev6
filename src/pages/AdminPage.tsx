@@ -526,6 +526,7 @@ const AdminPage = () => {
                   onAnimationComplete={() => setSlideDir(null)}
                 >
                 <ErrorBoundary compact resetKey={activeTab} label={tabs.find(t => t.id === activeTab)?.label}>
+                <Suspense fallback={<div className="py-16 flex items-center justify-center text-xs text-muted-foreground gap-2"><RefreshCw size={14} className="animate-spin" /> กำลังโหลดแท็บ...</div>}>
 
             {activeTab === "general" && (
               <AdminGeneralTab form={form} setForm={setForm} handleSave={handleSave} />

@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Save, Plus, Trash2, RotateCcw, Shield, CheckCircle, XCircle } from "lucide-react";
 import { AdminTabProps, generateId } from "./AdminTabProps";
-import { ROLE_HIERARCHY, ROLE_LABELS, type UserRole } from "@/contexts/AuthContext";
+import { ROLE_HIERARCHY, ROLE_LABELS, useAuth, type UserRole } from "@/contexts/AuthContext";
 import { DEFAULT_PERMISSIONS_LIST, DEFAULT_ROLE_PERMISSIONS_MAP, type PermissionItem, type RolePermissions } from "@/contexts/SiteSettingsContext";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import PermIcon from "@/components/PermIcon";
 import { toast } from "sonner";
+import { logActivity } from "@/lib/activityLogger";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 const ROLE_COLORS: Record<string, string> = {
@@ -17,6 +18,7 @@ const ROLE_COLORS: Record<string, string> = {
 
 const AdminPermissionsTab = ({ form }: AdminTabProps) => {
   const { settings, updateSettings } = useSiteSettings();
+  const { user, profile } = useAuth();
   const [editPermissions, setEditPermissions] = useState<PermissionItem[]>(settings.permissions?.length ? settings.permissions : DEFAULT_PERMISSIONS_LIST);
   const [editRolePerms, setEditRolePerms] = useState<RolePermissions>(settings.rolePermissions && Object.keys(settings.rolePermissions).length ? settings.rolePermissions : DEFAULT_ROLE_PERMISSIONS_MAP);
   const [displayLimit, setDisplayLimit] = useState(20);
@@ -48,7 +50,16 @@ const AdminPermissionsTab = ({ form }: AdminTabProps) => {
       },
     });
   };
-  const savePermissions = () => { updateSettings({ permissions: editPermissions, rolePermissions: editRolePerms }); toast.success("บันทึกสิทธิ์สำเร็จ!"); };
+  const savePermissions = () => {
+    updateSettings({ permissions: editPermissions, rolePermissions: editRolePerms });
+    // Audit trail — record who changed perms and a summary
+    if (user) {
+      const beforeCount = Object.values(settings.rolePermissions || {}).reduce((s: number, p: any) => s + (p?.length || 0), 0);
+      const afterCount = Object.values(editRolePerms).reduce((s: number, p: any) => s + (p?.length || 0), 0);
+      logActivity(user, profile, "permission_change", `perms=${editPermissions.length} · role-grants: ${beforeCount}→${afterCount}`);
+    }
+    toast.success("บันทึกสิทธิ์สำเร็จ!");
+  };
 
   return (
     <div className="space-y-6">

@@ -384,6 +384,33 @@ const AdminPage = () => {
             </div>
           </nav>
 
+          {/* Pinned tabs strip (quick access) */}
+          {pinnedTabs.length > 0 && (
+            <div className="hidden md:flex items-center gap-1 pb-2 overflow-x-auto scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <Pin size={11} className="text-primary/70 shrink-0" />
+              {pinnedTabs
+                .map((pid) => tabs.find((t) => t.id === pid))
+                .filter((t): t is NonNullable<typeof t> => !!t)
+                .map((tab) => {
+                  const active = activeTab === tab.id;
+                  return (
+                    <button
+                      key={`pin-${tab.id}`}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex items-center gap-1 px-2.5 h-7 rounded-md text-[11px] font-medium whitespace-nowrap transition-all ${
+                        active
+                          ? 'bg-primary/15 text-primary border border-primary/30'
+                          : 'bg-muted/30 text-muted-foreground hover:text-foreground border border-transparent'
+                      }`}
+                    >
+                      <tab.icon size={11} />
+                      {tab.label}
+                    </button>
+                  );
+                })}
+            </div>
+          )}
+
           {/* Row 3: sub-tabs of current category */}
           {activeCategory.tabs.length > 1 && (
             <div className="pb-2 pt-1">

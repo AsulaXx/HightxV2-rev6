@@ -255,7 +255,7 @@ const Navbar = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.98 }}
               transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-              className="lg:hidden fixed inset-x-3 top-[calc(4rem+0.5rem)] z-40 glass-card p-2 max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain backdrop-blur-xl shadow-2xl"
+              className={`lg:hidden fixed inset-x-3 z-40 glass-card p-2 max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain backdrop-blur-xl shadow-2xl ${scrolled ? "top-[calc(3rem+0.5rem)]" : "top-[calc(4rem+0.5rem)]"}`}
             >
               <div className="space-y-0.5">
                 {navItems.map((item) => {

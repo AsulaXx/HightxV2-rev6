@@ -418,7 +418,7 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
   .btn-magnetic::after {
     content: "";
     @apply absolute inset-0 opacity-0 transition-opacity duration-300;
-    background: linear-gradient(135deg, hsl(0 0% 100% / 0.1) 0%, transparent 60%);
+    background: transparent;
   }
   .btn-magnetic:hover::after { opacity: 1; }
 
@@ -431,13 +431,8 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
   .glass-shine::after {
     content: "";
     @apply absolute -top-1/2 -left-1/2 w-[200%] h-[200%] opacity-0 transition-opacity duration-700;
-    background: linear-gradient(
-      45deg,
-      transparent 30%,
-      hsl(0 0% 100% / 0.04) 50%,
-      transparent 70%
-    );
-    animation: shineSlide 3s ease-in-out infinite;
+    background: transparent;
+    animation: none;
   }
   .glass-shine:hover::after { opacity: 1; }
 

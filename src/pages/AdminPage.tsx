@@ -665,6 +665,7 @@ const AdminPage = () => {
               <AdminPermissionsTab form={form} setForm={setForm} handleSave={handleSave} />
             )}
 
+                </Suspense>
                 </ErrorBoundary>
               </motion.div>
             </div>

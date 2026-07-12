@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { logError } from "@/lib/errorLogger";
+import { flushTopUpHistoryQueue } from "@/lib/topUpHistory";
 
 export interface TopUpRecord {
   id: string;
@@ -38,6 +39,9 @@ export const useTopUpWallet = (userId?: string) => {
 
   const loadHistory = useCallback(async () => {
     if (!userId) return;
+    // Flush any records queued while offline / during a Firestore hiccup
+    // before we read history, so users always see the latest attempts.
+    await flushTopUpHistoryQueue().catch(() => {});
     try {
       const q = query(
         collection(db, "topUpHistory"),

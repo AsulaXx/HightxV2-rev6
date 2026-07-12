@@ -274,6 +274,29 @@ async function creditWallet(opts: {
     },
   });
 
+  // topUpHistory entry — written atomically so the user's history always
+  // reflects a successful voucher redemption, even if the browser closes
+  // before it could log the record client-side.
+  const historyName = `topUpHistory/edge_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`;
+  writes.push({
+    update: {
+      name: fsDocName(historyName),
+      fields: {
+        userId: { stringValue: uid },
+        amount: { doubleValue: amount },
+        creditAmount: { doubleValue: amount },
+        transRef: { stringValue: voucherCode },
+        status: { stringValue: "success" },
+        method: { stringValue: "voucher" },
+        source: { stringValue: "redeem-angpao" },
+        serverCredited: { booleanValue: true },
+        ownerName: { stringValue: ownerName },
+        receiverMobile: { stringValue: mobile },
+        createdAt: { timestampValue: nowIso },
+      },
+    },
+  });
+
   const commitRes = await fetch(`${fsBase().replace(/\/documents$/, "")}/documents:commit`, {
     method: "POST",
     headers,

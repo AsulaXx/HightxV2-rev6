@@ -171,13 +171,13 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
   }
   .glass-card-hover:hover::before { opacity: 1; }
   .glass-card-hover:hover {
-    border-color: hsl(var(--primary) / 0.35);
+    border-color: hsl(var(--primary) / calc(0.20 + 0.30 * var(--fx-glow)));
     box-shadow:
-      0 12px 60px hsl(var(--primary) / 0.18),
-      0 0 0 1px hsl(var(--primary) / 0.10),
+      0 12px 60px hsl(var(--primary) / calc(0.10 + 0.30 * var(--fx-glow))),
+      0 0 0 1px hsl(var(--primary) / calc(0.05 + 0.15 * var(--fx-glow))),
       inset 0 1px 0 hsl(0 0% 100% / 0.12),
       0 30px 80px -20px hsl(var(--foreground) / 0.35);
-    transform: perspective(1200px) translateY(-6px) rotateX(2deg) scale(1.012);
+    transform: perspective(1200px) translateY(-6px) rotateX(var(--fx-tilt)) scale(1.012);
   }
 
   .glass-panel {

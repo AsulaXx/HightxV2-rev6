@@ -286,7 +286,7 @@ const AdminPage = () => {
   return (
     <><div className="relative z-10 h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
       {/* Admin top bar */}
-      <header className="shrink-0 border-b border-border/40 bg-background/70 backdrop-blur-md">
+      <header className="shrink-0 bg-transparent">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6">
           {/* Row 1: title + search + save */}
           <div className="flex items-center gap-2 h-14">
@@ -375,7 +375,7 @@ const AdminPage = () => {
 
           {/* Row 3: sub-tabs of current category */}
           {activeCategory.tabs.length > 1 && (
-            <div className="pb-2 border-t border-border/30 pt-2">
+            <div className="pb-2 pt-1">
               <div
                 role="tablist"
                 aria-label={`${activeCategory.label} sub-tabs`}

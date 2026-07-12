@@ -20,16 +20,23 @@ const ConsentGate = ({ children }: { children: React.ReactNode }) => {
   const [accepting, setAccepting] = useState(false);
   const [checkedTos, setCheckedTos] = useState(false);
   const [checkedPrivacy, setCheckedPrivacy] = useState(false);
+  // Local optimistic accept (AuthContext doesn't live-subscribe to profile changes)
+  const [localAccepted, setLocalAccepted] = useState<{ t: number; p: number } | null>(null);
 
   const s = settings as any;
   const p = profile as any;
   const currentTermsV = Number(s.termsVersion || 1);
   const currentPrivacyV = Number(s.privacyVersion || 1);
-  const acceptedTermsV = Number(p?.acceptedTermsVersion || 0);
-  const acceptedPrivacyV = Number(p?.acceptedPrivacyVersion || 0);
+  const acceptedTermsV = Math.max(Number(p?.acceptedTermsVersion || 0), localAccepted?.t || 0);
+  const acceptedPrivacyV = Math.max(Number(p?.acceptedPrivacyVersion || 0), localAccepted?.p || 0);
+
+  // Reset local accept when user changes (logout/login)
+  useEffect(() => {
+    setLocalAccepted(null);
+  }, [user?.uid]);
 
   const needsAccept = !!user && !!profile && (acceptedTermsV < currentTermsV || acceptedPrivacyV < currentPrivacyV);
-  const isFirstTime = acceptedTermsV === 0 && acceptedPrivacyV === 0;
+  const isFirstTime = Number(p?.acceptedTermsVersion || 0) === 0 && Number(p?.acceptedPrivacyVersion || 0) === 0 && !localAccepted;
 
   // Reset checkboxes each time modal reopens
   useEffect(() => {
@@ -48,13 +55,15 @@ const ConsentGate = ({ children }: { children: React.ReactNode }) => {
         acceptedPrivacyVersion: currentPrivacyV,
         acceptedAt: serverTimestamp(),
       });
-      await logConsent({
+      // Optimistically hide the modal — AuthContext doesn't watch profile changes live
+      setLocalAccepted({ t: currentTermsV, p: currentPrivacyV });
+      logConsent({
         userId: user.uid,
         userEmail: user.email || "",
         type: "both",
         termsVersion: currentTermsV,
         privacyVersion: currentPrivacyV,
-      });
+      }).catch((e) => console.error("consent log failed:", e));
       toast.success("บันทึกการยอมรับข้อตกลงสำเร็จ");
     } catch (err) {
       console.error(err);

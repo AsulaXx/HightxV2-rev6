@@ -203,6 +203,16 @@ const Index = () => {
 
       {/* Ticker is now a global component in App.tsx */}
 
+      {/* V2 Awang-style: full-bleed hero + welcome + 4 stat cards */}
+      {settings.uiVersion === "v2" && (
+        <HomeV2Hero
+          stats={siteStats}
+          productsCount={(settings.products || []).filter(p => p.enabled).length}
+        />
+      )}
+
+      {/* V1 Hero Banner with Logo + Typing Text + 3D Parallax */}
+      {settings.uiVersion !== "v2" && (<>
       {/* Hero Banner with Logo + Typing Text + 3D Parallax */}
       {settings.heroBanner?.enabled !== false && (
         <motion.section

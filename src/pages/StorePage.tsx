@@ -283,6 +283,17 @@ const StorePage = () => {
     return basePrice;
   };
 
+  const scrollFade = (index = 0) => ({
+    initial: { opacity: 0, y: 18, scale: 0.985, filter: "blur(6px)" },
+    whileInView: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
+    viewport: { once: false, amount: 0.22, margin: "0px 0px -12% 0px" },
+    transition: {
+      duration: 0.46,
+      ease: [0.22, 1, 0.36, 1] as const,
+      delay: Math.min((index % 4) * 0.04, 0.12),
+    },
+  });
+
   return (
     <div className={`relative z-10 ${maxWidthClass()} mx-auto px-4 sm:px-6 py-6 scroll-mt-24`}>
       {/* Ambient store aurora — subtle, non-interactive */}
@@ -404,11 +415,9 @@ const StorePage = () => {
             const isAccordion = mode === "accordion" && hasChildren && !cat.displayAsProduct;
             const productCount = enabledProducts.filter(p => p.categoryId === cat.id || getDescendantIds(cat.id).includes(p.categoryId || "")).length;
 
-            // Note: no initial/animate opacity — some cards were fading out on
-            // subsequent renders (state changes) because Framer treated the
-            // remount as a new enter. Use CSS-only hover instead.
             const cardCommonProps = {
               key: cat.id,
+              ...scrollFade(i),
               whileHover: { y: -4, scale: 1.02, transition: { type: "spring" as const, stiffness: 380, damping: 20 } },
               whileTap: { scale: 0.97 },
               onClick: () => handleCategoryClick(cat),

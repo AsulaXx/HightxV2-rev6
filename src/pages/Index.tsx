@@ -151,7 +151,6 @@ const Index = () => {
     },
   });
   const sectionInView = {
-    initial: false as const,
   };
   const cardHover = {
     whileHover: { y: -4, transition: { type: "spring" as const, stiffness: 380, damping: 22 } },
@@ -346,14 +345,14 @@ const Index = () => {
           </motion.div>
 
           <div className={`dynamic-grid ${gapClass()}`} style={colsToStyle(layout.categoryCols)}>
-            {(settings.quickNavItems || []).filter(n => n.enabled).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((nav) => {
+            {(settings.quickNavItems || []).filter(n => n.enabled).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((nav, i) => {
               const isExternal = nav.url.startsWith("http");
               const Wrapper = isExternal ? "a" : Link;
               const wrapperProps = isExternal 
                 ? { href: nav.url, target: "_blank", rel: "noopener noreferrer" } 
                 : { to: nav.url };
               return (
-                <motion.div key={nav.id} {...scrollFade(0)} {...cardHover}>
+                <motion.div key={nav.id} {...scrollFade(i + 1)} {...cardHover}>
                   <Wrapper {...wrapperProps as any} className={`group relative block overflow-hidden ${radiusClass()}`}>
                     {/* shine sweep */}
                     <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 rotate-12 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-[380%] transition-all duration-700 ease-out z-10" />
@@ -390,9 +389,9 @@ const Index = () => {
                 ? `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-${settings.categoryBannerColumns || 2} ${gapClass()}`
                 : `flex flex-col ${gapClass()}`
             }>
-              {(settings.categories || []).filter(c => c.enabled).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((cat) => {
+              {(settings.categories || []).filter(c => c.enabled).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((cat, i) => {
                 return (
-                  <motion.div key={cat.id} {...scrollFade(0)} {...cardHover} className="h-full">
+                  <motion.div key={cat.id} {...scrollFade(i + 1)} {...cardHover} className="h-full">
                     <Link
                       to={`/store/${cat.id}`}
                       className={`group block relative overflow-hidden border border-border/30 hover:border-primary/20 transition-all duration-300 h-full ${radiusClass()}`}
@@ -421,8 +420,8 @@ const Index = () => {
             </div>
           ) : (
             <div className={`dynamic-grid ${gapClass()}`} style={colsToStyle(layout.categoryCols)}>
-              {(settings.categories || []).filter(c => c.enabled).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((cat) => (
-                <motion.div key={cat.id} {...scrollFade(0)} {...cardHover}>
+              {(settings.categories || []).filter(c => c.enabled).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((cat, i) => (
+                <motion.div key={cat.id} {...scrollFade(i + 1)} {...cardHover}>
                   <Link
                     to={`/store/${cat.id}`}
                     className={`group relative glass-card-hover !p-0 overflow-hidden block ${radiusClass()}`}
@@ -484,8 +483,8 @@ const Index = () => {
             </Link>
           </motion.div>
           <div className={`dynamic-grid ${gapClass()}`} style={colsToStyle(layout.featuredCols)}>
-            {enabledProducts.slice(0, settings.featuredCount || 8).map((product) => (
-              <motion.div key={product.id} {...scrollFade(0)} {...cardHover}>
+            {enabledProducts.slice(0, settings.featuredCount || 8).map((product, i) => (
+              <motion.div key={product.id} {...scrollFade(i + 1)} {...cardHover}>
                 <Link to="/store" className={`group relative glass-card-hover !p-0 overflow-hidden block ${radiusClass()}`}>
                   <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 rotate-12 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-[380%] transition-all duration-700 ease-out z-10" />
                   {layout.showProductImage && product.imageUrl ? (
@@ -530,14 +529,14 @@ const Index = () => {
             <div className="flex-1 h-px bg-gradient-to-r from-border/30 to-transparent ml-3" />
           </motion.div>
           <div className={`dynamic-grid ${gapClass()}`} style={colsToStyle(layout.categoryCols)}>
-            {(settings.serviceItems || []).filter(s => s.enabled).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((service) => {
+            {(settings.serviceItems || []).filter(s => s.enabled).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((service, i) => {
               const isExternal = service.url?.startsWith("http");
               const Wrapper = isExternal ? "a" : Link;
               const wrapperProps = isExternal
                 ? { href: service.url, target: "_blank", rel: "noopener noreferrer" }
                 : { to: service.url || "#" };
               return (
-                <motion.div key={service.id} {...scrollFade(0)} {...cardHover}>
+                <motion.div key={service.id} {...scrollFade(i + 1)} {...cardHover}>
                   <Wrapper {...wrapperProps as any} className={`group relative glass-card-hover !p-0 overflow-hidden block ${radiusClass()}`}>
                     <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 rotate-12 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-[380%] transition-all duration-700 ease-out z-10" />
                     {service.bannerUrl ? (

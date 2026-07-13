@@ -5,7 +5,7 @@ import { FileText, Shield, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { db } from "@/lib/firebase";
-import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { logConsent } from "@/lib/consentLogger";
 import { toast } from "sonner";
 
@@ -73,11 +73,13 @@ const ConsentGate = ({ children }: { children: React.ReactNode }) => {
     if (!user || !checkedTos || !checkedPrivacy) return;
     setAccepting(true);
     try {
-      await updateDoc(doc(db, "users", user.uid), {
+      await setDoc(doc(db, "users", user.uid), {
         acceptedTermsVersion: currentTermsV,
         acceptedPrivacyVersion: currentPrivacyV,
         acceptedAt: serverTimestamp(),
-      });
+        email: user.email || "",
+        uid: user.uid,
+      }, { merge: true });
       // Optimistically hide the modal — AuthContext doesn't watch profile changes live
       setLocalAccepted({ t: currentTermsV, p: currentPrivacyV });
       // Persist so reloads/re-logins on this device don't re-prompt until next version bump

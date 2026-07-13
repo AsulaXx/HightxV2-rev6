@@ -59,6 +59,9 @@ const AdminEffectsTab = ({ form, setForm, handleSave }: Props) => {
     { id: "saver",    label: "ประหยัด",   icon: Leaf,  desc: "ปิดเอฟเฟกต์หนักทั้งหมด" },
   ];
 
+  // Clear any active preview when leaving the tab
+  useEffect(() => () => setPerformancePreview(null), []);
+
   const doImpersonate = async () => {
     if (!impUid.trim()) return;
     try {

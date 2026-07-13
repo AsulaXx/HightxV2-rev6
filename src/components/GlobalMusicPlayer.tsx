@@ -12,6 +12,7 @@ const GlobalMusicPlayer = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
+  const initializedVolume = useRef(false);
   const [isMuted, setIsMuted] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);

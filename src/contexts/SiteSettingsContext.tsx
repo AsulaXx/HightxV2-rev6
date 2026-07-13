@@ -395,6 +395,7 @@ export interface BgMusicConfig {
   artist: string;
   startTime: number;
   autoPlay: boolean;
+  defaultVolume?: number; // 0..1
 }
 
 interface MatchReceiverAccount {
@@ -760,6 +761,7 @@ const defaultSettings: SiteSettings = {
     artist: "",
     startTime: 0,
     autoPlay: true,
+    defaultVolume: 0.5,
   },
   tosContent: "",
   tosContentEn: "",

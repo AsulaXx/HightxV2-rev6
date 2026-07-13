@@ -12,6 +12,7 @@ const GlobalMusicPlayer = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
+  const initializedVolume = useRef(false);
   const [isMuted, setIsMuted] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -26,7 +27,16 @@ const GlobalMusicPlayer = () => {
   const artist = bgMusic?.artist;
   const startTime = bgMusic?.startTime || 0;
   const autoPlay = bgMusic?.autoPlay !== false;
+  const defaultVolume = typeof bgMusic?.defaultVolume === "number" ? Math.max(0, Math.min(1, bgMusic.defaultVolume)) : 0.5;
   const enabled = bgMusic?.enabled && !!url;
+
+  useEffect(() => {
+    if (initializedVolume.current) return;
+    if (bgMusic && typeof bgMusic.defaultVolume === "number") {
+      setVolume(Math.max(0, Math.min(1, bgMusic.defaultVolume)));
+      initializedVolume.current = true;
+    }
+  }, [bgMusic, defaultVolume]);
 
   useEffect(() => {
     const audio = audioRef.current;

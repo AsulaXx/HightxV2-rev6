@@ -4,6 +4,8 @@ import { doc, setDoc, onSnapshot } from "firebase/firestore";
 import { TENANT_BRAND, TENANT_THEME, TENANT_HERO, TENANT_DEFAULT_CATEGORIES, TENANT_URLS } from "@/lib/tenantConfig";
 
 export type ParticleMode = "default" | "snow" | "stars" | "bubbles";
+export type BackgroundEffect = "none" | "grid" | "dots" | "waves" | "aurora" | "matrix";
+export type LoaderStyle = "atom" | "ring" | "dots" | "bars" | "pulse" | "orbit";
 
 export interface ParticlesConfig {
   enabled: boolean;
@@ -17,14 +19,17 @@ export interface ParticlesConfig {
   linkDistance: number;
 }
 
+export interface BackgroundEffectConfig {
+  effect: BackgroundEffect;
+  opacity: number;
+  color?: string;
+  speed?: number;
+}
+
 export interface Theme3DConfig {
-  /** 0-100 — ความแรงของ glow บนการ์ด/ปุ่ม */
   glow: number;
-  /** 0-8 (deg) — องศาเอียง 3D บน hover */
   tilt: number;
-  /** hex — สี gradient หลัก (from) */
   gradientFrom: string;
-  /** hex — สี gradient หลัก (to) */
   gradientTo: string;
 }
 
@@ -38,6 +43,9 @@ interface ThemeSettings {
   backgroundColor: string;
   backgroundLayerOrder: "image-on-top" | "color-on-top";
   particles?: ParticlesConfig;
+  bgEffect?: BackgroundEffectConfig;
+  loaderStyle?: LoaderStyle;
+  commandPaletteEnabled?: boolean;
   fontHeading?: string;
   fontBody?: string;
   fx3d?: Theme3DConfig;
@@ -553,6 +561,9 @@ const defaultTheme: ThemeSettings = {
   backgroundBlur: 0,
   backgroundColor: "",
   backgroundLayerOrder: "image-on-top",
+  bgEffect: { effect: "none", opacity: 0.35, color: "auto", speed: 1 },
+  loaderStyle: "atom",
+  commandPaletteEnabled: true,
   fx3d: {
     glow: 55,
     tilt: 3,

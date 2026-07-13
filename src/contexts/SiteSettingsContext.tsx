@@ -573,6 +573,10 @@ interface SiteSettingsContextType {
   settings: SiteSettings;
   updateSettings: (newSettings: Partial<SiteSettings>) => void;
   loading: boolean;
+  /** Live preview override (does not persist). Pass null to clear. */
+  setLivePreview: (patch: Partial<SiteSettings> | null) => void;
+  /** True when a live preview override is active. */
+  isLivePreviewing: boolean;
 }
 
 const defaultTheme: ThemeSettings = {
@@ -873,6 +877,8 @@ const SiteSettingsContext = createContext<SiteSettingsContextType>({
   settings: defaultSettings,
   updateSettings: () => {},
   loading: true,
+  setLivePreview: () => {},
+  isLivePreviewing: false,
 });
 
 export const useSiteSettings = () => useContext(SiteSettingsContext);
@@ -922,7 +928,7 @@ if (typeof window !== "undefined" && !localStorage.getItem(LEGACY_PURGE_FLAG)) {
 }
 
 export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [settings, setSettings] = useState<SiteSettings>(() => {
+  const [baseSettings, setSettings] = useState<SiteSettings>(() => {
     const saved = localStorage.getItem("hx-site-settings");
     if (saved) {
       try {
@@ -934,6 +940,19 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return defaultSettings;
   });
   const [loading, setLoading] = useState(true);
+  const [livePreview, setLivePreviewState] = useState<Partial<SiteSettings> | null>(null);
+
+  // Effective settings = base + live preview overlay (theme merged nested).
+  // Shadow the name `settings` so all downstream reads automatically reflect preview.
+  const settings: SiteSettings = livePreview
+    ? {
+        ...baseSettings,
+        ...livePreview,
+        theme: { ...baseSettings.theme, ...((livePreview as any).theme || {}) },
+      }
+    : baseSettings;
+
+  const setLivePreview = (patch: Partial<SiteSettings> | null) => setLivePreviewState(patch);
 
   useEffect(() => {
     const docRef = doc(db, "settings", "site");
@@ -961,9 +980,9 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
   useEffect(() => {
     // Only cache non-sensitive UI fields (theme/branding/layout) for fast first paint.
     try {
-      localStorage.setItem("hx-site-settings", JSON.stringify(sanitizeForStorage(settings)));
+      localStorage.setItem("hx-site-settings", JSON.stringify(sanitizeForStorage(baseSettings)));
     } catch { /* ignore quota */ }
-  }, [settings]);
+  }, [baseSettings]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -1063,11 +1082,13 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const updateSettings = async (newSettings: Partial<SiteSettings>) => {
     const merged = {
-      ...settings,
+      ...baseSettings,
       ...newSettings,
-      theme: { ...settings.theme, ...(newSettings.theme || {}) },
+      theme: { ...baseSettings.theme, ...(newSettings.theme || {}) },
     };
     setSettings(merged);
+    // Clear any active live preview once we've persisted the change
+    setLivePreviewState(null);
     try {
       await setDoc(doc(db, "settings", "site"), merged, { merge: true });
     } catch (err) {
@@ -1076,7 +1097,8 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
   };
 
   return (
-    <SiteSettingsContext.Provider value={{ settings, updateSettings, loading }}>
+    <SiteSettingsContext.Provider value={{ settings, updateSettings, loading, setLivePreview, isLivePreviewing: !!livePreview }}>
+
       {/* Background layers */}
       {(settings.theme.backgroundImage || settings.theme.backgroundColor) && (
         <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 1 }}>

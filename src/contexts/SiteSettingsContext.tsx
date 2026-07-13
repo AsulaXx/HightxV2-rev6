@@ -50,6 +50,10 @@ interface ThemeSettings {
   performanceMode?: PerformanceModeSetting;
   fontHeading?: string;
   fontBody?: string;
+  fontNumeric?: string;   // stats / prices / counters
+  fontButton?: string;    // buttons & CTAs
+  fontProduct?: string;   // product card titles
+  fontBrand?: string;     // navbar brand / logo text
   fx3d?: Theme3DConfig;
 }
 

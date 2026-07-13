@@ -368,25 +368,42 @@ const StorePage = () => {
             const card = categoryDisplayMode === "banner" ? (
               <motion.button
                 {...cardCommonProps}
-                className={`relative overflow-hidden ${radiusClass()} border transition-all duration-300 ${selectedCategory === cat.id ? 'border-primary/40 ring-1 ring-primary/20' : 'border-border/30 hover:border-primary/20'}`}
+                className={`group relative w-full overflow-hidden aspect-[4/1] rounded-xl border transition-all duration-300 text-left ${selectedCategory === cat.id ? 'border-primary/50 ring-1 ring-primary/20' : 'border-border/40 hover:border-primary/40'}`}
+                style={{ backgroundColor: 'hsl(var(--card))' }}
               >
-                {cat.bannerUrl ? (
-                  <img src={cat.bannerUrl} alt={cat.name} className="w-full h-auto object-contain" />
-                ) : (
-                  <div className={`w-full aspect-[16/9] bg-gradient-to-r ${cat.gradient || 'from-primary/20 to-accent/20'} flex items-center gap-3 px-4`}>
-                    {cat.imageUrl ? (
-                      <img src={cat.imageUrl} alt={cat.name} className="w-10 h-10 sm:w-12 sm:h-12 object-contain drop-shadow-md" />
-                    ) : (
-                      <span className="text-2xl sm:text-3xl">{cat.icon}</span>
-                    )}
-                    <div className="text-left flex-1">
-                      <h3 className="text-[11px] sm:text-sm font-bold text-foreground flex items-center gap-1.5">
+                {cat.bannerUrl || cat.imageUrl ? (
+                  <>
+                    <img
+                      src={cat.bannerUrl || cat.imageUrl}
+                      alt={cat.name}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                    />
+                    {/* Dark scrim for readability */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 flex flex-col justify-center items-start px-5 md:px-6">
+                      <h3 className="text-[15px] md:text-[16px] font-bold text-white leading-tight line-clamp-1 [text-shadow:0_1px_10px_rgba(0,0,0,0.6)]">
                         {cat.name}
                         {hasChildren && !cat.displayAsProduct && (
-                          <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-primary/15 text-primary">{childList.length} หมวดย่อย</span>
+                          <span className="ml-2 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-white/15 text-white/90 backdrop-blur-sm">{childList.length} หมวดย่อย</span>
                         )}
                       </h3>
-                      <p className="text-[9px] sm:text-[10px] text-muted-foreground">{productCount} สินค้า</p>
+                      <p className="text-[12px] text-white/80 leading-tight mt-0.5 [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]">{productCount} สินค้า</p>
+                      <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-primary mt-1.5 [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]">
+                        ดูสินค้า <ChevronRight size={12} />
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div className={`absolute inset-0 flex items-center gap-3 px-5 bg-gradient-to-r ${cat.gradient || 'from-primary/20 to-accent/20'}`}>
+                    <span className="text-2xl sm:text-3xl">{cat.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm md:text-[15px] font-bold text-foreground flex items-center gap-1.5 truncate">
+                        {cat.name}
+                        {hasChildren && !cat.displayAsProduct && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/15 text-primary">{childList.length} หมวดย่อย</span>
+                        )}
+                      </h3>
+                      <p className="text-[11px] text-muted-foreground">{productCount} สินค้า</p>
                     </div>
                     {isAccordion && (
                       <ChevronDownIcon className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
@@ -394,6 +411,7 @@ const StorePage = () => {
                   </div>
                 )}
               </motion.button>
+
             ) : (
               <motion.button
                 {...cardCommonProps}

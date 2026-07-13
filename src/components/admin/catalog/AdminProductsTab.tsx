@@ -76,10 +76,24 @@ const AdminProductsTab = ({ form, setForm, handleSave }: AdminTabProps) => {
         <button onClick={addProduct} className="btn-gradient px-4 py-2 text-sm flex items-center gap-2"><Plus size={14} /> เพิ่มสินค้า</button>
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-        <input type="text" value={productSearch} onChange={(e) => setProductSearch(e.target.value)} className="input-glass w-full pl-9 pr-4 py-2.5 text-sm" placeholder="ค้นหาสินค้า..." />
+      {/* Search + tile-size slider */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <input type="text" value={productSearch} onChange={(e) => setProductSearch(e.target.value)} className="input-glass w-full pl-9 pr-4 py-2.5 text-sm" placeholder="ค้นหาสินค้า..." />
+        </div>
+        <div className="flex items-center gap-2 px-3 h-[42px] rounded-xl border border-border/40 bg-muted/20">
+          <Minimize2 size={12} className="text-muted-foreground shrink-0" />
+          <input
+            type="range" min={120} max={320} step={10}
+            value={tileSize}
+            onChange={(e) => setTileSize(parseInt(e.target.value))}
+            className="w-24 sm:w-32 accent-primary cursor-pointer"
+            title={`ขนาดรูป: ${tileSize}px`}
+          />
+          <Maximize2 size={12} className="text-muted-foreground shrink-0" />
+          <span className="text-[10px] font-mono text-muted-foreground w-9 text-right">{tileSize}px</span>
+        </div>
       </div>
 
       {filteredProducts.length === 0 ? (
@@ -89,8 +103,11 @@ const AdminProductsTab = ({ form, setForm, handleSave }: AdminTabProps) => {
         </div>
       ) : (
         <>
-          {/* Image-tile grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          {/* Image-tile grid — auto-fill by dynamic tile size */}
+          <div
+            className="grid gap-3"
+            style={{ gridTemplateColumns: `repeat(auto-fill, minmax(${tileSize}px, 1fr))` }}
+          >
             {filteredProducts.map((product: Product, idx: number) => {
               const globalIdx = products.findIndex((p: Product) => p.id === product.id);
               const isDragging = dragIdx === globalIdx;

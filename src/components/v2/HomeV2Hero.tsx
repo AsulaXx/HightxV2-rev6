@@ -109,47 +109,79 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
     { icon: ShoppingCart, label: "ขายแล้ว", value: stats.sales, unit: "ชิ้น" },
   ];
 
+  const pos = settings.statsPosition || "top";
+  const isSide = pos === "left" || pos === "right";
+
+  const SideStatsColumn = () => (
+    <aside aria-label="สถิติผู้ใช้งาน" className="hidden lg:flex flex-col gap-3 w-56 shrink-0 self-stretch">
+      {statCards.map((s, i) => (
+        <motion.div
+          key={s.label}
+          initial={{ opacity: 0, x: pos === "left" ? -12 : 12 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 + i * 0.06, duration: 0.4 }}
+          className="glass-card v2-stat-3d relative overflow-hidden !p-4 flex-1"
+        >
+          <s.icon className="pointer-events-none absolute -right-3 -bottom-3 text-primary/10" size={72} strokeWidth={1.5} aria-hidden />
+          <div className="relative flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-primary/15 text-primary">
+              <s.icon size={12} />
+            </span>
+            {s.label}
+          </div>
+          <div className="relative mt-2 flex items-baseline gap-1.5">
+            <span className="v2-stat-num text-2xl lg:text-3xl">{s.value.toLocaleString()}</span>
+            <span className="text-xs text-muted-foreground">{s.unit}</span>
+          </div>
+          <div className="relative mt-2 v2-underline" />
+        </motion.div>
+      ))}
+    </aside>
+  );
+
   return (
     <div className={`${maxWidthClass()} mx-auto px-4 sm:px-6 pt-6 sm:pt-8`}>
       {imageEnabled && (
-        <div ref={sceneRef} className="v2-hero-scene" onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
-          <motion.div
-            ref={heroRef}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="v2-hero-3d relative w-full overflow-hidden border border-primary/25"
-            style={{
-              height: heroAutoFit ? "auto" : `${finalHeight}px`,
-              borderRadius: `${heroRadius}px`,
-              boxShadow: "0 30px 80px -30px hsl(var(--primary) / 0.55), 0 0 0 1px hsl(var(--primary) / 0.15)",
-              background: useLogoMode
-                ? "radial-gradient(120% 100% at 50% 0%, hsl(var(--primary) / 0.22), transparent 60%), linear-gradient(160deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%)"
-                : undefined,
-            }}
-          >
-            <img
-              src={displayedImg}
-              alt={`${brand} banner`}
-              className={
-                heroAutoFit
-                  ? "v2-hero-img relative w-full h-auto block"
-                  : useLogoMode
-                  ? "v2-hero-img absolute inset-0 m-auto block max-w-[46%] max-h-[70%] drop-shadow-[0_10px_30px_hsl(var(--primary)/0.45)]"
-                  : "v2-hero-img absolute inset-0 w-full h-full block"
-              }
-              style={{ objectFit: finalFit, objectPosition: useLogoMode ? "center" : objectPosition }}
-            />
-            {/* Parallax shine sweep */}
-            <div className="v2-hero-shine pointer-events-none absolute inset-0" aria-hidden />
-            {/* Vignette */}
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-background/85 to-transparent" />
-            {/* Grid overlay for depth */}
-            <div className="v2-hero-grid pointer-events-none absolute inset-0 opacity-40" aria-hidden />
-          </motion.div>
+        <div className={`flex flex-col ${isSide ? "lg:flex-row" : ""} gap-4 lg:gap-5 items-stretch`}>
+          {isSide && pos === "left" && <SideStatsColumn />}
+          <div ref={sceneRef} className="v2-hero-scene flex-1 min-w-0" onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+            <motion.div
+              ref={heroRef}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="v2-hero-3d relative w-full overflow-hidden border border-primary/25"
+              style={{
+                height: heroAutoFit ? "auto" : `${finalHeight}px`,
+                borderRadius: `${heroRadius}px`,
+                boxShadow: "0 30px 80px -30px hsl(var(--primary) / 0.55), 0 0 0 1px hsl(var(--primary) / 0.15)",
+                background: useLogoMode
+                  ? "radial-gradient(120% 100% at 50% 0%, hsl(var(--primary) / 0.22), transparent 60%), linear-gradient(160deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%)"
+                  : undefined,
+              }}
+            >
+              <img
+                src={displayedImg}
+                alt={`${brand} banner`}
+                className={
+                  heroAutoFit
+                    ? "v2-hero-img relative w-full h-auto block"
+                    : useLogoMode
+                    ? "v2-hero-img absolute inset-0 m-auto block max-w-[46%] max-h-[70%] drop-shadow-[0_10px_30px_hsl(var(--primary)/0.45)]"
+                    : "v2-hero-img absolute inset-0 w-full h-full block"
+                }
+                style={{ objectFit: finalFit, objectPosition: useLogoMode ? "center" : objectPosition }}
+              />
+              <div className="v2-hero-shine pointer-events-none absolute inset-0" aria-hidden />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-background/85 to-transparent" />
+              <div className="v2-hero-grid pointer-events-none absolute inset-0 opacity-40" aria-hidden />
+            </motion.div>
+          </div>
+          {isSide && pos === "right" && <SideStatsColumn />}
         </div>
-
       )}
+
+
 
       {/* Welcome row */}
       <motion.div

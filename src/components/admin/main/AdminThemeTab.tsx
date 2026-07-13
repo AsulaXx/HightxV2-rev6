@@ -182,6 +182,40 @@ const AdminThemeTab = ({ form, setForm, handleSave }: AdminTabProps) => {
           </div>
         </div>
 
+        {/* Per-section font overrides */}
+        <div className="pt-2 border-t border-border/40">
+          <label className="block text-sm font-semibold text-foreground mb-1">ฟอนต์รายส่วน (ไม่ระบุ = ใช้ค่า default)</label>
+          <p className="text-[10px] text-muted-foreground mb-3">
+            พิมพ์ชื่อฟอนต์ (เช่น <code>Inter</code>, <code>JetBrains Mono</code>, <code>system-ui</code>) — ระบบจะโหลด Google Font อัตโนมัติถ้ามี
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {([
+              { key: "fontNumeric", label: "ตัวเลข / สถิติ", ph: "system-ui (default)", hint: "หน้าแรก, wallet, ราคา" },
+              { key: "fontButton",  label: "ปุ่ม & CTA",     ph: "เว้นว่าง = ใช้ heading",  hint: "ทุกปุ่มทั่วเว็บ" },
+              { key: "fontProduct", label: "การ์ดสินค้า",    ph: "เว้นว่าง = ใช้ heading",  hint: "ชื่อสินค้าในการ์ด" },
+              { key: "fontBrand",   label: "Navbar / Brand", ph: "เว้นว่าง = ใช้ heading",  hint: "โลโก้/ชื่อร้านบน navbar" },
+            ] as const).map((f) => (
+              <div key={f.key}>
+                <label className="block text-[11px] font-semibold text-foreground mb-1">{f.label}</label>
+                <input
+                  type="text"
+                  value={(form.theme as any)?.[f.key] || ""}
+                  onChange={(e) => setForm({ ...form, theme: { ...form.theme, [f.key]: e.target.value } as any })}
+                  placeholder={f.ph}
+                  className="input-glass w-full px-3 py-2 text-sm"
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">{f.hint}</p>
+                {(form.theme as any)?.[f.key] && (
+                  <div className="mt-1.5 text-sm px-2 py-1.5 rounded border border-border/40 bg-card/40"
+                    style={{ fontFamily: `${(form.theme as any)[f.key]}, sans-serif` }}>
+                    Aa Bb 123 — ตัวอย่าง
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="space-y-5">
           <DirectColorPicker label="สีหลัก (Primary)" value={form.theme?.primaryColor || "234 85% 65%"} onChange={(v) => setForm({ ...form, theme: { ...form.theme, primaryColor: v } })} />
           <DirectColorPicker label="สีรอง (Secondary)" value={form.theme?.secondaryColor || "270 60% 55%"} onChange={(v) => setForm({ ...form, theme: { ...form.theme, secondaryColor: v } })} />

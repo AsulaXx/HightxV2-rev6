@@ -872,6 +872,17 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
 [data-ui-version="v2"] img.blur-2xl,
 [data-ui-version="v2"] img.blur-xl { display: none !important; }
 
+/* V2: product card image should always fill its aspect-ratio frame */
+[data-ui-version="v2"] .glass-card-hover [class*="aspect-"] {
+  overflow: hidden;
+}
+[data-ui-version="v2"] .glass-card-hover [class*="aspect-"] > img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block;
+}
+
 [data-ui-version="v2"] input[type="text"][placeholder*="ค้นหา"] {
   background: hsl(var(--card)) !important;
   border: 1px solid hsl(var(--border) / 0.7) !important;

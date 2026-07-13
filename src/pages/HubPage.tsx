@@ -72,47 +72,23 @@ const HubPage = () => {
     { icon: Trophy, title: "Leaderboard", desc: "อันดับลูกค้าซื้อสินค้ามากที่สุด", path: "/leaderboard" },
   ];
 
-  // ─── Section: เครื่องมือทีมงาน (HightXCrew+) ───
-  const teamTools: Item[] = [];
-  if (isHightXCrew) {
-    teamTools.push(
-      { icon: LayoutDashboard, title: "Dashboard", desc: "ภาพรวมระบบ สถิติและจำนวนผู้ใช้", path: "/dashboard" },
-      { icon: BarChart3, title: "วิเคราะห์ยอดขาย", desc: "วิเคราะห์ข้อมูลการขายพร้อมกราฟ", path: "/analytics" },
-      { icon: Package, title: "จัดการสต็อก", desc: "แปลงรหัสสินค้า จัดการสต็อก", path: "/stock" },
-      { icon: Share2, title: "Link รวม", desc: "สร้างหน้ารวมลิงก์แบบ Linktree", path: "/links" },
-    );
-  }
-
-  // ─── Section: จัดการระบบ (Mod/Admin/Owner) ───
-  const adminTools: Item[] = [];
-  if (isOwner) {
-    adminTools.push({ icon: Settings, title: "ตั้งค่าเว็บไซต์", desc: "ธีม, ระบบคีย์, ผู้ใช้, การขาย และอื่นๆ ทั้งหมด", path: "/admin" });
-  }
-  if (isMod) {
-    adminTools.push(
-      { icon: KeyRound, title: "จัดการคีย์", desc: "เพิ่ม/ลบ คีย์ในระบบ", path: "/keys" },
-      { icon: ScrollText, title: "บันทึกกิจกรรม", desc: "ดูประวัติการใช้งานระบบ", path: "/activity-log" },
-    );
-  }
-  if (isAdmin) {
-    adminTools.push(
-      { icon: UserCog, title: "จัดการยศ", desc: "จัดการยศและสิทธิ์สมาชิก", path: "/admin?tab=users" },
-      { icon: ClipboardList, title: "ประวัติกดคีย์ทั้งหมด", desc: "ดูประวัติคีย์ของผู้ใช้ทุกคน", path: "/all-claims" },
-      { icon: Wallet, title: "ประวัติเติมเงินทั้งหมด", desc: "ดูรายการเติมเงินของทุกคน", path: "/all-topup" },
-      { icon: History, title: "ประวัติวงล้อทั้งหมด", desc: "ดูประวัติการหมุนวงล้อทั้งหมด", path: "/all-wheel" },
-      { icon: Search, title: "ประวัติทั้งหมดของผู้ใช้", desc: "ค้นหาทุกการกระทำของผู้ใช้รายบุคคล", path: "/all-history" },
-      { icon: Users, title: "ยอดเงินคงค้างลูกค้า", desc: "ดูยอดเงินที่ลูกค้ายังค้างในระบบ", path: "/customer-balances" },
-      { icon: Archive, title: "คีย์ Archive", desc: "ดูคีย์เก่าที่ถูก Archive แล้ว", path: "/archived-keys" },
-      { icon: ShieldBan, title: "ผู้ถูกแบน", desc: "ดูรายชื่อผู้ถูกแบนและปลดแบน", path: "/banned-users" },
-    );
+  // ─── Section: ผู้ดูแลระบบ (Mod+): ทางลัดเดียวไปหน้าตั้งค่าแอดมิน ───
+  // เมนู "เครื่องมือทีมงาน" และ "จัดการระบบ" ทั้งหมดถูกย้ายไปไว้ในหน้า /admin แล้ว
+  const staffShortcut: Item[] = [];
+  if (isMod || isHightXCrew) {
+    staffShortcut.push({
+      icon: Settings,
+      title: "ตั้งค่าแอดมิน",
+      desc: "เครื่องมือทีมงานและการจัดการระบบทั้งหมดอยู่ที่นี่",
+      path: "/admin",
+    });
   }
 
   const sections: Section[] = [
     { items: account, title: "บัญชีของฉัน", subtitle: "ข้อมูลและการตั้งค่าส่วนตัว", icon: User },
     { items: histories, title: "ประวัติ", subtitle: "ดูย้อนหลังกิจกรรมของคุณ", icon: History },
     { items: activity, title: "กิจกรรม & ข้อมูล", subtitle: "ประกาศและสถิติของระบบ", icon: Sparkles },
-    ...(teamTools.length > 0 ? [{ items: teamTools, title: "เครื่องมือทีมงาน", subtitle: "สำหรับ HightXCrew ขึ้นไป", icon: TrendingUp } as Section] : []),
-    ...(adminTools.length > 0 ? [{ items: adminTools, title: "จัดการระบบ", subtitle: "สำหรับผู้ดูแลระบบ", icon: Settings } as Section] : []),
+    ...(staffShortcut.length > 0 ? [{ items: staffShortcut, title: "สำหรับทีมงาน", subtitle: "ทางลัดไปหน้าตั้งค่าแอดมิน", icon: Settings } as Section] : []),
   ];
 
   const renderServiceCard = (svc: Item) => (

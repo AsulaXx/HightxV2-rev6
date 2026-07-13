@@ -327,20 +327,41 @@ const AdminWebhooks = ({ form, setForm, settings, updateSettings, handleSave, se
   // ─── Override save: write URLs to private doc, settings (sans URLs) to public ───
   const saveAll = async () => {
     try {
-      const urlFields = extractUrlFields(form);
-      // Always write the full URL set (including empties for keys the admin just cleared)
+      // Build full URL set (primary + Urls arrays). Trim and drop empty strings
+      // so what we persist matches what the edge function will fan out to.
       const fullUrlSet: Record<string, any> = {};
+      let totalExtras = 0;
       for (const base of URL_BASE_KEYS) {
-        fullUrlSet[base] = form[base] || "";
-        if (base !== "discordWebhookUrl") fullUrlSet[base + "Urls"] = Array.isArray(form[base + "Urls"]) ? form[base + "Urls"] : [];
+        const primary = typeof form[base] === "string" ? form[base].trim() : "";
+        fullUrlSet[base] = primary;
+        if (base !== "discordWebhookUrl") {
+          const raw = form[base + "Urls"];
+          const arr = Array.isArray(raw)
+            ? raw.map((u: any) => (typeof u === "string" ? u.trim() : "")).filter((u: string) => u.length > 0)
+            : [];
+          fullUrlSet[base + "Urls"] = arr;
+          totalExtras += arr.length;
+        }
       }
+      console.log("[AdminWebhooks] Saving to siteSettingsPrivate/webhooks:", fullUrlSet);
       await setDoc(doc(db, "siteSettingsPrivate", "webhooks"), fullUrlSet, { merge: true });
+
+      // Verify the write by reading back and counting arrays
+      const verifySnap = await getDoc(doc(db, "siteSettingsPrivate", "webhooks"));
+      const verifyData = verifySnap.data() || {};
+      const persistedExtras = URL_BASE_KEYS
+        .filter(b => b !== "discordWebhookUrl")
+        .reduce((s, b) => s + (Array.isArray(verifyData[b + "Urls"]) ? verifyData[b + "Urls"].length : 0), 0);
+      console.log(`[AdminWebhooks] Verified persisted extras count: ${persistedExtras} (expected ${totalExtras})`);
 
       // Strip URL fields out of `form` before delegating to parent save
       const cleaned = { ...form, ...blankUrlFields() };
       setForm(cleaned);
       await handleSave(cleaned);
-      toast.success(`บันทึก Webhook สำเร็จ (${Object.keys(urlFields).length} ฟิลด์ลับ)`);
+      toast.success(`บันทึก Webhook สำเร็จ · URL หลัก + ${persistedExtras} URL เพิ่มเติม`);
+      if (persistedExtras !== totalExtras) {
+        toast.error(`⚠️ คาดว่าจะบันทึก ${totalExtras} URL เพิ่มเติม แต่ Firestore เก็บได้ ${persistedExtras}`);
+      }
     } catch (e: any) {
       console.error("[AdminWebhooks] save failed:", e);
       toast.error("บันทึกไม่สำเร็จ: " + (e?.message || "unknown"));

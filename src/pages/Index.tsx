@@ -5,13 +5,14 @@ import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useLayoutConfig } from "@/hooks/useLayoutConfig";
 import { X, ExternalLink, ArrowRight, ChevronRight, Volume2, LogIn, Megaphone, Star, Package, Wallet, Navigation, Users, BoxesIcon, ShoppingCart, Wrench, RefreshCw, ShoppingBag } from "lucide-react";
 import logo from "@/assets/logo.png";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, query, orderBy, limit as fbLimit, getCountFromServer, where } from "firebase/firestore";
 import { cachedQuery, invalidateCache } from "@/lib/firestoreCache";
 import TypingText from "@/components/TypingText";
 import Reveal, { RevealGroup } from "@/components/Reveal";
 import { useMouseParallax } from "@/hooks/useMouseParallax";
+import { useScrollFadeItems } from "@/hooks/useScrollFadeItems";
 import HomeV2Hero from "@/components/v2/HomeV2Hero";
 
 interface Announcement {
@@ -29,6 +30,7 @@ const Index = () => {
   const { user, hasPermission } = useAuth();
   const { layout, colsToStyle, spacingClass, gapClass, radiusClass, maxWidthClass, imageRatioClass, cardPaddingClass } = useLayoutConfig();
   const heroRef = useMouseParallax<HTMLElement>();
+  const pageRef = useRef<HTMLDivElement>(null);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [showAnnouncementPopup, setShowAnnouncementPopup] = useState(false);
   const [popupAnnouncement, setPopupAnnouncement] = useState<Announcement | null>(null);
@@ -139,17 +141,17 @@ const Index = () => {
 
   const socialLinks = settings.socialLinks?.filter(l => l.showOnHome !== false) || [];
   const enabledProducts = (settings.products || []).filter(p => p.enabled && p.name);
+  const scrollFadeKey = [
+    (settings.quickNavItems || []).filter(n => n.enabled).map(n => n.id).join("|"),
+    (settings.categories || []).filter(c => c.enabled).map(c => c.id).join("|"),
+    enabledProducts.map(p => p.id).join("|"),
+    (settings.serviceItems || []).filter(s => s.enabled).map(s => s.id).join("|"),
+    socialLinks.map(l => l.id).join("|"),
+    settings.categoryDisplayMode,
+    settings.uiVersion,
+  ].join("::");
+  useScrollFadeItems(pageRef, [scrollFadeKey]);
 
-  const scrollFade = (index = 0) => ({
-    initial: { opacity: 0, y: 18, scale: 0.985, filter: "blur(6px)" },
-    whileInView: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
-    viewport: { once: false, amount: 0.22, margin: "0px 0px -12% 0px" },
-    transition: {
-      duration: 0.46,
-      ease: [0.22, 1, 0.36, 1] as const,
-      delay: Math.min((index % 4) * 0.04, 0.12),
-    },
-  });
   const sectionInView = {
   };
   const cardHover = {
@@ -158,7 +160,7 @@ const Index = () => {
   };
 
   return (
-    <div className="relative z-10">
+    <div ref={pageRef} className="relative z-10">
       {/* Announcement Popup */}
       <AnimatePresence>
         {showAnnouncementPopup && popupAnnouncement && (
@@ -333,7 +335,7 @@ const Index = () => {
 
       {(settings.homeSectionVisibility?.quicknav !== false) && (settings.quickNavItems || []).filter(n => n.enabled).length > 0 && (
         <motion.section {...sectionInView} className={`${maxWidthClass()} mx-auto px-4 sm:px-6 ${spacingClass()}`}>
-          <motion.div {...scrollFade(0)} className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
+          <motion.div data-scroll-fade className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 border border-primary/10 flex items-center justify-center">
               <Navigation size={14} className="text-primary sm:w-4 sm:h-4" />
             </div>
@@ -352,7 +354,7 @@ const Index = () => {
                 ? { href: nav.url, target: "_blank", rel: "noopener noreferrer" } 
                 : { to: nav.url };
               return (
-                <motion.div key={nav.id} {...scrollFade(i + 1)} {...cardHover}>
+                <motion.div key={nav.id} data-scroll-fade {...cardHover}>
                   <Wrapper {...wrapperProps as any} className={`group relative block overflow-hidden ${radiusClass()}`}>
                     {/* shine sweep */}
                     <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 rotate-12 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-[380%] transition-all duration-700 ease-out z-10" />
@@ -378,7 +380,7 @@ const Index = () => {
 
       {(settings.homeSectionVisibility?.categories !== false) && (settings.categories || []).filter(c => c.enabled).length > 0 && (
         <motion.section {...sectionInView} className={`${maxWidthClass()} mx-auto px-4 sm:px-6 ${spacingClass()}`}>
-          <motion.div {...scrollFade(0)} className="text-center mb-6 sm:mb-8">
+          <motion.div data-scroll-fade className="text-center mb-6 sm:mb-8">
             <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">{settings.homeSectionTitles?.categories || "หมวดหมู่สินค้า"}</h2>
             {settings.homeSectionSubtitles?.categories && <p className="text-xs sm:text-sm text-muted-foreground/60 mt-1">{settings.homeSectionSubtitles.categories}</p>}
           </motion.div>
@@ -391,7 +393,7 @@ const Index = () => {
             }>
               {(settings.categories || []).filter(c => c.enabled).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((cat, i) => {
                 return (
-                  <motion.div key={cat.id} {...scrollFade(i + 1)} {...cardHover} className="h-full">
+                  <motion.div key={cat.id} data-scroll-fade {...cardHover} className="h-full">
                     <Link
                       to={`/store/${cat.id}`}
                       className={`group block relative overflow-hidden border border-border/30 hover:border-primary/20 transition-all duration-300 h-full ${radiusClass()}`}
@@ -421,7 +423,7 @@ const Index = () => {
           ) : (
             <div className={`dynamic-grid ${gapClass()}`} style={colsToStyle(layout.categoryCols)}>
               {(settings.categories || []).filter(c => c.enabled).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((cat, i) => (
-                <motion.div key={cat.id} {...scrollFade(i + 1)} {...cardHover}>
+                <motion.div key={cat.id} data-scroll-fade {...cardHover}>
                   <Link
                     to={`/store/${cat.id}`}
                     className={`group relative glass-card-hover !p-0 overflow-hidden block ${radiusClass()}`}
@@ -467,7 +469,7 @@ const Index = () => {
       {/* Featured Products */}
       {(settings.homeSectionVisibility?.featured !== false) && enabledProducts.length > 0 && (
         <motion.section {...sectionInView} className={`${maxWidthClass()} mx-auto px-4 sm:px-6 pb-8 sm:pb-12`}>
-          <motion.div {...scrollFade(0)} className="flex items-center justify-between mb-4 sm:mb-6">
+          <motion.div data-scroll-fade className="flex items-center justify-between mb-4 sm:mb-6">
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 border border-primary/10 flex items-center justify-center">
                 <Star size={14} className="text-primary sm:w-4 sm:h-4" />
@@ -484,7 +486,7 @@ const Index = () => {
           </motion.div>
           <div className={`dynamic-grid ${gapClass()}`} style={colsToStyle(layout.featuredCols)}>
             {enabledProducts.slice(0, settings.featuredCount || 8).map((product, i) => (
-              <motion.div key={product.id} {...scrollFade(i + 1)} {...cardHover}>
+              <motion.div key={product.id} data-scroll-fade {...cardHover}>
                 <Link to="/store" className={`group relative glass-card-hover !p-0 overflow-hidden block ${radiusClass()}`}>
                   <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 rotate-12 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-[380%] transition-all duration-700 ease-out z-10" />
                   {layout.showProductImage && product.imageUrl ? (
@@ -518,7 +520,7 @@ const Index = () => {
       {/* Services Section */}
       {(settings.homeSectionVisibility?.services !== false) && (settings.serviceItems || []).filter(s => s.enabled).length > 0 && (
         <motion.section {...sectionInView} className={`${maxWidthClass()} mx-auto px-4 sm:px-6 pb-8 sm:pb-12`}>
-          <motion.div {...scrollFade(0)} className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
+          <motion.div data-scroll-fade className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 border border-primary/10 flex items-center justify-center">
               <Wrench size={14} className="text-primary sm:w-4 sm:h-4" />
             </div>
@@ -536,7 +538,7 @@ const Index = () => {
                 ? { href: service.url, target: "_blank", rel: "noopener noreferrer" }
                 : { to: service.url || "#" };
               return (
-                <motion.div key={service.id} {...scrollFade(i + 1)} {...cardHover}>
+                <motion.div key={service.id} data-scroll-fade {...cardHover}>
                   <Wrapper {...wrapperProps as any} className={`group relative glass-card-hover !p-0 overflow-hidden block ${radiusClass()}`}>
                     <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 rotate-12 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-[380%] transition-all duration-700 ease-out z-10" />
                     {service.bannerUrl ? (
@@ -566,7 +568,7 @@ const Index = () => {
       {/* Social Links */}
       {(settings.homeSectionVisibility?.social !== false) && socialLinks.length > 0 && (
         <motion.section {...sectionInView} className={`${maxWidthClass()} mx-auto px-4 sm:px-6 pb-8 sm:pb-12`}>
-          <motion.div {...scrollFade(0)} className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
+          <motion.div data-scroll-fade className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 border border-primary/10 flex items-center justify-center">
               <ExternalLink size={14} className="text-primary sm:w-4 sm:h-4" />
             </div>
@@ -576,7 +578,7 @@ const Index = () => {
             </div>
             <div className="flex-1 h-px bg-gradient-to-r from-border/30 to-transparent ml-3" />
           </motion.div>
-          <motion.div {...scrollFade(0)} className="flex flex-wrap gap-2 sm:gap-2.5">
+          <motion.div data-scroll-fade className="flex flex-wrap gap-2 sm:gap-2.5">
             {socialLinks.map((link) => (
               <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer"
                 className={`group glass-card-hover flex items-center gap-2 sm:gap-2.5 !p-2.5 sm:!p-3 ${radiusClass()}`}>

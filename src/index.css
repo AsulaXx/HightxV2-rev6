@@ -592,6 +592,23 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
     transform: translate3d(0, 0, 0) scale(1);
   }
 
+  [data-scroll-fade] {
+    position: relative;
+    z-index: 0;
+    opacity: var(--scroll-fade-opacity, 0);
+    transform: translate3d(0, var(--scroll-fade-y, 22px), 0) scale(var(--scroll-fade-scale, 0.985));
+    filter: blur(var(--scroll-fade-blur, 6px));
+    transition:
+      opacity 0.12s linear,
+      transform 0.12s linear,
+      filter 0.12s linear;
+    transition-delay: var(--scroll-fade-delay, 0ms);
+    will-change: opacity, transform, filter;
+  }
+  [data-scroll-fade][data-scroll-visible="true"] {
+    z-index: 1;
+  }
+
   /* Hero mouse parallax — depends on --px / --py on the wrapper */
   .parallax-scene { perspective: 1200px; }
   .parallax-layer {
@@ -616,7 +633,8 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
-  .reveal { opacity: 1 !important; transform: none !important; }
+  .reveal,
+  [data-scroll-fade] { opacity: 1 !important; transform: none !important; filter: none !important; }
   .parallax-layer { transform: none !important; }
   .float-soft, .float-soft-delay,
   .animate-glow-pulse, .animate-subtle-rotate { animation: none !important; }

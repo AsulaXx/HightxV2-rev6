@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings, roleHasPermission, Product, ProductDuration } from "@/contexts/SiteSettingsContext";
 import { useLayoutConfig } from "@/hooks/useLayoutConfig";
+import { useScrollFadeItems } from "@/hooks/useScrollFadeItems";
 import { useWallet } from "@/hooks/useWallet";
 import { useCart } from "@/contexts/CartContext";
 import { Navigate, Link, useSearchParams, useNavigate, useParams } from "react-router-dom";
@@ -20,6 +21,7 @@ const StorePage = () => {
   const { user, profile, hasPermission } = useAuth();
   const { settings } = useSiteSettings();
   const { layout, colsToStyle, gapClass, radiusClass, imageRatioClass, cardPaddingClass, maxWidthClass } = useLayoutConfig();
+  const pageRef = useRef<HTMLDivElement>(null);
   const { balance: walletBalance } = useWallet();
   const { cart, totalCartItems, getCartCountForProduct, addToCart: cartAddToCart } = useCart();
   const [searchParams] = useSearchParams();
@@ -120,6 +122,14 @@ const StorePage = () => {
   );
   const productIdsForRatings = useMemo(() => enabledProducts.map(p => p.id), [enabledProducts]);
   const productRatings = useProductRatings(productIdsForRatings);
+  const scrollFadeKey = [
+    allEnabledCategories.map(c => c.id).join("|"),
+    selectedCategory || "all",
+    categoryDisplayMode,
+    settings.categoryBannerLayout,
+    settings.categoryBannerColumns,
+  ].join("::");
+  useScrollFadeItems(pageRef, [scrollFadeKey]);
 
   if (!settings.keySystemEnabled) return <Navigate to="/" replace />;
 
@@ -283,19 +293,8 @@ const StorePage = () => {
     return basePrice;
   };
 
-  const scrollFade = (index = 0) => ({
-    initial: { opacity: 0, y: 18, scale: 0.985, filter: "blur(6px)" },
-    whileInView: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
-    viewport: { once: false, amount: 0.22, margin: "0px 0px -12% 0px" },
-    transition: {
-      duration: 0.46,
-      ease: [0.22, 1, 0.36, 1] as const,
-      delay: Math.min((index % 4) * 0.04, 0.12),
-    },
-  });
-
   return (
-    <div className={`relative z-10 ${maxWidthClass()} mx-auto px-4 sm:px-6 py-6 scroll-mt-24`}>
+    <div ref={pageRef} className={`relative z-10 ${maxWidthClass()} mx-auto px-4 sm:px-6 py-6 scroll-mt-24`}>
       {/* Ambient store aurora — subtle, non-interactive */}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[420px] overflow-hidden -z-10">
         <div className="absolute -top-32 left-1/4 w-[520px] h-[520px] rounded-full blur-3xl opacity-40" style={{ background: "radial-gradient(circle, hsl(var(--primary) / 0.22), transparent 65%)" }} />
@@ -417,7 +416,7 @@ const StorePage = () => {
 
             const cardCommonProps = {
               key: cat.id,
-              ...scrollFade(i),
+              "data-scroll-fade": "",
               whileHover: { y: -4, scale: 1.02, transition: { type: "spring" as const, stiffness: 380, damping: 20 } },
               whileTap: { scale: 0.97 },
               onClick: () => handleCategoryClick(cat),

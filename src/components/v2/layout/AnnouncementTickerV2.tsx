@@ -2,59 +2,55 @@ import { useState, useEffect } from "react";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, query, orderBy, limit as fbLimit } from "firebase/firestore";
-import { Megaphone } from "lucide-react";
-import AnnouncementTickerV2 from "@/components/v2/layout/AnnouncementTickerV2";
+import { Zap, ChevronRight } from "lucide-react";
 
-interface Announcement {
-  id: string;
-  title: string;
-  content: string;
-}
+interface Announcement { id: string; title: string; content: string; }
 
-const AnnouncementTicker = () => {
+/**
+ * AnnouncementTickerV2 — Tactical alert bar
+ * Dark bg with neon violet accent stripe, angular icon, marquee.
+ */
+const AnnouncementTickerV2 = () => {
   const { settings } = useSiteSettings();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
 
   useEffect(() => {
-    const load = async () => {
+    (async () => {
       try {
         const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"), fbLimit(10));
         const snap = await getDocs(q);
         setAnnouncements(snap.docs.map(d => ({ id: d.id, ...d.data() } as Announcement)));
-      } catch (err) {
-        console.error("Ticker load error:", err);
-      }
-    };
-    load();
+      } catch (err) { console.error("Ticker load error:", err); }
+    })();
   }, []);
 
-  if (settings.uiVersion === "v2") return <AnnouncementTickerV2 />;
-
   if (settings.ticker?.enabled === false) return null;
-  
   const selectedIds = settings.ticker?.selectedIds || [];
   const filtered = selectedIds.length > 0
     ? announcements.filter(a => selectedIds.includes(a.id))
     : announcements;
-
   if (filtered.length === 0) return null;
 
   const speed = settings.ticker?.speed || 30;
-  // Duplicate enough for seamless loop
   const repeated = [...filtered, ...filtered, ...filtered, ...filtered];
 
   return (
-    <div className="ticker-bar w-full overflow-hidden relative z-30">
-      <div className="flex items-center gap-3 px-4 py-2">
-        <Megaphone size={12} className="text-primary shrink-0" />
-        <div className="overflow-hidden flex-1">
+    <div className="v2-ticker w-full overflow-hidden relative z-30">
+      <div className="flex items-stretch">
+        {/* Fixed left label */}
+        <div className="v2-ticker-label shrink-0">
+          <Zap size={12} strokeWidth={2.6} />
+          <span>LIVE</span>
+        </div>
+        {/* Marquee */}
+        <div className="overflow-hidden flex-1 flex items-center">
           <div
-            className="inline-flex whitespace-nowrap"
+            className="inline-flex whitespace-nowrap items-center"
             style={{ animation: `ticker ${speed}s linear infinite` }}
           >
             {repeated.map((ann, i) => (
-              <span key={`${ann.id}-${i}`} className="text-[11px] text-muted-foreground mx-6 inline-flex items-center gap-1.5">
-                <Megaphone size={11} className="text-primary shrink-0" />
+              <span key={`${ann.id}-${i}`} className="v2-ticker-item">
+                <ChevronRight size={10} strokeWidth={2.6} />
                 {ann.title}
               </span>
             ))}
@@ -65,4 +61,4 @@ const AnnouncementTicker = () => {
   );
 };
 
-export default AnnouncementTicker;
+export default AnnouncementTickerV2;

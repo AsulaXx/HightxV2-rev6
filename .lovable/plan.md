@@ -1,90 +1,78 @@
-
-# แผน: สร้าง UI Preset "V2 — Awang Style" (Global, Pixel-perfect)
+# แผนรีดีไซน์ V2 "Tactical Dark" ทั้งเว็บ
 
 ## เป้าหมาย
-สลับหน้าเว็บทั้งเว็บให้เหมือน awang.store ผ่าน `[data-ui-version="v2"]` โดยคง V1 (Liquid Glass) ไว้เป็นค่าเริ่มต้น
-Admin เลือกได้ 1 คลิก → refresh → เปลี่ยนทั้งเว็บ
+เปลี่ยนโหมด V2 จาก "override หน้า Store + Hero" → **สไตล์เว็บใหม่ทั้งเว็บ** ที่ดูเหมือนคนละแบรนด์กับ V1 โดยรื้อคอมโพเนนต์จริงทีละหน้า ไม่ใช่แค่ทับ CSS
 
-## คีย์ดีไซน์ awang.store ที่จะทำซ้ำ
-- โทน: พื้นดำสนิท `#0A0510`, การ์ดม่วงเข้ม, เส้นขอบ `hsl(270 60% 15% / 0.6)`, primary ม่วงนีออน `#7C3AED`
-- ฟอนต์: Thai — `Prompt` / `Kanit`, Latin — `Inter`
-- Radius: ปุ่มโค้ง full (pill), การ์ด `rounded-2xl`
-- Nav: บรรทัดเดียว โลโก้ซ้าย + tab กลาง (มี underline สีม่วงใต้ tab ที่ active) + ปุ่ม outline "ติดต่อเรา" + ปุ่ม solid ม่วง "สมัคร/เข้าสู่ระบบ" ขวา
-- Hero: banner รูปเดียว **เต็มความกว้าง ไม่มี glass frame** โค้งขอบเบา ๆ
-- Section หัวเรื่อง: pill เล็ก ("● หมวดหมู่") + ชื่อใหญ่ + subtitle + ปุ่มสองปุ่ม (solid + outline)
-- Stat card: 4 ใบเรียงกัน — ไอคอน+label เล็กด้านบน, ตัวเลขใหญ่สีม่วง, watermark ไอคอนใหญ่มุมขวา, ขีดสั้นสีม่วงใต้ตัวเลข
-- Recent purchases: card ยาว มี icon+ชื่อผู้ใช้+สินค้าซ้าย, เวลาขวา, แถวคั่นบาง
-- ตำแหน่ง cookie/help bubble: fixed มุมล่างขวา (มีอยู่แล้ว)
+## Design tokens (ล็อกไว้ใช้ทุกหน้า)
+- **พื้นหลัง**: ดำอมม่วง `hsl(270 40% 6%)` → gradient ไปม่วงเข้ม `hsl(272 45% 10%)`
+- **การ์ด/แผง**: `hsl(270 42% 9%)` ขอบ `hsl(270 45% 18%)` **ไม่มี blur**
+- **Accent หลัก**: ม่วงนีออน `hsl(272 90% 62%)` / **Accent รอง**: ชมพูแดง `hsl(340 85% 60%)`
+- **สถานะ**: เขียว `hsl(150 75% 50%)` · เหลือง `hsl(45 95% 58%)` · แดง `hsl(0 82% 60%)`
+- **มุมโค้ง**: 10px (ปุ่ม/input), 12px (การ์ด), 999px (pill/badge)
+- **ฟอนต์**: หัวเรื่อง Kanit 700 · เนื้อหา Prompt 400/500 · ตัวเลข Kanit 600
+- **ไม่ใช้**: glass blur, aurora bg, particles, floating orbs — แทนด้วยเส้น grid บาง + จุด dot pattern
 
-## โครงงานที่จะเปลี่ยน
+## ขอบเขต — รื้อทีละหน้า (component-level)
 
-### 1. Type + Setting (SiteSettingsContext.tsx)
-- `UIVersion = "v1" | "v2"` (คืนกลับมา — เคยถอด)
-- default `v1` เพื่อความเข้ากันได้ย้อนหลัง
-- persist `uiVersion` → Firestore + apply `document.documentElement.dataset.uiVersion`
+### เฟส 1 — โครง & Nav (ทั่วเว็บ)
+- `Navbar.tsx` → แถบเมนูแบบ command bar: โลโก้ซ้าย, เมนูกลาง underline hover, wallet+cart+user ขวาแบบ pill
+- `Footer.tsx` → แถบเข้ม 3 คอลัมน์ ขอบบนม่วงบาง, social icons แบบ outline pill
+- `GlobalCartPanel.tsx` → panel ขวาแบบ tactical, header ม่วง, list การ์ดเข้ม, ปุ่ม checkout ม่วงนีออน
+- `AnnouncementTicker.tsx` → แถบดำขอบม่วง, ไอคอนสามเหลี่ยม accent
 
-### 2. Global tokens (index.css)
-เพิ่มบล็อก `[data-ui-version="v2"]` ทั้ง `:root` และ `.dark`:
-```
---background: 270 60% 4%
---card: 270 40% 8%
---primary: 265 85% 60%   /* awang violet */
---primary-glow: 275 100% 70%
---border: 270 50% 18% / 0.5
---radius: 1rem
-```
-Override:
-- `.glass-card` → พื้นทึบ `bg-card`, ขอบ `border-primary/20`, ยกเลิก backdrop-blur
-- `.btn-gradient` → solid `bg-primary` + hover glow
-- `.glass-pill` → pill `bg-primary/10 text-primary border-primary/30`
-- import Google Fonts Prompt/Kanit เฉพาะเมื่อ v2
+### เฟส 2 — Auth & Profile
+- `LoginPage.tsx` → split-screen: ซ้ายภาพ/โลโก้ + tagline, ขวาฟอร์มการ์ดเข้ม
+- `ProfilePage.tsx` → header banner + avatar overlap, tab แบบ pill, การ์ดสถิติแนว dashboard เกม
+- `DashboardPage.tsx` + summary cards → grid card เข้ม, ตัวเลขใหญ่, sparkline สีม่วง
 
-### 3. Component v2-only variants
-สร้างตัวใหม่ (ไม่ทับ v1) เลือกใช้ตาม `settings.uiVersion`:
-- `src/components/v2/NavbarV2.tsx` — tab underline + right actions
-- `src/components/v2/HeroBannerV2.tsx` — full-bleed banner
-- `src/components/v2/StatCardV2.tsx` — big number + watermark icon
-- `src/components/v2/RecentActivityRow.tsx` — long list row
-- `src/components/v2/SectionHeaderV2.tsx` — pill + title + actions
+### เฟส 3 — Hub / Tools / Wheel
+- `HubPage.tsx` → grid การ์ดเครื่องมือ เหมือน "operator loadout" มีไอคอนใหญ่ + tag
+- `WheelHubPage.tsx` / `WheelPage.tsx` → วงล้อพื้นดำ, ขอบม่วงเรืองแสง, ปุ่ม SPIN ทรงหกเหลี่ยม
+- `LeaderboardPage.tsx` → ตารางแรงก์แบบ ranking board, top 3 การ์ดใหญ่พิเศษ
 
-### 4. Route switcher
-ใน `App.tsx` / `Layout.tsx`:
-```
-const isV2 = settings.uiVersion === "v2";
-return isV2 ? <NavbarV2 /> : <Navbar />;
-```
-หน้าที่กระทบ (pixel-perfect ตาม awang):
-- **Index (Home)** — Hero + Welcome + Stats + Recent
-- **StorePage** — Header row + card grid (คงพฤติกรรม, ปรับสไตล์การ์ดตาม v2)
-- **Hub, Admin, Profile ฯลฯ** — ใช้ token v2 อัตโนมัติ ไม่ทำ layout ใหม่ (จะกลายเป็น "ใช้ธีม v2" ที่ยังเดินได้)
+### เฟส 4 — เติมเงิน / Wallet / Cart
+- `TopUpPage.tsx` → tab providers แบบ segmented ม่วง, การ์ดใบเสร็จเข้ม
+- คอมโพเนนต์ `TopUpQR/BankSlip/GiftCode/TrueWallet/Voucher` → form input pill, ปุ่มยืนยันม่วงนีออน
+- `WalletHistoryPage.tsx` / `HistoryHubPage.tsx` → ตาราง row เข้ม, badge สถานะเป็น pill accent
 
-### 5. Admin UI (AdminEffectsTab หรือ AdminBrandingTab)
-- ตัวเลือก radio: V1 (Liquid Glass) / V2 (Awang Violet)
-- Preview panel เล็กแสดง Nav+Stat card+Hero mini
-- ปุ่ม "บันทึกและรีเฟรช"
+### เฟส 5 — เนื้อหาอื่นที่เหลือ
+- `AnnouncementsPage.tsx`, `StatusPage.tsx`, `ProductStatusPage.tsx`
+- `LinkTreePage.tsx`, `LinkViewPage.tsx`
+- `TermsPage.tsx`, `SetupGuidePage.tsx`, `NotFound.tsx`
+- `KeyPage.tsx`, `ClaimHistoryPage.tsx`
 
-### 6. Migration guard
-- ค่าเก่า `uiVersion` ที่ไม่ใช่ `v1`/`v2` → normalize เป็น `v1`
-- `useEffect` ใน SiteSettingsContext เขียน dataset ทันทีตอน settings โหลด (มีอยู่แล้ว)
+## วิธีทางเทคนิค
+- ทุก override scope ด้วย selector `[data-ui-version="v2"]` ใน `src/index.css` (ไม่แตะ V1)
+- คอมโพเนนต์ที่ต้องรื้อ layout จริง → ใช้ `useSiteSettings().uiVersion === "v2"` แล้ว render สาขาใหม่ (คล้าย `HomeV2Hero`) โดยแยกไฟล์ไว้ที่ `src/components/v2/`
+- โครงสร้างไฟล์ใหม่:
+  ```text
+  src/components/v2/
+    layout/NavbarV2.tsx, FooterV2.tsx, CartPanelV2.tsx
+    ui/CardV2.tsx, ButtonV2.tsx, InputV2.tsx, BadgeV2.tsx
+    pages/LoginV2.tsx, ProfileV2.tsx, DashboardV2.tsx, HubV2.tsx,
+          WheelV2.tsx, TopUpV2.tsx, WalletV2.tsx, ...
+  ```
+- Wrapper รูปแบบเดียวกันทุกหน้า:
+  ```tsx
+  const { settings } = useSiteSettings();
+  if (settings.uiVersion === "v2") return <XxxV2 .../>;
+  // ...V1 เดิม
+  ```
+- โหลดฟอนต์ Kanit/Prompt ผ่าน `<link>` ใน `index.html` (มีอยู่แล้วเช็คก่อน)
 
-## ขอบเขตที่ **ไม่ทำ** ในรอบนี้
-- ไม่รีเดสิญหน้า Admin/Hub/Cart/Checkout เป็น pixel-perfect (แค่รับ token v2)
-- ไม่แตะ business logic, ไม่แตะ routing, ไม่แตะ Firestore schema
-- ไม่ทำโหมด light สำหรับ v2 (awang เป็นดาร์กเท่านั้น)
+## ลำดับส่ง
+งานใหญ่มาก จะทำเป็น **5 batch ตามเฟส** ให้ผู้ใช้รีวิวทีละเฟส:
+1. เฟส 1 (Nav/Footer/Cart/Ticker) — เห็นผลทั่วเว็บทันที
+2. เฟส 2 (Auth/Profile/Dashboard)
+3. เฟส 3 (Hub/Wheel/Leaderboard)
+4. เฟส 4 (TopUp/Wallet/History)
+5. เฟส 5 (หน้าที่เหลือ + polish)
 
-## ลำดับการลงมือ
-1. คืน `UIVersion` type + save/load logic  
-2. เขียนบล็อก `[data-ui-version="v2"]` ใน index.css (tokens + override .glass-*)  
-3. สร้าง v2 components ทั้ง 5 ไฟล์  
-4. Wire สลับที่ Layout/Navbar/Index (Home)  
-5. StorePage: การ์ดสินค้ารับสไตล์ใหม่อัตโนมัติผ่าน token (ไม่ต้องเขียน component ใหม่)  
-6. Admin picker + preview  
-7. Typecheck + เช็ก /  /store  /hub ว่ายังใช้งานได้
+## สิ่งที่ **ไม่** แตะ
+- Logic ทั้งหมด (auth, cart, wallet, wheel spin, edge functions) — เปลี่ยนแค่ UI
+- หน้า Admin ทุกตัว (`AdminPage`, `Admin*Tab`) — เป็นเครื่องมือหลังบ้าน ไม่ควรเปลี่ยน
+- ธีม V1 ยังใช้ได้ปกติผ่าน toggle ในแอดมิน
 
-## ความเสี่ยงและวิธีแก้
-- **CSS token ชน**: ทดสอบ dark mode ทั้งสอง preset  
-- **การ์ดสินค้าเดิมพัง**: fallback ให้ยังโค้งและอ่านออก แม้ไม่ได้ทำ v2 variant  
-- **ฟอนต์โหลดช้า**: ใช้ `font-display: swap`, preload เฉพาะเมื่อ v2 active  
-- **Admin แอบเปลี่ยนแล้วงง**: ต้องมีคำเตือน "หน้าจะ refresh"
+---
 
-ยืนยันแผน แล้วผมจะเริ่มลงมือทีเดียวจบครับ
+**ยืนยันเริ่มเฟส 1 (Navbar + Footer + Cart Panel + Ticker) เลยไหมครับ?** หรืออยากเริ่มเฟสอื่นก่อน

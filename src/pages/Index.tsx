@@ -317,6 +317,9 @@ const Index = () => {
         </RevealGroup>
       </section>
       )}
+      </>)}
+
+
 
 
       {(settings.homeSectionVisibility?.quicknav !== false) && (settings.quickNavItems || []).filter(n => n.enabled).length > 0 && (

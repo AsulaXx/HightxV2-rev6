@@ -131,14 +131,15 @@ serve(async (req) => {
         return new Response(JSON.stringify({ ok: true, reason: "already sent today" }),
           { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
-      // Time-window match (±2 min around configured HH:MM in Bangkok)
+      // Fire once per Bangkok day, any time at/after the configured HH:MM.
+      // (Was ±2 min strict window — brittle if cron/pg_net skewed or paused.)
       const target = String(settings.dailySummaryTime || "23:00");
       const [th, tm] = target.split(":").map(Number);
       const { h, m } = bangkokNowHM();
       const nowMin = h * 60 + m;
       const targetMin = (isFinite(th) ? th : 23) * 60 + (isFinite(tm) ? tm : 0);
-      if (Math.abs(nowMin - targetMin) > 2) {
-        return new Response(JSON.stringify({ ok: true, reason: "outside window", nowMin, targetMin }),
+      if (nowMin < targetMin) {
+        return new Response(JSON.stringify({ ok: true, reason: "before target", nowMin, targetMin }),
           { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
     }

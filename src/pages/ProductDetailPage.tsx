@@ -693,7 +693,7 @@ const ProductDetailPage = () => {
               <ReviewList productId={product.id} />
             </div>
 
-          </div>
+          </motion.div>
         </div>
       </motion.div>
     </div>

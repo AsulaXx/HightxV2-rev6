@@ -4,7 +4,7 @@ import { useAuth, UserRole, ROLE_HIERARCHY, ROLE_LABELS } from "@/contexts/AuthC
 import { useSiteSettings, Product, ProductDuration, ProductCategory, DEFAULT_PERMISSIONS_LIST, DEFAULT_ROLE_PERMISSIONS_MAP, type PermissionItem, type RolePermissions, type SocialLink, type ParticlesConfig, type BannerLayout, type LayoutConfig, type HeroBannerConfig, type QuickNavItem, type TickerConfig, type ServiceItem, type TopUpSettings, type GiftCode, type DiscountSettings, type BgMusicConfig, type LeaderboardSettings } from "@/contexts/SiteSettingsContext";
 import { Navigate, Link } from "react-router-dom";
 import RedirectToLogin from "@/components/RedirectToLogin";
-import { Save, Settings, Users, Palette, Key, Image, Plus, Trash2, Package, Eye, Sparkles, Search, Clock, Shield, CheckCircle, XCircle, ArrowUpDown, Filter, Crown, ChevronDown, ChevronUp, Megaphone, ExternalLink, GripVertical, RotateCcw, FolderOpen, LayoutGrid, Columns, Rows, MoveUp, MoveDown, Monitor, Wallet, Navigation, DollarSign, CreditCard, Receipt, Volume2, Link2, Globe, EyeOff, MousePointerClick, Wrench, Percent, Gift, Tag, Copy, Music, FileText, Upload, Ban, ShieldOff, Ticket, UserPlus, Star, AlertTriangle, Trophy, DatabaseZap, Database, Rocket, Power, AlertCircle, RefreshCw, Bell, FileDown, ClipboardList, CircleDot, Zap, Pin, PinOff } from "lucide-react";
+import { Save, Settings, Users, Palette, Key, Image, Plus, Trash2, Package, Eye, Sparkles, Search, Clock, Shield, CheckCircle, XCircle, ArrowUpDown, Filter, Crown, ChevronDown, ChevronUp, Megaphone, ExternalLink, GripVertical, RotateCcw, FolderOpen, LayoutGrid, Columns, Rows, MoveUp, MoveDown, Monitor, Wallet, Navigation, DollarSign, CreditCard, Receipt, Volume2, Link2, Globe, EyeOff, MousePointerClick, Wrench, Percent, Gift, Tag, Copy, Music, FileText, Upload, Ban, ShieldOff, Ticket, UserPlus, Star, AlertTriangle, Trophy, DatabaseZap, Database, Rocket, Power, AlertCircle, RefreshCw, Bell, FileDown, ClipboardList, CircleDot, Zap, Pin, PinOff, TrendingUp, LayoutDashboard, BarChart3, Share2, KeyRound, ScrollText, Archive, ShieldBan, History } from "lucide-react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 // Lazy-load every admin tab so one broken tab doesn't block AdminPage from mounting,
 // and initial JS shrinks dramatically for admins who only use a few tabs.
@@ -82,6 +82,7 @@ const AdminPage = () => {
   const isOwner = profile?.role === "owner";
   const isAdmin = hasPermission("admin");
   const isMod = hasPermission("moderator");
+  const isHightXCrew = hasPermission("hightxcrew");
 
   // Owner-defined per-tab visibility (from Role Access). Falls back to role-based defaults.
   const tabAllowed = (tabId: string): boolean => {
@@ -209,7 +210,6 @@ const AdminPage = () => {
       tabs: [
         { id: "users", label: "จัดการยศ", icon: Users },
         ...(isOwner ? [{ id: "roleaccess", label: "Role Access", icon: Shield }] : []),
-        ...(isOwner ? [{ id: "permissions", label: "ตารางสิทธิ์", icon: Shield }] : []),
       ],
     }] : []),
 
@@ -233,7 +233,42 @@ const AdminPage = () => {
         { id: "backup", label: "สำรองข้อมูล", icon: Database },
       ],
     }] : []),
-  ], [isOwner, isAdmin]);
+    // ─── ทางลัดไปหน้าอื่น (ย้ายมาจาก Hub) ───
+    ...(isHightXCrew ? [{
+      id: "cat-team-tools",
+      label: "เครื่องมือทีมงาน",
+      icon: TrendingUp,
+      tabs: [
+        { id: "goto-dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+        { id: "goto-analytics", label: "วิเคราะห์ยอดขาย", icon: BarChart3, href: "/analytics" },
+        { id: "goto-stock", label: "จัดการสต็อก", icon: Package, href: "/stock" },
+        { id: "goto-links", label: "Link รวม", icon: Share2, href: "/links" },
+      ] as any,
+    }] : []),
+    ...(isMod ? [{
+      id: "cat-mod-tools",
+      label: "เครื่องมือผู้ดูแล",
+      icon: Wrench,
+      tabs: [
+        { id: "goto-keymgmt", label: "จัดการคีย์", icon: KeyRound, href: "/keys" },
+        { id: "goto-activitylog", label: "บันทึกกิจกรรม", icon: ScrollText, href: "/activity-log" },
+      ] as any,
+    }] : []),
+    ...(isAdmin ? [{
+      id: "cat-admin-tools",
+      label: "จัดการระบบ",
+      icon: Settings,
+      tabs: [
+        { id: "goto-allclaims", label: "ประวัติกดคีย์ทั้งหมด", icon: ClipboardList, href: "/all-claims" },
+        { id: "goto-alltopup", label: "ประวัติเติมเงินทั้งหมด", icon: Wallet, href: "/all-topup" },
+        { id: "goto-allwheel", label: "ประวัติวงล้อทั้งหมด", icon: History, href: "/all-wheel" },
+        { id: "goto-allhistory", label: "ประวัติผู้ใช้ทั้งหมด", icon: Search, href: "/all-history" },
+        { id: "goto-balances", label: "ยอดคงค้างลูกค้า", icon: Users, href: "/customer-balances" },
+        { id: "goto-archived", label: "คีย์ Archive", icon: Archive, href: "/archived-keys" },
+        { id: "goto-banned", label: "ผู้ถูกแบน", icon: ShieldBan, href: "/banned-users" },
+      ] as any,
+    }] : []),
+  ], [isOwner, isAdmin, isMod, isHightXCrew]);
 
   // Apply per-role tab visibility overrides (Role Access tab)
   const roleFeaturesSetting = (settings as any)?.roleFeatures;
@@ -441,15 +476,28 @@ const AdminPage = () => {
                     {cat.tabs.map((tab) => {
                       const active = activeTab === tab.id;
                       const pinned = pinnedTabs.includes(tab.id);
+                      const href = (tab as any).href as string | undefined;
+                      const commonCls = `w-full flex items-center gap-2 pl-6 pr-2 h-8 rounded-md text-xs font-medium transition-all ${
+                        active
+                          ? 'bg-primary text-primary-foreground shadow-sm'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+                      }`;
+                      if (href) {
+                        return (
+                          <div key={tab.id} className="relative group">
+                            <Link to={href} className={commonCls}>
+                              <tab.icon size={12} className="shrink-0" />
+                              <span className="truncate flex-1 text-left">{tab.label}</span>
+                              <ExternalLink size={10} className="opacity-60 shrink-0" />
+                            </Link>
+                          </div>
+                        );
+                      }
                       return (
                         <div key={tab.id} className="relative group">
                           <button
                             onClick={() => setActiveTab(tab.id)}
-                            className={`w-full flex items-center gap-2 pl-6 pr-2 h-8 rounded-md text-xs font-medium transition-all ${
-                              active
-                                ? 'bg-primary text-primary-foreground shadow-sm'
-                                : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
-                            }`}
+                            className={commonCls}
                           >
                             <tab.icon size={12} className="shrink-0" />
                             <span className="truncate flex-1 text-left">{tab.label}</span>
@@ -767,10 +815,6 @@ const AdminPage = () => {
               <AdminAuditLogTab form={form} setForm={setForm} handleSave={handleSave} />
             )}
 
-            {activeTab === "permissions" && isOwner && (
-              <AdminPermissionsTab form={form} setForm={setForm} handleSave={handleSave} />
-            )}
-
             {activeTab === "roleaccess" && isOwner && (
               <AdminRoleAccessTab />
             )}
@@ -823,24 +867,41 @@ const AdminPage = () => {
                     <cat.icon size={12} /> {cat.label}
                   </h4>
                   <div className="grid grid-cols-3 gap-1.5">
-                    {cat.tabs.map((tab) => (
-                      <button
-                        key={tab.id}
-                        onClick={() => {
-                          setActiveTab(tab.id);
-                          setMobileMenuOpen(false);
-                          contentScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                        className={`flex flex-col items-center gap-1.5 px-2 py-3 rounded-xl text-xs font-medium transition-all active:scale-95 ${
-                          activeTab === tab.id
-                            ? 'bg-primary/12 text-primary border border-primary/30'
-                            : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground border border-transparent'
-                        }`}
-                      >
-                        <tab.icon size={18} />
-                        <span className="truncate w-full text-center text-[11px]">{tab.label}</span>
-                      </button>
-                    ))}
+                    {cat.tabs.map((tab) => {
+                      const href = (tab as any).href as string | undefined;
+                      const cls = `flex flex-col items-center gap-1.5 px-2 py-3 rounded-xl text-xs font-medium transition-all active:scale-95 ${
+                        activeTab === tab.id
+                          ? 'bg-primary/12 text-primary border border-primary/30'
+                          : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground border border-transparent'
+                      }`;
+                      if (href) {
+                        return (
+                          <Link
+                            key={tab.id}
+                            to={href}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className={cls}
+                          >
+                            <tab.icon size={18} />
+                            <span className="truncate w-full text-center text-[11px]">{tab.label}</span>
+                          </Link>
+                        );
+                      }
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => {
+                            setActiveTab(tab.id);
+                            setMobileMenuOpen(false);
+                            contentScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className={cls}
+                        >
+                          <tab.icon size={18} />
+                          <span className="truncate w-full text-center text-[11px]">{tab.label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               ))}

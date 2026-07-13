@@ -940,6 +940,16 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return defaultSettings;
   });
   const [loading, setLoading] = useState(true);
+  const [livePreview, setLivePreviewState] = useState<Partial<SiteSettings> | null>(null);
+
+  // Effective settings = base + live preview overlay (theme merged nested)
+  const effectiveSettings: SiteSettings = livePreview
+    ? {
+        ...settings,
+        ...livePreview,
+        theme: { ...settings.theme, ...((livePreview as any).theme || {}) },
+      }
+    : settings;
 
   useEffect(() => {
     const docRef = doc(db, "settings", "site");

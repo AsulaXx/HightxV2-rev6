@@ -422,11 +422,12 @@ const Index = () => {
           ) : (
             <div className={`dynamic-grid ${gapClass()}`} style={colsToStyle(layout.categoryCols)}>
               {(settings.categories || []).filter(c => c.enabled).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((cat) => (
-                <motion.div key={cat.id} variants={fade}>
+                <motion.div key={cat.id} variants={fade} {...cardHover}>
                   <Link
                     to={`/store/${cat.id}`}
-                    className={`group glass-card-hover !p-0 overflow-hidden block ${radiusClass()}`}
+                    className={`group relative glass-card-hover !p-0 overflow-hidden block ${radiusClass()}`}
                   >
+                    <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 rotate-12 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-[380%] transition-all duration-700 ease-out z-10" />
                     {cat.bannerUrl ? (
                       <img src={cat.bannerUrl} alt={cat.name} className="w-full h-auto object-contain group-hover:scale-[1.02] transition-transform duration-500" />
                     ) : cat.imageUrl ? (

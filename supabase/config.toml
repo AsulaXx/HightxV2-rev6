@@ -2,3 +2,7 @@ project_id = "yhoerrkmntqzuwennzni"
 
 [functions.redeem-giftcode]
 verify_jwt = false
+
+[functions.firebase-supabase-sync]
+verify_jwt = false
+

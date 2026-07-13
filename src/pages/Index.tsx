@@ -518,7 +518,7 @@ const Index = () => {
 
       {/* Services Section */}
       {(settings.homeSectionVisibility?.services !== false) && (settings.serviceItems || []).filter(s => s.enabled).length > 0 && (
-        <motion.section variants={stagger} initial="hidden" animate="show" className={`${maxWidthClass()} mx-auto px-4 sm:px-6 pb-8 sm:pb-12`}>
+        <motion.section {...sectionInView} className={`${maxWidthClass()} mx-auto px-4 sm:px-6 pb-8 sm:pb-12`}>
           <motion.div variants={fade} className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 border border-primary/10 flex items-center justify-center">
               <Wrench size={14} className="text-primary sm:w-4 sm:h-4" />

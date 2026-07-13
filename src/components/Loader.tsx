@@ -116,6 +116,99 @@ const Loader = memo(({ size = 96, label, fullscreen = false, style }: LoaderProp
     );
   }
 
+  if (kind === "quantum") {
+    // 3 tilted electron orbits + glowing core (evolved atom)
+    return wrap(<AtomLoader size={size} />);
+  }
+
+  if (kind === "wave") {
+    // 5 sine-morphing bars
+    return wrap(
+      <div className="flex items-center gap-1" style={{ height: size / 2 }} role="status" aria-label="Loading">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <motion.span
+            key={i}
+            className="rounded-full bg-gradient-to-t from-primary to-accent shadow-[0_0_10px_hsl(var(--primary)/0.6)]"
+            style={{ width: size / 12 }}
+            animate={{
+              height: [size / 5, size / 2, size / 5],
+              opacity: [0.55, 1, 0.55],
+            }}
+            transition={{
+              duration: 1.1,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.12,
+            }}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (kind === "nebula") {
+    // Radial gradient cloud that breathes + rotates
+    return wrap(
+      <div className="relative" style={{ width: size, height: size }} role="status" aria-label="Loading">
+        <motion.div
+          className="absolute inset-0 rounded-full blur-xl"
+          style={{
+            background: "conic-gradient(from 0deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)), hsl(var(--primary)))",
+          }}
+          animate={{ rotate: 360, scale: [0.9, 1.05, 0.9] }}
+          transition={{ rotate: { duration: 3.5, ease: "linear", repeat: Infinity }, scale: { duration: 2.2, ease: "easeInOut", repeat: Infinity } }}
+        />
+        <div
+          className="absolute inset-[22%] rounded-full"
+          style={{
+            background: "radial-gradient(circle at 35% 35%, hsl(var(--background)), hsl(var(--card)))",
+            boxShadow: "inset 0 0 15px hsl(var(--primary) / 0.55)",
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (kind === "cube3d") {
+    const s = size * 0.55;
+    const half = s / 2;
+    const faces = [
+      { t: `translateZ(${half}px)` },
+      { t: `rotateY(180deg) translateZ(${half}px)` },
+      { t: `rotateY(90deg) translateZ(${half}px)` },
+      { t: `rotateY(-90deg) translateZ(${half}px)` },
+      { t: `rotateX(90deg) translateZ(${half}px)` },
+      { t: `rotateX(-90deg) translateZ(${half}px)` },
+    ];
+    return wrap(
+      <div
+        className="relative flex items-center justify-center"
+        style={{ width: size, height: size, perspective: 800 }}
+        role="status" aria-label="Loading"
+      >
+        <motion.div
+          className="relative"
+          style={{ width: s, height: s, transformStyle: "preserve-3d" }}
+          animate={{ rotateX: 360, rotateY: 360 }}
+          transition={{ duration: 4, ease: "linear", repeat: Infinity }}
+        >
+          {faces.map((f, i) => (
+            <div
+              key={i}
+              className="absolute rounded-md border border-primary/40"
+              style={{
+                width: s, height: s,
+                transform: f.t,
+                background: "linear-gradient(135deg, hsl(var(--primary) / 0.35), hsl(var(--accent) / 0.35))",
+                boxShadow: "inset 0 0 12px hsl(var(--primary) / 0.55), 0 0 18px hsl(var(--primary) / 0.35)",
+              }}
+            />
+          ))}
+        </motion.div>
+      </div>
+    );
+  }
+
   return <AtomLoader size={size} label={label} fullscreen={fullscreen} />;
 });
 

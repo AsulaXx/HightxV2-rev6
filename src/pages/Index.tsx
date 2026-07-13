@@ -467,7 +467,7 @@ const Index = () => {
 
       {/* Featured Products */}
       {(settings.homeSectionVisibility?.featured !== false) && enabledProducts.length > 0 && (
-        <motion.section variants={stagger} initial="hidden" animate="show" className={`${maxWidthClass()} mx-auto px-4 sm:px-6 pb-8 sm:pb-12`}>
+        <motion.section {...sectionInView} className={`${maxWidthClass()} mx-auto px-4 sm:px-6 pb-8 sm:pb-12`}>
           <motion.div variants={fade} className="flex items-center justify-between mb-4 sm:mb-6">
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 border border-primary/10 flex items-center justify-center">

@@ -407,10 +407,9 @@ const StorePage = () => {
             const cardCommonProps = {
               key: cat.id,
               initial: { opacity: 0, y: 16, scale: 0.96 },
-              whileInView: { opacity: 1, y: 0, scale: 1 },
-              viewport: { once: true, margin: "-40px" },
-              transition: { delay: Math.min(i * 0.05, 0.3), type: "spring" as const, stiffness: 260, damping: 22 },
-              whileHover: { y: -5, scale: 1.025, transition: { type: "spring" as const, stiffness: 380, damping: 18 } },
+              animate: { opacity: 1, y: 0, scale: 1 },
+              transition: { delay: Math.min(i * 0.04, 0.25), type: "spring" as const, stiffness: 280, damping: 24 },
+              whileHover: { y: -4, scale: 1.02, transition: { type: "spring" as const, stiffness: 380, damping: 20 } },
               whileTap: { scale: 0.97 },
               onClick: () => handleCategoryClick(cat),
             } as const;

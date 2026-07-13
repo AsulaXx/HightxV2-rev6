@@ -5,6 +5,22 @@ import { getWebhookLog, clearWebhookLog, type WebhookLogEntry } from "@/lib/webh
 import { downloadCSV } from "@/lib/csvExport";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import {
+  topUpSuccessEmbed,
+  topUpTrueWalletSuccessEmbed,
+  duplicateSlipEmbed,
+  wrongAccountBankEmbed,
+  slipVerifyEmbed,
+  loginEmbed,
+  signupEmbed,
+  wheelSpinEmbed,
+  topUpQrSuccessEmbed,
+  giftCodeRedeemEmbed,
+  keyStockActivityEmbed,
+  keyImportEmbed,
+  keyDeleteEmbed,
+  freeClaimEmbed,
+} from "@/lib/webhookTemplates";
 
 // All webhook URL field bases — resolved at runtime to <key> and <key>Urls
 const URL_BASE_KEYS = [

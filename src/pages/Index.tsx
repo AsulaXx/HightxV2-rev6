@@ -394,15 +394,17 @@ const Index = () => {
             }>
               {(settings.categories || []).filter(c => c.enabled).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((cat) => {
                 return (
-                  <motion.div key={cat.id} variants={fade} {...cardHover}>
+                  <motion.div key={cat.id} variants={fade} {...cardHover} className="h-full">
                     <Link
                       to={`/store/${cat.id}`}
-                      className={`group block relative overflow-hidden border border-border/30 hover:border-primary/20 transition-all duration-300 ${radiusClass()}`}
+                      className={`group block relative overflow-hidden border border-border/30 hover:border-primary/20 transition-all duration-300 h-full ${radiusClass()}`}
                     >
                       {cat.bannerUrl ? (
-                        <img src={cat.bannerUrl} alt={cat.name} className="w-full h-auto object-contain group-hover:scale-[1.02] transition-transform duration-500" />
+                        <div className="w-full aspect-[16/5] overflow-hidden">
+                          <img src={cat.bannerUrl} alt={cat.name} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" />
+                        </div>
                       ) : (
-                        <div className={`w-full aspect-[16/9] bg-gradient-to-r ${cat.gradient || 'from-primary/20 to-accent/20'} flex items-center gap-3 sm:gap-4 px-3 sm:px-6`}>
+                        <div className={`w-full aspect-[16/5] bg-gradient-to-r ${cat.gradient || 'from-primary/20 to-accent/20'} flex items-center gap-3 sm:gap-4 px-3 sm:px-6`}>
                           {cat.imageUrl ? (
                             <motion.img src={cat.imageUrl} alt={cat.name} className="w-10 h-10 sm:w-16 sm:h-16 object-contain drop-shadow-lg" whileHover={{ scale: 1.1 }} />
                           ) : (

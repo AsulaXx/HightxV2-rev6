@@ -629,116 +629,115 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
    solid cards (no glass), neon violet primary, pill buttons.
    ═══════════════════════════════════════════════════════════════ */
 
+/* ═══════════════════════════════════════════════════════════════
+   V2 — Tactical dark theme.
+   Colors follow the SAME theme tokens as V1 (user-configurable
+   --primary / --secondary set inline on :root by SiteSettings).
+   V2 only overrides *neutral* surfaces and layout metrics — every
+   accent, gradient, glow uses var(--primary) / var(--secondary)
+   so switching the theme in Admin updates V1 and V2 identically.
+   ═══════════════════════════════════════════════════════════════ */
 [data-ui-version="v2"],
 [data-ui-version="v2"].dark {
-  /* Core tokens */
-  --background: 270 55% 4%;
-  --foreground: 270 20% 96%;
+  /* Neutral dark surfaces — hue-agnostic so any --primary reads well */
+  --background: 240 8% 5%;
+  --foreground: 240 10% 96%;
 
-  --card: 270 40% 8%;
-  --card-foreground: 270 15% 95%;
+  --card: 240 10% 8%;
+  --card-foreground: 240 10% 95%;
 
-  --popover: 270 45% 6%;
-  --popover-foreground: 270 15% 95%;
+  --popover: 240 12% 6%;
+  --popover-foreground: 240 10% 95%;
 
-  --primary: 265 90% 62%;
-  --primary-foreground: 0 0% 100%;
-  --primary-glow: 275 100% 72%;
+  /* --primary / --primary-foreground / --ring intentionally NOT set.
+     They come from V1 root vars and inline styles applied by
+     SiteSettingsContext so both versions share the same palette. */
+  --primary-glow: var(--primary);
 
-  --secondary: 270 30% 14%;
-  --secondary-foreground: 270 15% 90%;
+  --secondary-foreground: 240 10% 95%;
 
-  --muted: 270 25% 12%;
-  --muted-foreground: 270 12% 65%;
+  --muted: 240 10% 12%;
+  --muted-foreground: 240 8% 65%;
 
-  --accent: 270 40% 18%;
-  --accent-foreground: 270 15% 95%;
+  --accent: 240 12% 16%;
+  --accent-foreground: 240 10% 95%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 270 45% 20%;
-  --input: 270 40% 16%;
-  --ring: 265 90% 62%;
+  --border: 240 12% 18%;
+  --input: 240 10% 14%;
 
-  --radius: 1rem;
+  --radius: 0.75rem;
 
-  --fx-grad-from: #7c3aed;
-  --fx-grad-to: #a855f7;
-
-  /* Body font swap to Thai-friendly Prompt */
   --font-body: 'Prompt', 'Inter', system-ui, sans-serif;
-  --font-heading: 'Prompt', 'Inter', system-ui, sans-serif;
+  --font-heading: 'Kanit', 'Prompt', 'Inter', system-ui, sans-serif;
 }
 
 [data-ui-version="v2"] body {
-  font-family: 'Prompt', 'Inter', system-ui, sans-serif;
+  font-family: var(--font-body);
   background: hsl(var(--background));
   background-image:
-    radial-gradient(1200px 600px at 15% -10%, hsl(265 80% 20% / 0.45), transparent 60%),
-    radial-gradient(900px 500px at 100% 0%, hsl(275 70% 22% / 0.35), transparent 55%),
-    radial-gradient(700px 400px at 50% 100%, hsl(280 70% 18% / 0.28), transparent 60%);
+    radial-gradient(1200px 600px at 15% -10%, hsl(var(--primary) / 0.18), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, hsl(var(--secondary) / 0.14), transparent 55%),
+    radial-gradient(700px 400px at 50% 100%, hsl(var(--primary) / 0.10), transparent 60%);
   background-attachment: fixed;
 }
 
-/* Override glassmorphism → solid awang-style cards */
+/* Flat solid cards (no glass blur) */
 [data-ui-version="v2"] .glass-card {
-  background: linear-gradient(160deg, hsl(270 40% 10%) 0%, hsl(270 45% 7%) 100%);
+  background: linear-gradient(160deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid hsl(var(--border) / 0.7);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px -12px hsl(0 0% 0% / 0.6);
+}
+[data-ui-version="v2"] .glass-panel {
+  background: hsl(var(--card));
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border: 1px solid hsl(var(--border) / 0.6);
-  border-radius: 1rem;
-  box-shadow: 0 8px 24px -12px hsl(0 0% 0% / 0.6);
 }
-
-[data-ui-version="v2"] .glass-panel {
-  background: hsl(270 42% 8%);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border: 1px solid hsl(var(--border) / 0.5);
-}
-
 [data-ui-version="v2"] .glass-card-hover:hover {
-  border-color: hsl(var(--primary) / 0.5);
+  border-color: hsl(var(--primary) / 0.55);
   box-shadow:
     0 12px 40px -12px hsl(var(--primary) / 0.35),
     0 0 0 1px hsl(var(--primary) / 0.15);
 }
-
 [data-ui-version="v2"] .glass-pill {
   background: hsl(var(--primary) / 0.12);
   backdrop-filter: none;
-  -webkit-backdrop-filter: none;
   border: 1px solid hsl(var(--primary) / 0.35);
-  color: hsl(var(--primary-glow));
+  color: hsl(var(--primary));
   border-radius: 9999px;
 }
 
-/* Solid violet gradient buttons */
+/* Gradient buttons follow theme */
 [data-ui-version="v2"] .btn-gradient {
-  background: linear-gradient(135deg, hsl(265 90% 62%) 0%, hsl(275 95% 68%) 100%);
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
   border-radius: 9999px;
+  color: hsl(var(--primary-foreground));
   box-shadow:
-    0 6px 20px -6px hsl(265 90% 55% / 0.55),
+    0 6px 20px -6px hsl(var(--primary) / 0.55),
     inset 0 1px 0 hsl(0 0% 100% / 0.15);
 }
 [data-ui-version="v2"] .btn-gradient:hover {
-  box-shadow:
-    0 10px 30px -8px hsl(265 90% 55% / 0.7),
-    inset 0 1px 0 hsl(0 0% 100% / 0.2);
   filter: brightness(1.08);
+  box-shadow:
+    0 10px 30px -8px hsl(var(--primary) / 0.7),
+    inset 0 1px 0 hsl(0 0% 100% / 0.2);
 }
 [data-ui-version="v2"] .btn-glass {
   background: transparent;
-  border: 1px solid hsl(var(--primary) / 0.4);
-  color: hsl(var(--primary-glow));
+  border: 1px solid hsl(var(--primary) / 0.45);
+  color: hsl(var(--primary));
   border-radius: 9999px;
   backdrop-filter: none;
-  -webkit-backdrop-filter: none;
 }
 [data-ui-version="v2"] .btn-glass:hover {
   background: hsl(var(--primary) / 0.12);
-  border-color: hsl(var(--primary) / 0.7);
+  border-color: hsl(var(--primary) / 0.75);
 }
 
 /* Inputs */
@@ -746,8 +745,8 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
 [data-ui-version="v2"] input:not([type="checkbox"]):not([type="radio"]),
 [data-ui-version="v2"] textarea,
 [data-ui-version="v2"] select {
-  background: hsl(270 40% 10%) !important;
-  border: 1px solid hsl(var(--border) / 0.6) !important;
+  background: hsl(var(--input)) !important;
+  border: 1px solid hsl(var(--border) / 0.7) !important;
   border-radius: 0.75rem !important;
   color: hsl(var(--foreground)) !important;
   backdrop-filter: none !important;
@@ -757,38 +756,36 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
 [data-ui-version="v2"] select:focus {
   border-color: hsl(var(--primary) / 0.7) !important;
   outline: none !important;
-  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.15) !important;
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.18) !important;
 }
 
-/* Kill heavy backdrop effects for perf and clean look */
+/* Kill heavy backdrop blur globally in V2 */
 [data-ui-version="v2"] .backdrop-blur-xl,
 [data-ui-version="v2"] .backdrop-blur-2xl,
 [data-ui-version="v2"] .backdrop-blur-3xl {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
 }
 
-/* Gradient text tuned for violet */
 [data-ui-version="v2"] .gradient-text {
-  background: linear-gradient(135deg, hsl(265 100% 78%) 0%, hsl(285 100% 82%) 100%);
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  font-family: var(--font-heading);
 }
 
-/* V2-only helpers */
+/* V2 helpers */
 [data-ui-version="v2"] .v2-stat-num {
-  font-family: 'Kanit', 'Prompt', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 700;
-  color: hsl(var(--primary-glow));
+  color: hsl(var(--primary));
   letter-spacing: -0.02em;
 }
 [data-ui-version="v2"] .v2-underline {
   display: inline-block;
-  width: 32px;
-  height: 3px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, hsl(265 90% 62%), hsl(275 100% 72%));
+  width: 32px; height: 3px; border-radius: 2px;
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary)));
 }
 [data-ui-version="v2"] .v2-nav-tab {
   position: relative;
@@ -798,320 +795,282 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
   transition: color 0.2s;
 }
 [data-ui-version="v2"] .v2-nav-tab:hover { color: hsl(var(--foreground)); }
-[data-ui-version="v2"] .v2-nav-tab.active {
-  color: hsl(var(--primary-glow));
-}
+[data-ui-version="v2"] .v2-nav-tab.active { color: hsl(var(--primary)); }
 [data-ui-version="v2"] .v2-nav-tab.active::after {
   content: "";
   position: absolute;
   left: 0; right: 0; bottom: -8px;
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, hsl(265 90% 62%), hsl(275 100% 72%));
-  box-shadow: 0 0 12px hsl(265 90% 62% / 0.6);
+  height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary)));
+  box-shadow: 0 0 12px hsl(var(--primary) / 0.6);
 }
 
-/* ═══════════════════════════════════════════════════════════
-   V2 — Awang-style overrides for Store list & Product detail
-   ═══════════════════════════════════════════════════════════ */
-
-/* Category cards — rounded 10px, flat surface, purple hover border */
+/* ─── Store list / product cards ─── */
 [data-ui-version="v2"] .category-card {
-  background: hsl(270 40% 8%) !important;
-  border: 1px solid hsl(270 45% 18% / 0.7) !important;
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border) / 0.7) !important;
   border-radius: 10px !important;
   transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s !important;
   backdrop-filter: none !important;
 }
 [data-ui-version="v2"] .category-card:hover {
-  border-color: hsl(265 90% 62% / 0.55) !important;
+  border-color: hsl(var(--primary) / 0.55) !important;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px -12px hsl(265 90% 40% / 0.6) !important;
+  box-shadow: 0 8px 24px -12px hsl(var(--primary) / 0.6) !important;
 }
-
-/* Product cards (glass-card-hover) — awang look */
 [data-ui-version="v2"] .glass-card-hover {
-  background: hsl(270 40% 8%) !important;
-  border: 1px solid hsl(270 45% 18% / 0.7) !important;
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border) / 0.7) !important;
   border-radius: 12px !important;
   backdrop-filter: none !important;
   box-shadow: none !important;
 }
 [data-ui-version="v2"] .glass-card-hover:hover {
-  border-color: hsl(265 90% 62% / 0.6) !important;
-  box-shadow: 0 12px 32px -14px hsl(265 90% 40% / 0.55) !important;
+  border-color: hsl(var(--primary) / 0.6) !important;
+  box-shadow: 0 12px 32px -14px hsl(var(--primary) / 0.55) !important;
 }
 
-/* Product detail: sticky image column, awang framing */
-[data-ui-version="v2"] .grid.lg\:grid-cols-5 > :first-child,
-[data-ui-version="v2"] .grid.lg\:grid-cols-2 > :first-child {
-  position: sticky;
-  top: 5rem;
-  align-self: start;
+/* Product detail sticky image column (desktop only) */
+@media (min-width: 1024px) {
+  [data-ui-version="v2"] .grid.lg\:grid-cols-5 > :first-child,
+  [data-ui-version="v2"] .grid.lg\:grid-cols-2 > :first-child {
+    position: sticky;
+    top: 5rem;
+    align-self: start;
+  }
 }
 
-/* Price pill emphasis */
-[data-ui-version="v2"] .gradient-text {
-  font-family: 'Kanit', 'Prompt', sans-serif;
-}
-
-/* Duration/option buttons — flatter, purple accents */
 [data-ui-version="v2"] .glass-card button,
 [data-ui-version="v2"] .glass-card-hover button {
   border-radius: 10px !important;
 }
-
-/* Kill blur washes on product hero image for awang crisp look */
 [data-ui-version="v2"] img.blur-2xl,
-[data-ui-version="v2"] img.blur-xl {
-  display: none !important;
-}
+[data-ui-version="v2"] img.blur-xl { display: none !important; }
 
-/* Breadcrumb & category chip: tighter awang spacing */
-[data-ui-version="v2"] .glass-card {
-  border-radius: 12px !important;
-}
-
-/* Search input in store header — awang pill */
 [data-ui-version="v2"] input[type="text"][placeholder*="ค้นหา"] {
-  background: hsl(270 40% 8%) !important;
-  border: 1px solid hsl(270 45% 18% / 0.7) !important;
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border) / 0.7) !important;
   border-radius: 999px !important;
   height: 40px !important;
   padding-left: 2.25rem !important;
 }
 [data-ui-version="v2"] input[type="text"][placeholder*="ค้นหา"]:focus {
-  border-color: hsl(265 90% 62% / 0.6) !important;
-  box-shadow: 0 0 0 3px hsl(265 90% 62% / 0.15) !important;
+  border-color: hsl(var(--primary) / 0.6) !important;
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.18) !important;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   V2 — LAYOUT: Navbar, Footer, Ticker, Cart Panel (Phase 1)
-   ═══════════════════════════════════════════════════════════════ */
-
-/* Navbar */
+/* ─── Navbar ─── */
 [data-ui-version="v2"] .v2-navbar {
-  background: hsl(270 55% 4% / 0.92);
-  border-bottom: 1px solid hsl(270 45% 18% / 0.7);
+  background: hsl(var(--background) / 0.92);
+  border-bottom: 1px solid hsl(var(--border) / 0.7);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   transition: all 0.3s ease;
 }
 [data-ui-version="v2"] .v2-navbar--scrolled {
-  background: hsl(270 55% 3% / 0.96);
-  box-shadow: 0 4px 24px -12px hsl(265 90% 30% / 0.5);
+  background: hsl(var(--background) / 0.96);
+  box-shadow: 0 4px 24px -12px hsl(var(--primary) / 0.5);
 }
 [data-ui-version="v2"] .v2-nav-logo {
-  background: linear-gradient(135deg, hsl(272 90% 62% / 0.15), hsl(340 85% 60% / 0.1));
-  border: 1px solid hsl(272 90% 62% / 0.35);
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.18), hsl(var(--secondary) / 0.12));
+  border: 1px solid hsl(var(--primary) / 0.35);
 }
 [data-ui-version="v2"] .v2-nav-pill {
   display: inline-flex; align-items: center; gap: 0.4rem;
   padding: 0.45rem 0.85rem;
   border-radius: 10px;
   font-size: 12.5px; font-weight: 500;
-  color: hsl(270 15% 72%);
+  color: hsl(var(--muted-foreground));
   transition: all 0.18s ease;
   position: relative;
 }
 [data-ui-version="v2"] .v2-nav-pill:hover {
-  color: hsl(272 95% 82%);
-  background: hsl(272 60% 20% / 0.35);
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.14);
 }
 [data-ui-version="v2"] .v2-nav-pill--active {
-  color: hsl(272 100% 85%);
-  background: hsl(272 70% 22% / 0.45);
-  box-shadow: inset 0 -2px 0 hsl(272 90% 62%);
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.18);
+  box-shadow: inset 0 -2px 0 hsl(var(--primary));
 }
 [data-ui-version="v2"] .v2-nav-icon-btn {
   display: inline-flex; align-items: center; justify-content: center;
   width: 34px; height: 34px;
   border-radius: 10px;
-  color: hsl(270 15% 65%);
+  color: hsl(var(--muted-foreground));
   transition: all 0.18s ease;
 }
 [data-ui-version="v2"] .v2-nav-icon-btn:hover {
-  color: hsl(272 95% 82%);
-  background: hsl(272 60% 20% / 0.4);
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.14);
 }
 [data-ui-version="v2"] .v2-wallet-chip {
   display: inline-flex; align-items: center; gap: 0.4rem;
   height: 34px; padding: 0 0.7rem;
   border-radius: 10px;
-  background: hsl(270 40% 10%);
-  border: 1px solid hsl(272 80% 55% / 0.35);
-  color: hsl(272 95% 82%);
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--primary) / 0.35);
+  color: hsl(var(--primary));
   font-size: 12px;
   transition: all 0.18s ease;
+  white-space: nowrap;
 }
 [data-ui-version="v2"] .v2-wallet-chip:hover {
-  border-color: hsl(272 90% 62% / 0.65);
-  box-shadow: 0 0 0 3px hsl(272 90% 62% / 0.12);
+  border-color: hsl(var(--primary) / 0.65);
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.12);
 }
 [data-ui-version="v2"] .v2-wallet-amount {
-  font-family: 'Kanit', 'Prompt', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 700;
-  color: hsl(272 100% 82%);
+  color: hsl(var(--primary));
 }
-[data-ui-version="v2"] .v2-topup-btn {
-  display: inline-flex; align-items: center; gap: 0.3rem;
+[data-ui-version="v2"] .v2-topup-btn,
+[data-ui-version="v2"] .v2-nav-cta {
+  display: inline-flex; align-items: center; gap: 0.35rem;
   height: 34px; padding: 0 0.85rem;
   border-radius: 10px;
-  background: linear-gradient(135deg, hsl(272 90% 55%), hsl(340 85% 58%));
-  color: #fff;
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+  color: hsl(var(--primary-foreground));
   font-size: 12px; font-weight: 700;
-  box-shadow: 0 4px 14px -4px hsl(272 90% 45% / 0.6);
+  box-shadow: 0 4px 14px -4px hsl(var(--primary) / 0.6);
   transition: all 0.18s ease;
+  white-space: nowrap;
 }
-[data-ui-version="v2"] .v2-topup-btn:hover {
+[data-ui-version="v2"] .v2-topup-btn:hover,
+[data-ui-version="v2"] .v2-nav-cta:hover {
   filter: brightness(1.1);
-  box-shadow: 0 6px 20px -4px hsl(272 90% 45% / 0.8);
+  box-shadow: 0 6px 20px -4px hsl(var(--primary) / 0.8);
   transform: translateY(-1px);
 }
 [data-ui-version="v2"] .v2-user-btn {
   display: inline-flex; align-items: center; gap: 0.45rem;
   height: 34px; padding: 0 0.45rem 0 0.35rem;
   border-radius: 10px;
-  background: hsl(270 40% 10%);
-  border: 1px solid hsl(270 45% 18% / 0.7);
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border) / 0.7);
   transition: all 0.18s ease;
 }
-[data-ui-version="v2"] .v2-user-btn:hover {
-  border-color: hsl(272 90% 62% / 0.55);
-}
+[data-ui-version="v2"] .v2-user-btn:hover { border-color: hsl(var(--primary) / 0.55); }
 [data-ui-version="v2"] .v2-user-avatar {
   width: 24px; height: 24px;
   border-radius: 7px;
-  background: linear-gradient(135deg, hsl(272 90% 55%), hsl(340 85% 55%));
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
   display: inline-flex; align-items: center; justify-content: center;
-  color: #fff;
+  color: hsl(var(--primary-foreground));
 }
-[data-ui-version="v2"] .v2-nav-cta {
-  display: inline-flex; align-items: center; gap: 0.4rem;
-  height: 34px; padding: 0 0.9rem;
-  border-radius: 10px;
-  background: linear-gradient(135deg, hsl(272 90% 55%), hsl(340 85% 58%));
-  color: #fff;
-  font-size: 12.5px; font-weight: 700;
-  box-shadow: 0 4px 14px -4px hsl(272 90% 45% / 0.6);
-  transition: all 0.18s ease;
-}
-[data-ui-version="v2"] .v2-nav-cta:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
 /* Mobile menu */
 [data-ui-version="v2"] .v2-mobile-panel {
-  background: hsl(270 45% 6%);
-  border: 1px solid hsl(270 45% 18% / 0.75);
+  background: hsl(var(--popover));
+  border: 1px solid hsl(var(--border) / 0.75);
   border-radius: 14px;
   box-shadow: 0 20px 60px -20px hsl(0 0% 0% / 0.7);
 }
 [data-ui-version="v2"] .v2-mobile-item {
   display: flex; align-items: center; gap: 0.7rem;
-  padding: 0 0.85rem;
-  height: 44px;
+  padding: 0 0.85rem; height: 44px;
   border-radius: 10px;
   font-size: 13px; font-weight: 500;
-  color: hsl(270 15% 82%);
+  color: hsl(var(--foreground));
   transition: all 0.15s ease;
 }
 [data-ui-version="v2"] .v2-mobile-item:hover {
-  background: hsl(272 60% 20% / 0.4);
-  color: hsl(272 100% 88%);
+  background: hsl(var(--primary) / 0.14);
+  color: hsl(var(--primary));
 }
 [data-ui-version="v2"] .v2-mobile-item--active {
-  background: hsl(272 70% 22% / 0.5);
-  color: hsl(272 100% 90%);
-  box-shadow: inset 0 0 0 1px hsl(272 90% 62% / 0.35);
+  background: hsl(var(--primary) / 0.18);
+  color: hsl(var(--primary));
+  box-shadow: inset 0 0 0 1px hsl(var(--primary) / 0.35);
 }
 [data-ui-version="v2"] .v2-mobile-divider {
-  height: 1px;
-  background: hsl(270 45% 18% / 0.7);
+  height: 1px; background: hsl(var(--border) / 0.7);
   margin: 0.4rem 0.25rem;
 }
 [data-ui-version="v2"] .v2-mobile-social {
   display: inline-flex; align-items: center; gap: 0.35rem;
   padding: 0.35rem 0.6rem;
   border-radius: 8px;
-  background: hsl(270 40% 10%);
-  border: 1px solid hsl(270 45% 18% / 0.6);
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border) / 0.6);
   font-size: 11px;
-  color: hsl(270 15% 78%);
+  color: hsl(var(--muted-foreground));
 }
 [data-ui-version="v2"] .v2-mobile-social:hover {
-  border-color: hsl(272 90% 62% / 0.5);
-  color: hsl(272 100% 85%);
+  border-color: hsl(var(--primary) / 0.5);
+  color: hsl(var(--primary));
 }
 
 /* Footer */
 [data-ui-version="v2"] .v2-footer {
-  background: linear-gradient(180deg, hsl(270 50% 4%) 0%, hsl(270 60% 3%) 100%);
-  border-top: 1px solid hsl(270 45% 18% / 0.6);
+  background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%);
+  border-top: 1px solid hsl(var(--border) / 0.6);
   position: relative;
 }
 [data-ui-version="v2"] .v2-footer-topline {
   height: 2px;
   background: linear-gradient(90deg,
     transparent 0%,
-    hsl(272 90% 62% / 0.7) 20%,
-    hsl(340 85% 60% / 0.7) 50%,
-    hsl(272 90% 62% / 0.7) 80%,
+    hsl(var(--primary) / 0.7) 20%,
+    hsl(var(--secondary) / 0.7) 50%,
+    hsl(var(--primary) / 0.7) 80%,
     transparent 100%);
-  box-shadow: 0 0 20px hsl(272 90% 62% / 0.4);
+  box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
 }
 [data-ui-version="v2"] .v2-footer-logo {
-  background: linear-gradient(135deg, hsl(272 90% 62% / 0.15), hsl(340 85% 60% / 0.1));
-  border: 1px solid hsl(272 90% 62% / 0.3);
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(var(--secondary) / 0.10));
+  border: 1px solid hsl(var(--primary) / 0.3);
 }
 [data-ui-version="v2"] .v2-footer-heading {
   display: inline-flex; align-items: center; gap: 0.4rem;
-  font-family: 'Kanit', 'Prompt', sans-serif;
+  font-family: var(--font-heading);
   font-size: 11px; font-weight: 700;
-  color: hsl(272 90% 78%);
+  color: hsl(var(--primary));
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-bottom: 0.75rem;
   padding-bottom: 0.4rem;
-  border-bottom: 1px solid hsl(272 60% 30% / 0.4);
+  border-bottom: 1px solid hsl(var(--primary) / 0.3);
   width: fit-content;
 }
 [data-ui-version="v2"] .v2-footer-link {
   display: flex; align-items: center; gap: 0.45rem;
   font-size: 11.5px;
-  color: hsl(270 15% 62%);
+  color: hsl(var(--muted-foreground));
   transition: color 0.15s;
 }
-[data-ui-version="v2"] .v2-footer-link:hover { color: hsl(272 100% 82%); }
+[data-ui-version="v2"] .v2-footer-link:hover { color: hsl(var(--primary)); }
 [data-ui-version="v2"] .v2-footer-social {
   display: inline-flex; align-items: center; gap: 0.35rem;
   padding: 0.35rem 0.6rem;
   border-radius: 999px;
-  background: hsl(270 40% 8%);
-  border: 1px solid hsl(272 60% 30% / 0.5);
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--primary) / 0.3);
   font-size: 11px;
-  color: hsl(270 15% 78%);
+  color: hsl(var(--muted-foreground));
   transition: all 0.15s;
 }
 [data-ui-version="v2"] .v2-footer-social:hover {
-  border-color: hsl(272 90% 62% / 0.7);
-  color: hsl(272 100% 85%);
-  background: hsl(272 40% 12%);
+  border-color: hsl(var(--primary) / 0.7);
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.10);
 }
 [data-ui-version="v2"] .v2-footer-bottom {
-  border-top: 1px solid hsl(270 45% 18% / 0.5);
+  border-top: 1px solid hsl(var(--border) / 0.5);
 }
 
 /* Ticker */
 [data-ui-version="v2"] .v2-ticker {
-  background: hsl(270 55% 5%);
-  border-top: 1px solid hsl(272 60% 25% / 0.4);
-  border-bottom: 1px solid hsl(272 60% 25% / 0.4);
+  background: hsl(var(--card));
+  border-top: 1px solid hsl(var(--primary) / 0.25);
+  border-bottom: 1px solid hsl(var(--primary) / 0.25);
 }
 [data-ui-version="v2"] .v2-ticker-label {
   display: inline-flex; align-items: center; gap: 0.35rem;
   padding: 0 0.9rem;
-  background: linear-gradient(135deg, hsl(272 90% 55%), hsl(340 85% 55%));
-  color: #fff;
-  font-family: 'Kanit', 'Prompt', sans-serif;
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+  color: hsl(var(--primary-foreground));
+  font-family: var(--font-heading);
   font-size: 10.5px; font-weight: 800;
   letter-spacing: 0.12em;
   clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
@@ -1120,150 +1079,122 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
 [data-ui-version="v2"] .v2-ticker-item {
   display: inline-flex; align-items: center; gap: 0.35rem;
   font-size: 11.5px;
-  color: hsl(270 20% 82%);
+  color: hsl(var(--foreground));
   margin: 0 1.5rem;
 }
-[data-ui-version="v2"] .v2-ticker-item svg {
-  color: hsl(272 95% 68%);
-}
+[data-ui-version="v2"] .v2-ticker-item svg { color: hsl(var(--primary)); }
 
-/* Cart panel — awang violet solid */
-[data-ui-version="v2"] .cart-panel-root,
-[data-ui-version="v2"] [class*="cart-panel"] .backdrop-blur-2xl,
-[data-ui-version="v2"] [class*="cart-panel"] .backdrop-blur-xl {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
+/* Cart panel */
 [data-ui-version="v2"] .cart-panel-root .glass-card,
 [data-ui-version="v2"] .cart-panel-root .glass-panel {
-  background: hsl(270 45% 7%) !important;
-  border: 1px solid hsl(272 60% 25% / 0.5) !important;
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--primary) / 0.25) !important;
   border-radius: 12px !important;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   V2 — GLOBAL PAGE OVERRIDES (auth, profile, dashboard, hub,
-   wheel, topup, wallet, leaderboard, admin, misc). Scoped only.
-   ═══════════════════════════════════════════════════════════════ */
-
-/* Headings tuned for Kanit tactical look */
+/* ─── Global page overrides ─── */
 [data-ui-version="v2"] h1,
 [data-ui-version="v2"] h2,
 [data-ui-version="v2"] h3 {
-  font-family: 'Kanit', 'Prompt', sans-serif;
+  font-family: var(--font-heading);
   letter-spacing: -0.01em;
 }
-
-/* Buttons — flatter, sharper radii site-wide */
 [data-ui-version="v2"] button,
 [data-ui-version="v2"] .btn,
 [data-ui-version="v2"] [role="button"] {
   border-radius: 10px;
 }
-
-/* Shadcn Card / any bordered surface: violet border, dark solid bg */
 [data-ui-version="v2"] .rounded-3xl,
-[data-ui-version="v2"] .rounded-2xl {
-  border-radius: 14px !important;
-}
+[data-ui-version="v2"] .rounded-2xl { border-radius: 14px !important; }
 [data-ui-version="v2"] .rounded-xl { border-radius: 12px !important; }
 
-/* Neutralize white/light backgrounds that leak through pages */
+/* Neutralize light bg leaks */
 [data-ui-version="v2"] .bg-white,
 [data-ui-version="v2"] .bg-white\/5,
 [data-ui-version="v2"] .bg-white\/10,
 [data-ui-version="v2"] .bg-white\/20 {
-  background-color: hsl(270 42% 9% / 0.85) !important;
+  background-color: hsl(var(--card) / 0.85) !important;
 }
 [data-ui-version="v2"] .bg-black\/40,
 [data-ui-version="v2"] .bg-black\/50,
 [data-ui-version="v2"] .bg-black\/60 {
-  background-color: hsl(270 55% 4% / 0.7) !important;
+  background-color: hsl(var(--background) / 0.75) !important;
 }
-
-/* Any card-ish container using bg-card / bg-muted */
 [data-ui-version="v2"] .bg-card {
-  background-color: hsl(270 42% 9%) !important;
-  border-color: hsl(270 45% 18% / 0.7) !important;
+  background-color: hsl(var(--card)) !important;
+  border-color: hsl(var(--border) / 0.7) !important;
 }
 [data-ui-version="v2"] .bg-muted,
 [data-ui-version="v2"] .bg-muted\/20,
 [data-ui-version="v2"] .bg-muted\/30,
 [data-ui-version="v2"] .bg-muted\/40,
 [data-ui-version="v2"] .bg-muted\/50 {
-  background-color: hsl(270 45% 12% / 0.55) !important;
+  background-color: hsl(var(--muted) / 0.55) !important;
 }
 
-/* Badges & pills */
 [data-ui-version="v2"] .badge,
 [data-ui-version="v2"] [class*="Badge"] {
   border-radius: 999px !important;
-  font-family: 'Kanit', 'Prompt', sans-serif;
+  font-family: var(--font-heading);
   letter-spacing: 0.02em;
 }
 
-/* Tabs (shadcn) — tactical segmented */
+/* Tabs */
 [data-ui-version="v2"] [role="tablist"] {
-  background: hsl(270 45% 8%) !important;
-  border: 1px solid hsl(270 45% 18% / 0.7) !important;
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border) / 0.7) !important;
   border-radius: 12px !important;
   padding: 4px !important;
 }
 [data-ui-version="v2"] [role="tab"] {
   border-radius: 8px !important;
-  font-family: 'Kanit', 'Prompt', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 600 !important;
   color: hsl(var(--muted-foreground)) !important;
 }
 [data-ui-version="v2"] [role="tab"][data-state="active"] {
-  background: linear-gradient(135deg, hsl(272 90% 55%), hsl(285 88% 60%)) !important;
-  color: #fff !important;
-  box-shadow: 0 4px 16px -6px hsl(272 90% 45% / 0.6) !important;
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary))) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  box-shadow: 0 4px 16px -6px hsl(var(--primary) / 0.6) !important;
 }
 
-/* Tables / rows */
+/* Tables */
 [data-ui-version="v2"] table {
-  background: hsl(270 42% 9%);
-  border: 1px solid hsl(270 45% 18% / 0.7);
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border) / 0.7);
   border-radius: 12px;
   overflow: hidden;
 }
-[data-ui-version="v2"] table thead {
-  background: hsl(270 50% 11%);
-}
+[data-ui-version="v2"] table thead { background: hsl(var(--muted)); }
 [data-ui-version="v2"] table th {
-  color: hsl(272 60% 78%) !important;
-  font-family: 'Kanit', 'Prompt', sans-serif;
+  color: hsl(var(--primary)) !important;
+  font-family: var(--font-heading);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   font-size: 11px !important;
 }
-[data-ui-version="v2"] table tbody tr {
-  border-top: 1px solid hsl(270 45% 18% / 0.5);
-}
-[data-ui-version="v2"] table tbody tr:hover {
-  background: hsl(272 60% 15% / 0.35) !important;
-}
+[data-ui-version="v2"] table tbody tr { border-top: 1px solid hsl(var(--border) / 0.5); }
+[data-ui-version="v2"] table tbody tr:hover { background: hsl(var(--primary) / 0.08) !important; }
 
-/* Dashboard / stat tiles — any div with numeric big text */
+/* Stat tiles */
 [data-ui-version="v2"] .stat-tile,
 [data-ui-version="v2"] .glass-card .text-3xl,
 [data-ui-version="v2"] .glass-card .text-4xl,
 [data-ui-version="v2"] .glass-card .text-5xl {
-  font-family: 'Kanit', 'Prompt', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 700;
   letter-spacing: -0.02em;
-  background: linear-gradient(135deg, hsl(272 95% 78%), hsl(285 100% 82%));
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Hub / Tool cards — grid tiles */
+/* Hub tool cards */
 [data-ui-version="v2"] a.glass-card-hover,
 [data-ui-version="v2"] .tool-card {
-  background: linear-gradient(180deg, hsl(270 45% 10%), hsl(272 50% 7%)) !important;
-  border: 1px solid hsl(270 45% 20% / 0.7) !important;
+  background: linear-gradient(180deg, hsl(var(--card)), hsl(var(--background))) !important;
+  border: 1px solid hsl(var(--border) / 0.7) !important;
   position: relative;
   overflow: hidden;
 }
@@ -1273,71 +1204,110 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, hsl(272 95% 68% / 0.9), transparent);
+  background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.9), transparent);
   opacity: 0.5;
   transition: opacity 0.25s;
 }
 [data-ui-version="v2"] a.glass-card-hover:hover::before,
-[data-ui-version="v2"] .tool-card:hover::before {
-  opacity: 1;
-}
+[data-ui-version="v2"] .tool-card:hover::before { opacity: 1; }
 
-/* Wheel page canvas glow */
 [data-ui-version="v2"] canvas {
-  filter: drop-shadow(0 0 24px hsl(272 95% 55% / 0.35));
+  filter: drop-shadow(0 0 24px hsl(var(--primary) / 0.4));
 }
 
-/* Auth / Login card — center panel accent */
+/* Auth card */
 [data-ui-version="v2"] .auth-card,
 [data-ui-version="v2"] form.glass-card {
-  background: linear-gradient(180deg, hsl(270 45% 10%), hsl(272 50% 7%)) !important;
-  border: 1px solid hsl(272 60% 25% / 0.6) !important;
+  background: linear-gradient(180deg, hsl(var(--card)), hsl(var(--background))) !important;
+  border: 1px solid hsl(var(--primary) / 0.3) !important;
   border-radius: 14px !important;
-  box-shadow: 0 20px 60px -20px hsl(272 90% 30% / 0.5) !important;
+  box-shadow: 0 20px 60px -20px hsl(var(--primary) / 0.4) !important;
 }
 
-/* Status page: recolor status "bg" combinations to solid dark */
+/* Status page — keep semantic status colors */
 [data-ui-version="v2"] .bg-emerald-500\/10,
 [data-ui-version="v2"] .bg-yellow-500\/10,
 [data-ui-version="v2"] .bg-red-500\/10 {
-  background-color: hsl(270 45% 10%) !important;
+  background-color: hsl(var(--card)) !important;
 }
-[data-ui-version="v2"] .border-emerald-500\/20 { border-color: hsl(150 75% 45% / 0.4) !important; }
-[data-ui-version="v2"] .border-yellow-500\/20 { border-color: hsl(45 95% 55% / 0.4) !important; }
-[data-ui-version="v2"] .border-red-500\/20    { border-color: hsl(0 82% 60% / 0.4) !important; }
+[data-ui-version="v2"] .border-emerald-500\/20 { border-color: hsl(150 75% 45% / 0.45) !important; }
+[data-ui-version="v2"] .border-yellow-500\/20 { border-color: hsl(45 95% 55% / 0.45) !important; }
+[data-ui-version="v2"] .border-red-500\/20    { border-color: hsl(0 82% 60% / 0.45) !important; }
 
-/* Breadcrumb panels */
+/* Breadcrumb */
 [data-ui-version="v2"] .page-breadcrumb,
 [data-ui-version="v2"] nav[aria-label="breadcrumb"] {
-  background: hsl(270 42% 9%);
-  border: 1px solid hsl(270 45% 18% / 0.7);
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border) / 0.7);
   border-radius: 12px;
   padding: 0.6rem 1rem;
 }
 
-/* Dialog / Sheet / Popover — dark tactical */
+/* Dialog / popover */
 [data-ui-version="v2"] [role="dialog"],
 [data-ui-version="v2"] [data-radix-popper-content-wrapper] > * {
-  background: hsl(270 45% 8%) !important;
-  border: 1px solid hsl(272 60% 25% / 0.5) !important;
+  background: hsl(var(--popover)) !important;
+  border: 1px solid hsl(var(--primary) / 0.25) !important;
   border-radius: 14px !important;
   backdrop-filter: none !important;
 }
 
 /* Toaster */
 [data-ui-version="v2"] [data-sonner-toaster] [data-sonner-toast] {
-  background: hsl(270 45% 9%) !important;
-  border: 1px solid hsl(272 60% 25% / 0.6) !important;
+  background: hsl(var(--popover)) !important;
+  border: 1px solid hsl(var(--primary) / 0.35) !important;
   border-radius: 12px !important;
   color: hsl(var(--foreground)) !important;
 }
 
 /* Progress bar */
 [data-ui-version="v2"] [role="progressbar"] > div {
-  background: linear-gradient(90deg, hsl(272 90% 55%), hsl(340 85% 60%)) !important;
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary))) !important;
 }
 
-/* Switch / Checkbox accents */
+/* Switch */
 [data-ui-version="v2"] [role="switch"][data-state="checked"] {
-  background: linear-gradient(135deg, hsl(272 90% 55%), hsl(340 85% 55%)) !important;
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary))) !important;
 }
+
+/* ─── Responsive polish (mobile / tablet) ─── */
+@media (max-width: 640px) {
+  [data-ui-version="v2"] h1 { font-size: clamp(1.5rem, 6vw, 2rem) !important; line-height: 1.15 !important; }
+  [data-ui-version="v2"] h2 { font-size: clamp(1.25rem, 5vw, 1.6rem) !important; line-height: 1.2 !important; }
+  [data-ui-version="v2"] h3 { font-size: clamp(1.05rem, 4.2vw, 1.35rem) !important; line-height: 1.25 !important; }
+  [data-ui-version="v2"] .glass-card,
+  [data-ui-version="v2"] .glass-panel { border-radius: 10px !important; }
+  [data-ui-version="v2"] .rounded-3xl,
+  [data-ui-version="v2"] .rounded-2xl { border-radius: 12px !important; }
+  [data-ui-version="v2"] table { font-size: 12px; }
+  [data-ui-version="v2"] table th,
+  [data-ui-version="v2"] table td { padding: 0.5rem !important; }
+  [data-ui-version="v2"] [role="tablist"] {
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-wrap: nowrap !important;
+  }
+  [data-ui-version="v2"] [role="tablist"]::-webkit-scrollbar { display: none; }
+  [data-ui-version="v2"] [role="tab"] {
+    white-space: nowrap;
+    font-size: 12px !important;
+    padding: 0.4rem 0.75rem !important;
+  }
+  [data-ui-version="v2"] .v2-nav-cta,
+  [data-ui-version="v2"] .v2-topup-btn { padding: 0 0.65rem; font-size: 11.5px; }
+  [data-ui-version="v2"] .v2-wallet-chip { padding: 0 0.55rem; font-size: 11px; }
+  [data-ui-version="v2"] .v2-footer-heading { font-size: 10.5px; }
+  [data-ui-version="v2"] [role="dialog"] {
+    max-width: calc(100vw - 1.5rem) !important;
+    margin: 0 0.75rem !important;
+  }
+}
+
+@media (max-width: 400px) {
+  [data-ui-version="v2"] .v2-nav-cta span,
+  [data-ui-version="v2"] .v2-topup-btn span:not(.sr-only) { display: none; }
+}
+
+/* Prevent horizontal overflow on any V2 page */
+[data-ui-version="v2"] { overflow-x: hidden; }
+[data-ui-version="v2"] img, [data-ui-version="v2"] video { max-width: 100%; height: auto; }

@@ -720,7 +720,10 @@ const DashboardPage = () => {
 
   if (authLoading) return <div className="min-h-[80vh] flex items-center justify-center"><p className="text-muted-foreground">กำลังโหลด...</p></div>;
   if (!user) return <RedirectToLogin />;
-  if (!hasPermission("hightxcrew")) return <Navigate to="/" replace />;
+  // Dashboard access: Owner / Admin / Moderator / HightXCrew (Reseller excluded)
+  const dashRole = profile?.role;
+  const canViewDashboard = dashRole === "owner" || dashRole === "admin" || dashRole === "moderator" || dashRole === "hightxcrew";
+  if (!canViewDashboard) return <Navigate to="/" replace />;
 
   // Filter daily data by period
   const filteredDaily = dailyData.slice(-trendPeriod);

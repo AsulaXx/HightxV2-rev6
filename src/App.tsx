@@ -23,7 +23,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import PageTransition from "@/components/PageTransition";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AnimatePresence } from "framer-motion";
-import AtomLoader from "@/components/AtomLoader";
+import Loader from "@/components/Loader";
 import ConsentGate from "@/components/ConsentGate";
 import { usePerformanceMode } from "@/hooks/usePerformanceMode";
 
@@ -128,7 +128,7 @@ const AnimatedRoutes = () => {
       
       {!isLinkView && <AnnouncementTicker />}
       <main className="flex-1">
-        <Suspense fallback={<AtomLoader fullscreen label="กำลังโหลด..." />}>
+        <Suspense fallback={<Loader fullscreen label="กำลังโหลด..." />}>
         <ErrorBoundary compact resetKey={location.pathname} label={location.pathname}>
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>

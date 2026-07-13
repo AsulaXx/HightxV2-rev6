@@ -871,24 +871,41 @@ const AdminPage = () => {
                     <cat.icon size={12} /> {cat.label}
                   </h4>
                   <div className="grid grid-cols-3 gap-1.5">
-                    {cat.tabs.map((tab) => (
-                      <button
-                        key={tab.id}
-                        onClick={() => {
-                          setActiveTab(tab.id);
-                          setMobileMenuOpen(false);
-                          contentScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                        className={`flex flex-col items-center gap-1.5 px-2 py-3 rounded-xl text-xs font-medium transition-all active:scale-95 ${
-                          activeTab === tab.id
-                            ? 'bg-primary/12 text-primary border border-primary/30'
-                            : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground border border-transparent'
-                        }`}
-                      >
-                        <tab.icon size={18} />
-                        <span className="truncate w-full text-center text-[11px]">{tab.label}</span>
-                      </button>
-                    ))}
+                    {cat.tabs.map((tab) => {
+                      const href = (tab as any).href as string | undefined;
+                      const cls = `flex flex-col items-center gap-1.5 px-2 py-3 rounded-xl text-xs font-medium transition-all active:scale-95 ${
+                        activeTab === tab.id
+                          ? 'bg-primary/12 text-primary border border-primary/30'
+                          : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground border border-transparent'
+                      }`;
+                      if (href) {
+                        return (
+                          <Link
+                            key={tab.id}
+                            to={href}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className={cls}
+                          >
+                            <tab.icon size={18} />
+                            <span className="truncate w-full text-center text-[11px]">{tab.label}</span>
+                          </Link>
+                        );
+                      }
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => {
+                            setActiveTab(tab.id);
+                            setMobileMenuOpen(false);
+                            contentScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className={cls}
+                        >
+                          <tab.icon size={18} />
+                          <span className="truncate w-full text-center text-[11px]">{tab.label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               ))}

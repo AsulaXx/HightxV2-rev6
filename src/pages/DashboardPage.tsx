@@ -205,7 +205,9 @@ const DashboardPage = () => {
     toast.success("รีเซ็ตการแสดงผลแล้ว");
   };
 
-  const canSeeRecentKeys = hasPermission("hightxcrew");
+  const hasFeature = useFeatureChecker();
+  const canSeeRecentKeys = hasFeature("dash.recent_keys");
+
 
   const sendThunderLowQuotaWebhook = async (remaining: number, max: number, used: number) => {
     // Only send once per day

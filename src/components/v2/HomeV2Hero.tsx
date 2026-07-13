@@ -29,14 +29,17 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
   const heroHeightPref = hero.imageHeight ?? 320;
   const heroFit = hero.imageFit || "cover";
   const heroRadius = hero.imageRadius ?? 20;
+  const posX = typeof hero.imagePositionX === "number" ? hero.imagePositionX : 50;
+  const posY = typeof hero.imagePositionY === "number" ? hero.imagePositionY : 50;
+  const objectPosition = `${posX}% ${posY}%`;
+  const mobileMode: "banner" | "logo" = hero.mobileMode || "logo";
+  const forceLogoMode = hero.forceLogoMode === true;
   const brand = settings.brandName || "SHOP";
   const subtitle =
     settings.subtitle ||
     "แหล่งรวมสินค้าและบริการที่คุณต้องการ พร้อมทีมงานดูแลและให้คำแนะนำตลอด 24 ชั่วโมง";
 
-  // Dynamic sizing: react to container width + image natural aspect ratio.
   const [containerW, setContainerW] = useState<number>(0);
-  const [imgRatio, setImgRatio] = useState<number | null>(null); // width / height
   const [logoFallback, setLogoFallback] = useState(false);
 
   useEffect(() => {
@@ -53,19 +56,13 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
 
   useEffect(() => {
     setLogoFallback(false);
-    setImgRatio(null);
     const img = new Image();
-    img.onload = () => {
-      if (img.naturalHeight > 0) setImgRatio(img.naturalWidth / img.naturalHeight);
-    };
     img.onerror = () => setLogoFallback(true);
     img.src = heroImg;
   }, [heroImg]);
 
-  // Desktop/Tablet: original banner behavior — fixed height, image fills frame (cover).
-  // Mobile (<640px): swap to centered logo on themed gradient.
   const isMobile = containerW > 0 && containerW < 640;
-  const useLogoMode = logoFallback || isMobile;
+  const useLogoMode = forceLogoMode || logoFallback || (isMobile && mobileMode === "logo");
 
   const mobileH = 180;
   const finalHeight = heroAutoFit ? undefined : (isMobile ? mobileH : heroHeightPref);
@@ -75,8 +72,8 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
     ? "contain"
     : (heroFit as any);
   const displayedImg = useLogoMode ? logoImg : heroImg;
-  // Suppress unused warning — imgRatio kept for future tuning.
-  void imgRatio;
+
+
 
 
 

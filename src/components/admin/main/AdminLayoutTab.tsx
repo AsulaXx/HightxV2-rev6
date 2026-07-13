@@ -295,9 +295,36 @@ const AdminLayoutTab = ({ form, setForm, handleSave }: AdminTabProps) => {
         </div>
       </div>
 
+      {/* Stats Position */}
+      <div className="glass-card space-y-3">
+        <h3 className="text-base font-bold text-foreground flex items-center gap-2"><Layout size={16} className="text-primary" /> ตำแหน่งสถิติผู้ใช้งาน (Stats Position)</h3>
+        <p className="text-xs text-muted-foreground -mt-1">เลือกให้แสดงเป็นแบนเนอร์ด้านบน (PC) หรือย้ายไปเป็นแผงข้างซ้าย/ขวา (สำหรับเดสก์ท็อป — มือถือแสดงด้านบนเสมอ)</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {([
+            { key: "top",   label: "⬆️ แบนเนอร์ด้านบน", desc: "แถบเต็มกว้างด้านบน (ค่าเริ่มต้น)" },
+            { key: "left",  label: "⬅️ แผงข้างซ้าย",     desc: "ติดขอบซ้ายแบบลอย (lg+)" },
+            { key: "right", label: "➡️ แผงข้างขวา",     desc: "ติดขอบขวาแบบลอย (lg+)" },
+          ] as const).map((opt) => {
+            const active = (form.statsPosition ?? "top") === opt.key;
+            return (
+              <button
+                key={opt.key}
+                type="button"
+                onClick={() => setForm({ ...form, statsPosition: opt.key })}
+                className={`text-left p-3 rounded-xl border transition-all ${active ? "border-primary bg-primary/10 ring-2 ring-primary/40" : "border-border/50 bg-muted/20 hover:border-primary/40"}`}
+              >
+                <div className="text-sm font-semibold text-foreground">{opt.label}</div>
+                <div className="text-[11px] text-muted-foreground mt-1">{opt.desc}</div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
         <p className="text-xs text-primary font-medium">💡 การเปลี่ยนแปลงจะมีผลทันทีหลังกดบันทึก ลองเปลี่ยนค่าแล้วดูตัวอย่างที่หน้าเว็บ</p>
       </div>
+
 
       <button onClick={handleSave} className="btn-gradient w-full py-3.5 text-sm flex items-center justify-center gap-2"><Save size={16} /> บันทึกเลย์เอาท์</button>
     </div>

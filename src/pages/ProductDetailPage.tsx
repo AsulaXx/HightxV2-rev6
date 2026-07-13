@@ -6,7 +6,7 @@ import { useSiteSettings, roleHasPermission, ProductDuration } from "@/contexts/
 import { useLayoutConfig } from "@/hooks/useLayoutConfig";
 import { useWallet } from "@/hooks/useWallet";
 import { useCart } from "@/contexts/CartContext";
-import { Clock, ArrowLeft, ShoppingCart, ShoppingBag, Package, PackageX, CheckCircle, ChevronDown, ChevronUp, Timer, MessageSquare, Cog, Ban, Share2, LogIn, PlayCircle, ExternalLink } from "lucide-react";
+import { Clock, ArrowLeft, ShoppingCart, ShoppingBag, Package, PackageX, CheckCircle, ChevronDown, ChevronUp, Timer, MessageSquare, Cog, Ban, Share2, LogIn, PlayCircle, ExternalLink, Coins } from "lucide-react";
 import { ReviewForm, ReviewList, StarDisplay } from "@/components/ProductReview";
 import PageBreadcrumb from "@/components/PageBreadcrumb";
 import { Progress } from "@/components/ui/progress";
@@ -440,28 +440,18 @@ const ProductDetailPage = () => {
               );
             })()}
 
-            {/* Quick Info Card - fills empty space */}
-            <div className={`glass-card ${radiusClass()} space-y-3`}>
-              <div className="flex items-center gap-2">
-                {category && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-medium">
-                    {category.icon && <span>{category.icon}</span>}
-                    {category.name}
+            {/* Quick Info Card - compact wallet / free-claim */}
+            <div className={`glass-card ${radiusClass()}`}>
+              {!canFreeClaim ? (
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                    <Coins size={12} className="text-primary" /> ยอดเงินคงเหลือ
                   </span>
-                )}
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-accent/10 text-accent-foreground text-[10px] font-medium">
-                  {product.durations.length} ตัวเลือก
-                </span>
-              </div>
-              {!canFreeClaim && (
-                <div className="flex items-center justify-between p-2.5 rounded-lg bg-card/50 border border-border/20">
-                  <span className="text-[11px] text-muted-foreground">ยอดเงินคงเหลือ</span>
-                  <span className="text-sm font-bold text-primary">฿{walletBalance.toLocaleString()}</span>
+                  <span className="text-sm font-bold text-primary tabular-nums">฿{walletBalance.toLocaleString()}</span>
                 </div>
-              )}
-              {canFreeClaim && (
-                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-green-500/10 border border-green-500/20">
-                  <CheckCircle size={14} className="text-green-400" />
+              ) : (
+                <div className="flex items-center gap-2">
+                  <CheckCircle size={14} className="text-green-400 shrink-0" />
                   <span className="text-[11px] text-green-400 font-medium">สิทธิ์กดคีย์ฟรี</span>
                 </div>
               )}

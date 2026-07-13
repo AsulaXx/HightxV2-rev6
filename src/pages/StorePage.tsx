@@ -631,7 +631,7 @@ const StorePage = () => {
                       {productRatings[product.id] && (
                         <StarDisplay rating={productRatings[product.id].avg} count={productRatings[product.id].count} size={10} />
                       )}
-                      {product.description && <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{product.description}</p>}
+                      <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2 min-h-[2.4em]">{product.description || "\u00A0"}</p>
                       {priceLabel && (
                         <div className="mt-2 flex items-center gap-1.5 flex-wrap">
                           <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gradient-to-r from-primary/15 to-accent/15 border border-primary/25">
@@ -822,9 +822,7 @@ const StorePage = () => {
                           <StarDisplay rating={productRatings[product.id].avg} count={productRatings[product.id].count} size={10} />
                         </div>
                       )}
-                      {product.description && (
-                        <p className="text-[10px] text-muted-foreground mt-1 line-clamp-2 leading-relaxed">{product.description}</p>
-                      )}
+                      <p className="text-[10px] text-muted-foreground mt-1 line-clamp-2 leading-relaxed min-h-[2.4em]">{product.description || "\u00A0"}</p>
                       {priceLabel && (
                         <div className="mt-2 flex items-center gap-1.5 flex-wrap">
                           <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gradient-to-r from-primary/15 to-accent/15 border border-primary/25">

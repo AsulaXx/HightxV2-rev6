@@ -484,7 +484,7 @@ const Index = () => {
                   )}
                   <div className={cardPaddingClass()}>
                     <h3 className="text-[11px] sm:text-xs font-bold text-foreground group-hover:text-primary transition-colors truncate">{product.name}</h3>
-                    {product.description && <p className="text-[9px] sm:text-[10px] text-muted-foreground/50 mt-0.5 line-clamp-1">{product.description}</p>}
+                    <p className="text-[9px] sm:text-[10px] text-muted-foreground/50 mt-0.5 line-clamp-1 min-h-[1.25em]">{product.description || "\u00A0"}</p>
                     <div className="flex items-center gap-1.5 mt-1.5 sm:mt-2 flex-wrap">
                       <span className="text-[9px] sm:text-[10px] text-primary font-medium bg-primary/8 px-2 py-0.5 rounded-full">
                         {product.durations.length} ตัวเลือก
@@ -538,7 +538,7 @@ const Index = () => {
                     )}
                     <div className={cardPaddingClass()}>
                       <h3 className="text-[11px] sm:text-xs font-bold text-foreground group-hover:text-primary transition-colors truncate">{service.name}</h3>
-                      {service.description && <p className="text-[9px] sm:text-[10px] text-muted-foreground/50 mt-0.5 line-clamp-1">{service.description}</p>}
+                      <p className="text-[9px] sm:text-[10px] text-muted-foreground/50 mt-0.5 line-clamp-1 min-h-[1.25em]">{service.description || "\u00A0"}</p>
                     </div>
                   </Wrapper>
                 </motion.div>

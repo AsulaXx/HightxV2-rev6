@@ -690,6 +690,27 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
 
   --font-body: 'Prompt', 'Inter', system-ui, sans-serif;
   --font-heading: 'Kanit', 'Prompt', 'Inter', system-ui, sans-serif;
+  /* Extended semantic font tokens (fall back to sensible defaults) */
+  --font-numeric: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-button: var(--font-heading);
+  --font-product: var(--font-heading);
+  --font-brand: var(--font-heading);
+}
+
+/* ===== Semantic font utility classes ===== */
+.font-numeric {
+  font-family: var(--font-numeric);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "cv11" 1;
+  letter-spacing: -0.01em;
+}
+.font-button  { font-family: var(--font-button); }
+.font-product { font-family: var(--font-product); }
+.font-brand   { font-family: var(--font-brand); letter-spacing: -0.015em; }
+
+/* Apply to common shadcn/global buttons automatically */
+button, .btn-glass, .btn-gradient, [role="button"] {
+  font-family: var(--font-button);
 }
 
 [data-ui-version="v2"] body {

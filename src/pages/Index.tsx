@@ -394,7 +394,7 @@ const Index = () => {
             }>
               {(settings.categories || []).filter(c => c.enabled).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((cat) => {
                 return (
-                  <motion.div key={cat.id} variants={fade}>
+                  <motion.div key={cat.id} variants={fade} {...cardHover}>
                     <Link
                       to={`/store/${cat.id}`}
                       className={`group block relative overflow-hidden border border-border/30 hover:border-primary/20 transition-all duration-300 ${radiusClass()}`}

@@ -306,28 +306,57 @@ const Index = () => {
       )}
 
       {/* Stats Bar */}
-      {(settings.homeSectionVisibility?.stats !== false) && (
-      <section className={`${maxWidthClass()} mx-auto px-4 sm:px-6 ${spacingClass()}`}>
-        <RevealGroup step={90} className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-          {[
-            { icon: Users, label: "ผู้ใช้งาน", value: siteStats.users.toLocaleString(), unit: "คน" },
-            { icon: ShoppingBag, label: "สินค้า", value: ((settings.products || []).filter(p => p.enabled !== false).length).toLocaleString(), unit: "รายการ" },
-            { icon: BoxesIcon, label: "สต็อก", value: siteStats.stock.toLocaleString(), unit: "ชิ้น" },
-            { icon: ShoppingCart, label: "ยอดขาย", value: siteStats.sales.toLocaleString(), unit: "ชิ้น" },
-          ].map((stat) => (
-            <Reveal key={stat.label} className={`glass-card glass-card-hover flex items-center gap-2.5 sm:gap-3 !p-3 sm:!p-4 ${radiusClass()}`}>
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-muted/50 border border-border/30 flex items-center justify-center shrink-0">
-                <stat.icon size={16} className="text-muted-foreground sm:w-5 sm:h-5" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs text-muted-foreground/60 leading-tight">{stat.label}</p>
-                <p className="text-sm sm:text-base font-bold text-foreground leading-tight"><span className="font-numeric">{stat.value}</span> <span className="text-[10px] sm:text-xs font-normal text-muted-foreground">{stat.unit}</span></p>
-              </div>
-            </Reveal>
-          ))}
-        </RevealGroup>
-      </section>
-      )}
+      {(settings.homeSectionVisibility?.stats !== false) && (() => {
+        const pos = settings.statsPosition || "top";
+        const isSide = pos === "left" || pos === "right";
+        const statItems = [
+          { icon: Users, label: "ผู้ใช้งาน", value: siteStats.users.toLocaleString(), unit: "คน" },
+          { icon: ShoppingBag, label: "สินค้า", value: ((settings.products || []).filter(p => p.enabled !== false).length).toLocaleString(), unit: "รายการ" },
+          { icon: BoxesIcon, label: "สต็อก", value: siteStats.stock.toLocaleString(), unit: "ชิ้น" },
+          { icon: ShoppingCart, label: "ยอดขาย", value: siteStats.sales.toLocaleString(), unit: "ชิ้น" },
+        ];
+        return (
+          <>
+            {/* Desktop side panel (lg+) — fixed vertical stack */}
+            {isSide && (
+              <aside
+                aria-label="สถิติผู้ใช้งาน"
+                className={`hidden lg:flex fixed top-24 z-30 flex-col gap-2 w-44 ${pos === "left" ? "left-3 xl:left-6" : "right-3 xl:right-6"}`}
+              >
+                {statItems.map((stat) => (
+                  <div key={stat.label} className={`glass-card glass-card-hover flex items-center gap-2.5 !p-3 ${radiusClass()}`}>
+                    <div className="w-9 h-9 rounded-xl bg-muted/50 border border-border/30 flex items-center justify-center shrink-0">
+                      <stat.icon size={16} className="text-muted-foreground" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] text-muted-foreground/60 leading-tight">{stat.label}</p>
+                      <p className="text-sm font-bold text-foreground leading-tight"><span className="font-numeric">{stat.value}</span> <span className="text-[10px] font-normal text-muted-foreground">{stat.unit}</span></p>
+                    </div>
+                  </div>
+                ))}
+              </aside>
+            )}
+
+            {/* Top banner — always on mobile; on desktop only when position === "top" */}
+            <section className={`${maxWidthClass()} mx-auto px-4 sm:px-6 ${spacingClass()} ${isSide ? "lg:hidden" : ""}`}>
+              <RevealGroup step={90} className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                {statItems.map((stat) => (
+                  <Reveal key={stat.label} className={`glass-card glass-card-hover flex items-center gap-2.5 sm:gap-3 !p-3 sm:!p-4 ${radiusClass()}`}>
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-muted/50 border border-border/30 flex items-center justify-center shrink-0">
+                      <stat.icon size={16} className="text-muted-foreground sm:w-5 sm:h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground/60 leading-tight">{stat.label}</p>
+                      <p className="text-sm sm:text-base font-bold text-foreground leading-tight"><span className="font-numeric">{stat.value}</span> <span className="text-[10px] sm:text-xs font-normal text-muted-foreground">{stat.unit}</span></p>
+                    </div>
+                  </Reveal>
+                ))}
+              </RevealGroup>
+            </section>
+          </>
+        );
+      })()}
+
       </>)}
 
 

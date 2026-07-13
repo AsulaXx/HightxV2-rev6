@@ -37,6 +37,7 @@ const AdminAuditLogTab = lazy(() => import("@/components/admin/AdminAuditLogTab"
 const AdminPermissionsTab = lazy(() => import("@/components/admin/AdminPermissionsTab"));
 const AdminRuzienBypassTab = lazy(() => import("@/components/admin/AdminRuzienBypassTab"));
 const AdminRoleAccessTab = lazy(() => import("@/components/admin/AdminRoleAccessTab"));
+const AdminEffectsTab = lazy(() => import("@/components/admin/AdminEffectsTab"));
 
 
 import PageBreadcrumb from "@/components/PageBreadcrumb";
@@ -159,6 +160,7 @@ const AdminPage = () => {
       tabs: [
         { id: "branding", label: "Branding", icon: Image },
         { id: "theme", label: "ธีม", icon: Palette },
+        { id: "effects", label: "เอฟเฟกต์", icon: Sparkles },
         { id: "layout", label: "เลย์เอาท์", icon: Monitor },
         { id: "music", label: "เพลง", icon: Music },
         { id: "legal", label: "ข้อตกลง", icon: FileText },
@@ -563,6 +565,10 @@ const AdminPage = () => {
 
             {activeTab === "theme" && (
               <AdminThemeTab form={form} setForm={setForm} handleSave={handleSave} />
+            )}
+
+            {activeTab === "effects" && isOwner && (
+              <AdminEffectsTab form={form} setForm={setForm} handleSave={handleSave} />
             )}
 
             {activeTab === "layout" && isOwner && (

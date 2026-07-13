@@ -76,6 +76,10 @@ const normalizeUserRole = (role: unknown): UserRole => {
 interface AuthContextType {
   user: User | null;
   profile: UserProfile | null;
+  realProfile: UserProfile | null;
+  impersonating: boolean;
+  startImpersonation: (uid: string) => Promise<void>;
+  stopImpersonation: () => void;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, displayName: string) => Promise<void>;
@@ -91,6 +95,10 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   profile: null,
+  realProfile: null,
+  impersonating: false,
+  startImpersonation: async () => {},
+  stopImpersonation: () => {},
   loading: true,
   login: async () => {},
   register: async () => {},
@@ -108,6 +116,7 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [impersonatedProfile, setImpersonatedProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   // Track whether current auth change is from an actual login action (not page refresh)
   const pendingLoginWebhookRef = useRef(false);
@@ -358,8 +367,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const hasPermission = (requiredRole: UserRole): boolean => {
-    if (!profile) return false;
-    const userRole = normalizeUserRole(profile.role);
+    const activeProfile = impersonatedProfile || profile;
+    if (!activeProfile) return false;
+    const userRole = normalizeUserRole(activeProfile.role);
     const userIndex = ROLE_HIERARCHY.indexOf(userRole);
     const requiredIndex = ROLE_HIERARCHY.indexOf(requiredRole);
     if (userIndex < 0 || requiredIndex < 0) return false;
@@ -368,8 +378,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const isEmailVerified = user?.emailVerified ?? false;
 
+  const startImpersonation = async (uid: string) => {
+    if (profile?.role !== "owner") { throw new Error("owner only"); }
+    if (!uid || uid === profile.uid) return;
+    try {
+      const snap = await getDoc(doc(db, "users", uid));
+      if (!snap.exists()) throw new Error("ไม่พบผู้ใช้");
+      const d = snap.data() as Partial<UserProfile>;
+      const imp: UserProfile = {
+        uid,
+        email: d.email || "",
+        displayName: d.displayName || "",
+        role: normalizeUserRole(d.role),
+      };
+      setImpersonatedProfile(imp);
+      try { localStorage.setItem("impersonate_uid", uid); } catch { /* ignore */ }
+    } catch (err) {
+      logError("AuthContext.startImpersonation", err);
+      throw err;
+    }
+  };
+
+  const stopImpersonation = () => {
+    setImpersonatedProfile(null);
+    try { localStorage.removeItem("impersonate_uid"); } catch { /* ignore */ }
+  };
+
+  // Rehydrate impersonation on page load (owner only)
+  useEffect(() => {
+    if (profile?.role !== "owner") { setImpersonatedProfile(null); return; }
+    try {
+      const uid = localStorage.getItem("impersonate_uid");
+      if (uid && !impersonatedProfile) startImpersonation(uid).catch(() => {});
+    } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.uid, profile?.role]);
+
   return (
-    <AuthContext.Provider value={{ user, profile, loading, login, register, logout, resetPassword, resendVerification, sendEmailLink, signInWithGoogle, hasPermission, isEmailVerified }}>
+    <AuthContext.Provider value={{
+      user,
+      profile: impersonatedProfile || profile,
+      realProfile: profile,
+      impersonating: !!impersonatedProfile,
+      startImpersonation,
+      stopImpersonation,
+      loading, login, register, logout, resetPassword, resendVerification, sendEmailLink, signInWithGoogle, hasPermission, isEmailVerified
+    }}>
       {children}
       {bannedInfo && (
         <div

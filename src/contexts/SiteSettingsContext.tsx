@@ -617,7 +617,7 @@ const DEFAULT_ROLE_PERMISSIONS: RolePermissions = {
 };
 
 const defaultSettings: SiteSettings = {
-  uiVersion: "glass",
+  uiVersion: "v1",
   bankAccountInfo: "",
   matchReceiverAccount: "",
   matchReceiverAccounts: [],

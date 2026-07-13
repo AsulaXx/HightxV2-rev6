@@ -307,11 +307,20 @@ const DashboardPage = () => {
 
   const loadStats = async () => {
     try {
+      const isAdminLike = profile?.role === "owner" || profile?.role === "admin";
+      const emptySnap = { docs: [] as any[] } as any;
       const [usersSnap, keysSnap, txSnap, topUpSnap] = await Promise.all([
-        cachedQuery("dash-users", () => getDocs(collection(db, "users")), 5 * 60 * 1000),
-        cachedQuery("dash-keys", () => getDocs(collection(db, "keys")), 2 * 60 * 1000),
-        cachedQuery("dash-tx", () => getDocs(collection(db, "walletTransactions")).catch(() => ({ docs: [] as any[] })), 5 * 60 * 1000),
-        cachedQuery("dash-topup", () => getDocs(query(collection(db, "topUpHistory"), where("status", "==", "success"))).catch(() => ({ docs: [] as any[] })), 5 * 60 * 1000),
+        // users list is admin-only in Firestore rules — skip for staff to avoid permission-denied
+        isAdminLike
+          ? cachedQuery("dash-users", () => getDocs(collection(db, "users")).catch(() => emptySnap), 5 * 60 * 1000)
+          : Promise.resolve(emptySnap),
+        cachedQuery("dash-keys", () => getDocs(collection(db, "keys")).catch(() => emptySnap), 2 * 60 * 1000),
+        isAdminLike
+          ? cachedQuery("dash-tx", () => getDocs(collection(db, "walletTransactions")).catch(() => emptySnap), 5 * 60 * 1000)
+          : Promise.resolve(emptySnap),
+        isAdminLike
+          ? cachedQuery("dash-topup", () => getDocs(query(collection(db, "topUpHistory"), where("status", "==", "success"))).catch(() => emptySnap), 5 * 60 * 1000)
+          : Promise.resolve(emptySnap),
       ]);
 
       // Users

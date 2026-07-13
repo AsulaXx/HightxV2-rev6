@@ -92,7 +92,25 @@ const AdminMusicTab = ({ form, setForm, handleSave }: AdminTabProps) => {
             <label className="block text-sm font-semibold text-foreground mb-2">เวลาเริ่มเล่น (วินาที)</label>
             <input type="number" min={0} value={music.startTime} onChange={(e) => updateMusic({ startTime: parseInt(e.target.value) || 0 })} className="input-glass w-full px-4 py-3 text-sm" placeholder="0" />
           </div>
-          <div className="flex items-center gap-3 pt-6">
+          <div>
+            <label className="block text-sm font-semibold text-foreground mb-2">
+              ระดับเสียงเริ่มต้น ({Math.round(((music.defaultVolume ?? 0.5)) * 100)}%)
+            </label>
+            <input
+              type="number"
+              min={0}
+              max={100}
+              step={1}
+              value={Math.round(((music.defaultVolume ?? 0.5)) * 100)}
+              onChange={(e) => {
+                const pct = Math.max(0, Math.min(100, parseInt(e.target.value) || 0));
+                updateMusic({ defaultVolume: pct / 100 });
+              }}
+              className="input-glass w-full px-4 py-3 text-sm"
+              placeholder="0-100"
+            />
+          </div>
+          <div className="flex items-center gap-3 sm:col-span-2">
             <label className="text-sm font-semibold text-foreground">เล่นอัตโนมัติ</label>
             <button onClick={() => updateMusic({ autoPlay: !music.autoPlay })} className={`w-12 h-6 rounded-full transition-colors duration-200 ${music.autoPlay ? 'bg-primary' : 'bg-muted'}`}>
               <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${music.autoPlay ? 'translate-x-6' : 'translate-x-0.5'}`} />

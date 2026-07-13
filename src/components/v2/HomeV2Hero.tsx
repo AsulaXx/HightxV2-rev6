@@ -180,9 +180,11 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
         </div>
       </motion.div>
 
-      {/* Stat cards — 3D hover lift */}
-      <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {statCards.map((s, i) => (
+      {/* Stat cards — 3D hover lift. Position: top | left | right */}
+      {(() => {
+        const pos = settings.statsPosition || "top";
+        const isSide = pos === "left" || pos === "right";
+        const Card = ({ s, i }: { s: typeof statCards[number]; i: number }) => (
           <motion.div
             key={s.label}
             initial={{ opacity: 0, y: 12 }}
@@ -192,12 +194,7 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
             style={{ transformStyle: "preserve-3d", perspective: 800 }}
             className="glass-card v2-stat-3d relative overflow-hidden !p-4 sm:!p-5"
           >
-            <s.icon
-              className="pointer-events-none absolute -right-3 -bottom-3 text-primary/10"
-              size={92}
-              strokeWidth={1.5}
-              aria-hidden
-            />
+            <s.icon className="pointer-events-none absolute -right-3 -bottom-3 text-primary/10" size={92} strokeWidth={1.5} aria-hidden />
             <div className="relative flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
               <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-primary/15 text-primary">
                 <s.icon size={12} />
@@ -205,15 +202,30 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
               {s.label}
             </div>
             <div className="relative mt-3 flex items-baseline gap-1.5">
-              <span className="v2-stat-num text-2xl sm:text-3xl lg:text-4xl">
-                {s.value.toLocaleString()}
-              </span>
+              <span className="v2-stat-num text-2xl sm:text-3xl lg:text-4xl">{s.value.toLocaleString()}</span>
               <span className="text-xs text-muted-foreground">{s.unit}</span>
             </div>
             <div className="relative mt-2 v2-underline" />
           </motion.div>
-        ))}
-      </div>
+        );
+
+        return (
+          <>
+            {isSide && (
+              <aside
+                aria-label="สถิติผู้ใช้งาน"
+                className={`hidden lg:flex fixed top-24 z-30 flex-col gap-3 w-52 ${pos === "left" ? "left-3 xl:left-6" : "right-3 xl:right-6"}`}
+              >
+                {statCards.map((s, i) => <Card key={s.label} s={s} i={i} />)}
+              </aside>
+            )}
+            <div className={`mt-8 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 ${isSide ? "lg:hidden" : ""}`}>
+              {statCards.map((s, i) => <Card key={s.label} s={s} i={i} />)}
+            </div>
+          </>
+        );
+      })()}
+
     </div>
   );
 };

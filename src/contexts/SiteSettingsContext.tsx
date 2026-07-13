@@ -468,6 +468,12 @@ interface SiteSettings {
   quickNavItems: QuickNavItem[];
   lowStockThreshold: number;
   lowStockWebhookEnabled: boolean;
+  /** Threshold used specifically for the "คีย์ใกล้หมด" webhook. If unset, falls back to lowStockThreshold. 0 = แจ้งเฉพาะตอนหมด */
+  lowStockWebhookThreshold?: number;
+  /** Only these product IDs will trigger the low-stock webhook. Empty/undefined = all products */
+  lowStockWebhookProductIds?: string[];
+  /** If true, only send webhook when a duration reaches 0 (ignores threshold) */
+  lowStockWebhookOnlyZero?: boolean;
   dailySummaryEnabled: boolean;
   dailySummaryTime: string;
   lastDailySummaryDate: string;

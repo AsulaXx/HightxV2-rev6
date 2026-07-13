@@ -1082,11 +1082,13 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const updateSettings = async (newSettings: Partial<SiteSettings>) => {
     const merged = {
-      ...settings,
+      ...baseSettings,
       ...newSettings,
-      theme: { ...settings.theme, ...(newSettings.theme || {}) },
+      theme: { ...baseSettings.theme, ...(newSettings.theme || {}) },
     };
     setSettings(merged);
+    // Clear any active live preview once we've persisted the change
+    setLivePreviewState(null);
     try {
       await setDoc(doc(db, "settings", "site"), merged, { merge: true });
     } catch (err) {
@@ -1095,7 +1097,8 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
   };
 
   return (
-    <SiteSettingsContext.Provider value={{ settings, updateSettings, loading }}>
+    <SiteSettingsContext.Provider value={{ settings, updateSettings, loading, setLivePreview, isLivePreviewing: !!livePreview }}>
+
       {/* Background layers */}
       {(settings.theme.backgroundImage || settings.theme.backgroundColor) && (
         <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 1 }}>

@@ -80,6 +80,54 @@ const AdminBrandingTab = ({ form, setForm, handleSave }: AdminTabProps) => {
           </div>
         )}
 
+        {/* Hero Image (V2 full-bleed banner) */}
+        <div className="pt-2 border-t border-border/40">
+          <div className="flex items-center gap-3 mb-3">
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" checked={form.heroBanner?.imageEnabled !== false} onChange={(e) => setForm({ ...form, heroBanner: { ...(form.heroBanner || {} as HeroBannerConfig), imageEnabled: e.target.checked } })} className="sr-only peer" />
+              <div className="w-9 h-5 rounded-full bg-muted peer-checked:bg-primary transition-colors after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-background after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+            </label>
+            <span className="text-sm font-medium text-foreground">แสดงรูป Hero Banner (V2)</span>
+          </div>
+          {form.heroBanner?.imageEnabled !== false && (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-semibold text-foreground mb-2">รูป Hero Banner</label>
+                <ImageUploadField
+                  value={form.heroBanner?.imageUrl || ""}
+                  onChange={(url) => setForm({ ...form, heroBanner: { ...(form.heroBanner || {} as HeroBannerConfig), imageUrl: url } })}
+                  folder="hero"
+                  placeholder="อัปโหลดหรือวาง URL รูป (ถ้าว่างจะใช้ Logo)"
+                  previewClassName="w-16 h-16 rounded-xl object-cover border border-border shrink-0"
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-foreground mb-1.5">ความสูง (px)</label>
+                  <input type="number" min={120} max={720} step={10} value={form.heroBanner?.imageHeight ?? 320} onChange={(e) => setForm({ ...form, heroBanner: { ...(form.heroBanner || {} as HeroBannerConfig), imageHeight: parseInt(e.target.value) || 320 } })} className="input-glass w-full px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-foreground mb-1.5">มุมโค้ง (px)</label>
+                  <input type="number" min={0} max={48} step={2} value={form.heroBanner?.imageRadius ?? 20} onChange={(e) => setForm({ ...form, heroBanner: { ...(form.heroBanner || {} as HeroBannerConfig), imageRadius: parseInt(e.target.value) || 0 } })} className="input-glass w-full px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-foreground mb-1.5">การครอบ</label>
+                  <div className="flex gap-1.5">
+                    {(["cover", "contain"] as const).map(fit => (
+                      <button key={fit} onClick={() => setForm({ ...form, heroBanner: { ...(form.heroBanner || {} as HeroBannerConfig), imageFit: fit } })}
+                        className={`flex-1 py-2 rounded-lg text-xs font-medium border transition-colors ${(form.heroBanner?.imageFit || "cover") === fit ? "bg-primary/15 border-primary/30 text-primary" : "border-border/20 text-muted-foreground hover:bg-muted/20"}`}>
+                        {fit}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+
+
         {/* Text Lines */}
         <div>
           <label className="block text-sm font-semibold text-foreground mb-2">ข้อความ (Typing Effect) — แต่ละบรรทัดจะสลับกัน</label>

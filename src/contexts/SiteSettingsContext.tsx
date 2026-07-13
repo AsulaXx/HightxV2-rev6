@@ -388,6 +388,12 @@ export interface HeroBannerConfig {
   textGradientTo: string;
   textGradientDirection: string;
   textAlign: "left" | "center" | "right";
+  // Hero image (V2 full-bleed banner)
+  imageEnabled?: boolean;
+  imageUrl?: string;
+  imageHeight?: number; // px
+  imageFit?: "cover" | "contain";
+  imageRadius?: number; // px
 }
 
 export interface TickerConfig {
@@ -726,6 +732,11 @@ const defaultSettings: SiteSettings = {
     textGradientTo: "#ec4899",
     textGradientDirection: "to right",
     textAlign: "center",
+    imageEnabled: true,
+    imageUrl: "",
+    imageHeight: 320,
+    imageFit: "cover",
+    imageRadius: 20,
   },
   quickNavItems: [],
   quickNavDisplayMode: "card",

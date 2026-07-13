@@ -103,30 +103,33 @@ function decodeFields(fields: any): Record<string, any> {
   return out;
 }
 
-// ─── Caches (5 min) ───
+// ─── Caches ───
+// URL cache kept short so newly-added extra URLs are picked up quickly.
+// (Previously 5min, which caused newly-added URL #2 to not fan out until cache expired.)
 let urlCache: { data: Record<string, any>; exp: number } | null = null;
 let flagCache: { data: Record<string, any>; exp: number } | null = null;
-const CACHE_MS = 5 * 60_000;
+const URL_CACHE_MS = 15_000;
+const FLAG_CACHE_MS = 60_000;
 
-async function loadUrls(): Promise<Record<string, any>> {
-  if (urlCache && Date.now() < urlCache.exp) return urlCache.data;
+async function loadUrls(bust = false): Promise<Record<string, any>> {
+  if (!bust && urlCache && Date.now() < urlCache.exp) return urlCache.data;
   try {
     const token = await gcpToken();
     const r = await fsGet(token, "siteSettingsPrivate/webhooks");
     if (!r.ok) {
       const body = await r.text().catch(() => "");
       console.error("[send-webhook] loadUrls fsGet failed", r.status, body.slice(0, 300));
-      urlCache = { data: {}, exp: Date.now() + 30_000 };
+      urlCache = { data: {}, exp: Date.now() + 10_000 };
       return {};
     }
     const j = await r.json();
     const data = decodeFields(j.fields || {});
     console.log("[send-webhook] loadUrls keys:", Object.keys(data).length);
-    urlCache = { data, exp: Date.now() + CACHE_MS };
+    urlCache = { data, exp: Date.now() + URL_CACHE_MS };
     return data;
   } catch (e) {
     console.error("[send-webhook] loadUrls threw:", String(e));
-    urlCache = { data: {}, exp: Date.now() + 30_000 };
+    urlCache = { data: {}, exp: Date.now() + 10_000 };
     return {};
   }
 }

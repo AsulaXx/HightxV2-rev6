@@ -980,9 +980,9 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
   useEffect(() => {
     // Only cache non-sensitive UI fields (theme/branding/layout) for fast first paint.
     try {
-      localStorage.setItem("hx-site-settings", JSON.stringify(sanitizeForStorage(settings)));
+      localStorage.setItem("hx-site-settings", JSON.stringify(sanitizeForStorage(baseSettings)));
     } catch { /* ignore quota */ }
-  }, [settings]);
+  }, [baseSettings]);
 
   useEffect(() => {
     const root = document.documentElement;

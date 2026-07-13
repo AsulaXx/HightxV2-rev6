@@ -21,67 +21,77 @@ const ok = (body: unknown) => new Response(JSON.stringify(body), {
   headers: { ...corsHeaders, "Content-Type": "application/json" },
 });
 
-// Cache results 30s — counts don't need to be real-time per request.
+// Cache: 30s for unclaimed counts, 5min for sold counts (claimed grows forever).
 let cache: { ts: number; data: Record<string, number> } | null = null;
+let soldCache: { ts: number; data: Record<string, number> } | null = null;
+
+async function runKeysQuery(token: string, claimed: boolean) {
+  const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents:runQuery`;
+  const body = {
+    structuredQuery: {
+      from: [{ collectionId: "keys" }],
+      where: {
+        fieldFilter: {
+          field: { fieldPath: "claimed" },
+          op: "EQUAL",
+          value: { booleanValue: claimed },
+        },
+      },
+      select: { fields: [{ fieldPath: "productId" }, { fieldPath: "durationId" }] },
+    },
+  };
+  const r = await fetch(url, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(`Firestore query failed: ${r.status} ${(await r.text()).slice(0, 200)}`);
+  return (await r.json()) as any[];
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
     if (!PROJECT_ID) return ok({ success: false, error: "Server misconfigured" });
 
-    if (cache && Date.now() - cache.ts < 30_000) {
-      return ok({ success: true, counts: cache.data, cached: true });
-    }
+    const now = Date.now();
+    const needCounts = !cache || now - cache.ts >= 30_000;
+    const needSold = !soldCache || now - soldCache.ts >= 5 * 60_000;
 
-    const token = await gcpToken();
-    const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents:runQuery`;
+    let token = "";
+    if (needCounts || needSold) token = await gcpToken();
 
-    // runQuery returns up to ~20MB. With select=(productId,durationId) each doc
-    // is tiny so this comfortably handles tens of thousands of unclaimed keys.
-    const body = {
-      structuredQuery: {
-        from: [{ collectionId: "keys" }],
-        where: {
-          fieldFilter: {
-            field: { fieldPath: "claimed" },
-            op: "EQUAL",
-            value: { booleanValue: false },
-          },
-        },
-        select: {
-          fields: [
-            { fieldPath: "productId" },
-            { fieldPath: "durationId" },
-          ],
-        },
-      },
-    };
-
-    const r = await fetch(url, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (!r.ok) {
-      const txt = await r.text();
-      return ok({ success: false, error: `Firestore query failed: ${r.status} ${txt.slice(0, 200)}` });
-    }
-    const rows: any[] = await r.json();
-    const counts: Record<string, number> = {};
-    if (Array.isArray(rows)) {
-      for (const row of rows) {
-        const doc = row?.document;
-        if (!doc) continue;
-        const pid = doc.fields?.productId?.stringValue || "";
-        const did = doc.fields?.durationId?.stringValue || "";
-        if (!pid || !did) continue;
-        const k = `${pid}_${did}`;
-        counts[k] = (counts[k] || 0) + 1;
+    if (needCounts) {
+      const rows = await runKeysQuery(token, false);
+      const counts: Record<string, number> = {};
+      if (Array.isArray(rows)) {
+        for (const row of rows) {
+          const doc = row?.document; if (!doc) continue;
+          const pid = doc.fields?.productId?.stringValue || "";
+          const did = doc.fields?.durationId?.stringValue || "";
+          if (!pid || !did) continue;
+          const k = `${pid}_${did}`;
+          counts[k] = (counts[k] || 0) + 1;
+        }
       }
+      cache = { ts: now, data: counts };
     }
 
-    cache = { ts: Date.now(), data: counts };
-    return ok({ success: true, counts });
+    if (needSold) {
+      const rows = await runKeysQuery(token, true);
+      const sold: Record<string, number> = {};
+      if (Array.isArray(rows)) {
+        for (const row of rows) {
+          const doc = row?.document; if (!doc) continue;
+          const pid = doc.fields?.productId?.stringValue || "";
+          if (!pid) continue;
+          sold[pid] = (sold[pid] || 0) + 1;
+        }
+      }
+      soldCache = { ts: now, data: sold };
+    }
+
+    return ok({ success: true, counts: cache!.data, sold: soldCache!.data });
   } catch (e) {
     return ok({ success: false, error: String((e as Error)?.message || e) });
   }

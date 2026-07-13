@@ -395,6 +395,12 @@ export interface HeroBannerConfig {
   imageFit?: "cover" | "contain";
   imageRadius?: number; // px
   imageAutoFit?: boolean; // frame size auto-follows image aspect ratio
+  imagePosition?: string; // object-position, e.g. "center", "top", "50% 20%"
+  imagePositionX?: number; // 0-100 %
+  imagePositionY?: number; // 0-100 %
+  mobileMode?: "banner" | "logo"; // on mobile viewports show full banner or centered logo
+  forceLogoMode?: boolean; // always show centered logo instead of banner image
+
 }
 
 export interface TickerConfig {
@@ -738,6 +744,10 @@ const defaultSettings: SiteSettings = {
     imageHeight: 320,
     imageFit: "cover",
     imageRadius: 20,
+    imagePositionX: 50,
+    imagePositionY: 50,
+    mobileMode: "logo",
+    forceLogoMode: false,
   },
   quickNavItems: [],
   quickNavDisplayMode: "card",

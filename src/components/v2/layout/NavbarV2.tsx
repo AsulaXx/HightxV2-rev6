@@ -141,7 +141,7 @@ const NavbarV2 = () => {
             <ThemeToggle />
             <NotificationBellV2 />
             {user ? (
-              <DropdownMenu>
+              <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
                   <button className="v2-user-btn" aria-label="เมนูผู้ใช้">
                     <div className="v2-user-avatar">

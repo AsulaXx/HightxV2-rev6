@@ -221,10 +221,21 @@ const TopUpPage = () => {
           const receiverProxyAcc = (raw.receiver?.account?.proxy?.account || '').replace(/\D/g, '');
           const receiverMerchantId = (raw.receiver?.merchantId || '').replace(/\D/g, '');
 
+          // Extract visible trailing digits from masked slip account (e.g. "09xxxx5604" -> "5604")
+          const rawSlipAccStr = String(slipData.receiver?.account || '');
+          const visibleTailMatch = rawSlipAccStr.match(/(\d+)$/);
+          const visibleTail = visibleTailMatch ? visibleTailMatch[1] : '';
+
           const strictMatch = (slipAcc: string, configAcc: string): boolean => {
-            if (!slipAcc || slipAcc.length < 4 || configAcc.length < 4) return false;
-            const minLen = Math.min(slipAcc.length, configAcc.length, 6);
-            return slipAcc.slice(-minLen) === configAcc.slice(-minLen) || configAcc.includes(slipAcc) || slipAcc.includes(configAcc);
+            if (!configAcc || configAcc.length < 4) return false;
+            if (slipAcc && slipAcc.length >= 4) {
+              const minLen = Math.min(slipAcc.length, configAcc.length, 6);
+              if (slipAcc.slice(-minLen) === configAcc.slice(-minLen)) return true;
+              if (configAcc.includes(slipAcc) || slipAcc.includes(configAcc)) return true;
+            }
+            // Masked slip fallback: compare visible trailing digits against config tail
+            if (visibleTail.length >= 4 && configAcc.slice(-visibleTail.length) === visibleTail) return true;
+            return false;
           };
 
           localAccountMatch = allConfiguredAccounts.some(configured =>

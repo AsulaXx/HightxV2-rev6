@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import type { BackgroundEffect, LoaderStyle } from "@/contexts/SiteSettingsContext";
 import Loader from "@/components/Loader";
-import { Sparkles, Grid3x3, Waves, CircleDot, Layers, Terminal, Command, UserCog, LogOut, Save, Zap, Gauge, Leaf, Cpu } from "lucide-react";
-import { usePerformanceMode, type PerformanceMode } from "@/hooks/usePerformanceMode";
+import { Sparkles, Grid3x3, Waves, CircleDot, Layers, Terminal, Command, UserCog, LogOut, Save, Zap, Gauge, Leaf, Cpu, Eye, EyeOff } from "lucide-react";
+import { usePerformanceMode, setPerformancePreview, type PerformanceMode } from "@/hooks/usePerformanceMode";
 
 interface Props {
   form: any;
@@ -59,6 +59,9 @@ const AdminEffectsTab = ({ form, setForm, handleSave }: Props) => {
     { id: "saver",    label: "ประหยัด",   icon: Leaf,  desc: "ปิดเอฟเฟกต์หนักทั้งหมด" },
   ];
 
+  // Clear any active preview when leaving the tab
+  useEffect(() => () => setPerformancePreview(null), []);
+
   const doImpersonate = async () => {
     if (!impUid.trim()) return;
     try {
@@ -107,6 +110,51 @@ const AdminEffectsTab = ({ form, setForm, handleSave }: Props) => {
               </button>
             );
           })}
+        </div>
+
+        {/* Real-time preview */}
+        <div className="pt-3 mt-1 border-t border-border/40 space-y-2">
+          <div className="flex items-center gap-2">
+            <Eye size={13} className="text-primary" />
+            <span className="text-[11px] font-semibold">พรีวิวแบบเรียลไทม์ (ไม่บันทึก)</span>
+            {perf.isPreviewing && (
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300">
+                กำลังพรีวิว: {perf.preview?.toUpperCase()}
+              </span>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {PERF_OPTS.map((o) => {
+              const active = perf.preview === o.id;
+              return (
+                <button
+                  key={o.id}
+                  onMouseEnter={() => { if (!perf.isPreviewing) setPerformancePreview(o.id); }}
+                  onMouseLeave={() => { if (perf.preview === o.id) setPerformancePreview(null); }}
+                  onClick={() => setPerformancePreview(active ? null : o.id)}
+                  className={`inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-lg border transition-all ${
+                    active
+                      ? "border-amber-500/60 bg-amber-500/15 text-amber-300"
+                      : "border-border/40 hover:border-primary/40 hover:bg-muted/30"
+                  }`}
+                  title="hover เพื่อดูชั่วคราว, คลิกเพื่อล็อกพรีวิว"
+                >
+                  <o.icon size={12} />
+                  {o.label}
+                </button>
+              );
+            })}
+            <button
+              onClick={() => setPerformancePreview(null)}
+              disabled={!perf.isPreviewing}
+              className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-lg border border-border/40 hover:bg-muted/30 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <EyeOff size={12} /> ปิดพรีวิว
+            </button>
+          </div>
+          <p className="text-[10px] text-muted-foreground">
+            เอาเมาส์ไปวางเพื่อดูชั่วขณะ • คลิกเพื่อล็อกไว้ทดสอบ • กด <b>บันทึก</b> ด้านล่างเพื่อใช้จริง
+          </p>
         </div>
       </section>
 

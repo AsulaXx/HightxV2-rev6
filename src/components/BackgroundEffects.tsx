@@ -1,5 +1,6 @@
 import { useEffect, useRef, memo } from "react";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
+import { usePerformanceMode } from "@/hooks/usePerformanceMode";
 
 /**
  * Non-particle background effects (grid, dots, waves, aurora, matrix).
@@ -7,6 +8,7 @@ import { useSiteSettings } from "@/contexts/SiteSettingsContext";
  */
 const BackgroundEffects = memo(() => {
   const { settings } = useSiteSettings();
+  const { mode: perfMode } = usePerformanceMode();
   const cfg = settings.theme.bgEffect;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
@@ -35,7 +37,6 @@ const BackgroundEffects = memo(() => {
 
   const effect = cfg?.effect || "none";
   const opacity = cfg?.opacity ?? 0.35;
-  const perfMode = (typeof document !== "undefined" && document.documentElement.dataset.perfMode) || "high";
   const perfSpeedMul = perfMode === "balanced" ? 0.6 : 1;
   const speed = (cfg?.speed ?? 1) * perfSpeedMul;
   const rawColor = cfg?.color || "auto";

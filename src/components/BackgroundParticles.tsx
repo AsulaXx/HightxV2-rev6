@@ -1,5 +1,6 @@
 import { useEffect, useRef, memo } from "react";
 import { useSiteSettings, type ParticleMode } from "@/contexts/SiteSettingsContext";
+import { usePerformanceMode } from "@/hooks/usePerformanceMode";
 
 interface Particle {
   x: number;
@@ -18,6 +19,7 @@ const BackgroundParticles = memo(() => {
   const animRef = useRef<number>(0);
   const particlesRef = useRef<Particle[]>([]);
   const { settings } = useSiteSettings();
+  const { mode: perfMode } = usePerformanceMode();
 
   const config = settings.theme.particles;
 
@@ -53,9 +55,8 @@ const BackgroundParticles = memo(() => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const perf = (document.documentElement.dataset.perfMode as string) || "high";
-    const perfCountMul = perf === "balanced" ? 0.5 : 1;
-    const perfSpeedMul = perf === "balanced" ? 0.7 : 1;
+    const perfCountMul = perfMode === "balanced" ? 0.5 : 1;
+    const perfSpeedMul = perfMode === "balanced" ? 0.7 : 1;
 
     const mode: ParticleMode = config.mode || "default";
     const count = Math.max(4, Math.round((config.count ?? 40) * perfCountMul));
@@ -224,7 +225,7 @@ const BackgroundParticles = memo(() => {
       cancelAnimationFrame(animRef.current);
       window.removeEventListener("resize", resize);
     };
-  }, [config?.enabled, config?.mode, config?.count, config?.speed, config?.size, config?.color, config?.opacity, config?.linked, config?.linkDistance, settings.theme.primaryColor]);
+  }, [config?.enabled, config?.mode, config?.count, config?.speed, config?.size, config?.color, config?.opacity, config?.linked, config?.linkDistance, settings.theme.primaryColor, perfMode]);
 
   if (!config?.enabled) return null;
 

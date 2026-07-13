@@ -298,9 +298,10 @@ const Index = () => {
       {/* Stats Bar */}
       {(settings.homeSectionVisibility?.stats !== false) && (
       <section className={`${maxWidthClass()} mx-auto px-4 sm:px-6 ${spacingClass()}`}>
-        <RevealGroup step={90} className="grid grid-cols-3 gap-2 sm:gap-3">
+        <RevealGroup step={90} className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
           {[
             { icon: Users, label: "ผู้ใช้งาน", value: siteStats.users.toLocaleString(), unit: "คน" },
+            { icon: ShoppingBag, label: "สินค้า", value: ((settings.products || []).filter(p => p.enabled !== false).length).toLocaleString(), unit: "รายการ" },
             { icon: BoxesIcon, label: "สต็อก", value: siteStats.stock.toLocaleString(), unit: "ชิ้น" },
             { icon: ShoppingCart, label: "ยอดขาย", value: siteStats.sales.toLocaleString(), unit: "ชิ้น" },
           ].map((stat) => (

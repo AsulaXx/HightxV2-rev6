@@ -709,6 +709,7 @@ const defaultSettings: SiteSettings = {
   homeSectionTitles: {},
   homeSectionSubtitles: {},
   homeSectionVisibility: {},
+  statsPosition: "top",
   ogTitle: "",
   ogDescription: "",
   ogImage: "",

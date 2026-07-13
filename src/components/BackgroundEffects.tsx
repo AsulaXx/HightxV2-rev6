@@ -45,7 +45,8 @@ const BackgroundEffects = memo(() => {
     : (rawColor.startsWith("#") ? hexToRgb(rawColor) : rawColor);
 
   useEffect(() => {
-    if (effect !== "waves" && effect !== "matrix" && effect !== "aurora") {
+    const canvasEffects = ["waves", "matrix", "aurora", "starfield", "ripple"];
+    if (!canvasEffects.includes(effect)) {
       cancelAnimationFrame(animRef.current);
       return;
     }
@@ -62,6 +63,17 @@ const BackgroundEffects = memo(() => {
     const columns = Math.floor(canvas.width / fontSize);
     const drops = new Array(columns).fill(0).map(() => Math.random() * -100);
     const chars = "アイウエオカキクケコサシスセソタチツテト0123456789ABCDEF".split("");
+
+    // Starfield 3D — parallax stars flying toward the viewer
+    const starCount = perfMode === "saver" ? 0 : perfMode === "balanced" ? 90 : 180;
+    const stars = Array.from({ length: starCount }, () => ({
+      x: (Math.random() - 0.5) * canvas.width,
+      y: (Math.random() - 0.5) * canvas.height,
+      z: Math.random() * canvas.width,
+    }));
+
+    // Ripple pulse — expanding rings from random origins
+    const ripples: { x: number; y: number; r: number; life: number }[] = [];
 
     const animate = () => {
       tick++;
@@ -110,6 +122,46 @@ const BackgroundEffects = memo(() => {
           ctx.fillStyle = g;
           ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
+      } else if (effect === "starfield") {
+        ctx.fillStyle = `rgba(0,0,0,${0.25})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        for (const s of stars) {
+          s.z -= 2 * speed;
+          if (s.z <= 1) {
+            s.x = (Math.random() - 0.5) * canvas.width;
+            s.y = (Math.random() - 0.5) * canvas.height;
+            s.z = canvas.width;
+          }
+          const k = 128 / s.z;
+          const sx = s.x * k + cx;
+          const sy = s.y * k + cy;
+          if (sx < 0 || sx >= canvas.width || sy < 0 || sy >= canvas.height) continue;
+          const size = (1 - s.z / canvas.width) * 2.4;
+          ctx.fillStyle = `rgba(${color}, ${opacity * (1 - s.z / canvas.width)})`;
+          ctx.fillRect(sx, sy, size, size);
+        }
+      } else if (effect === "ripple") {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (tick % Math.max(20, Math.floor(60 / speed)) === 0 && ripples.length < 6) {
+          ripples.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: 0, life: 1,
+          });
+        }
+        for (let i = ripples.length - 1; i >= 0; i--) {
+          const r = ripples[i];
+          r.r += 2.5 * speed;
+          r.life -= 0.008 * speed;
+          if (r.life <= 0) { ripples.splice(i, 1); continue; }
+          ctx.beginPath();
+          ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(${color}, ${opacity * r.life})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
       }
       animRef.current = requestAnimationFrame(animate);
     };
@@ -119,7 +171,7 @@ const BackgroundEffects = memo(() => {
       cancelAnimationFrame(animRef.current);
       window.removeEventListener("resize", resize);
     };
-  }, [effect, opacity, speed, color]);
+  }, [effect, opacity, speed, color, perfMode]);
 
   if (!effect || effect === "none") return null;
 

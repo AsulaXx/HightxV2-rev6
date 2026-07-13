@@ -43,7 +43,9 @@ const StatusPage = () => {
   const fetchHealth = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("health-check");
+      const { data, error } = await supabase.functions.invoke("health-check", {
+        body: { projectId: firebaseConfig.projectId },
+      });
       if (error) throw error;
       setHealth(data as HealthResponse);
       setLastRefresh(new Date());

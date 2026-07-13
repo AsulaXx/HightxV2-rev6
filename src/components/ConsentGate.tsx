@@ -77,8 +77,6 @@ const ConsentGate = ({ children }: { children: React.ReactNode }) => {
         acceptedTermsVersion: currentTermsV,
         acceptedPrivacyVersion: currentPrivacyV,
         acceptedAt: serverTimestamp(),
-        email: user.email || "",
-        uid: user.uid,
       }, { merge: true });
       // Optimistically hide the modal — AuthContext doesn't watch profile changes live
       setLocalAccepted({ t: currentTermsV, p: currentPrivacyV });

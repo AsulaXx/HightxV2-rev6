@@ -369,7 +369,7 @@ const ProductDetailPage = () => {
                 );
               })()}
 
-            </div>
+            </motion.div>
 
             {/* Video / Tutorial button */}
             {product.videoUrl && (
@@ -466,10 +466,15 @@ const ProductDetailPage = () => {
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
 
           {/* Product Info */}
-          <div className="lg:col-span-3 flex flex-col gap-4">
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="lg:col-span-3 flex flex-col gap-3 sm:gap-4"
+          >
             <div>
               {category && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-medium mb-2">

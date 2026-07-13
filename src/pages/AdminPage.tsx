@@ -196,9 +196,11 @@ const AdminPage = () => {
       icon: Users,
       tabs: [
         { id: "users", label: "จัดการยศ", icon: Users },
+        ...(isOwner ? [{ id: "roleaccess", label: "Role Access", icon: Shield }] : []),
         ...(isOwner ? [{ id: "permissions", label: "ตารางสิทธิ์", icon: Shield }] : []),
       ],
     }] : []),
+
     ...(isAdmin ? [{
       id: "cat-logs",
       label: "บันทึก",

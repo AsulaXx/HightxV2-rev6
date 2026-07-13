@@ -502,6 +502,7 @@ interface SiteSettings {
   ogType: string;
   ogSiteUrl: string;
   categoryDisplayMode: DisplayMode;
+  storeHeaderStyle?: "compact" | "classic" | "off";
   categoryBannerLayout: BannerLayout;
   categoryBannerColumns: number;
   productDisplayMode: DisplayMode;

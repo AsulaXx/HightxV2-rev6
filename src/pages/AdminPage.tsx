@@ -78,7 +78,10 @@ const CreditDisplay = ({ userId }: { userId: string }) => {
 
 const AdminPage = () => {
   const { user, profile, loading: authLoading, hasPermission } = useAuth();
-  const { settings, updateSettings, loading: settingsLoading } = useSiteSettings();
+  const { settings, updateSettings, loading: settingsLoading, setLivePreview, isLivePreviewing } = useSiteSettings();
+  const [livePreviewOn, setLivePreviewOn] = useState<boolean>(() => {
+    try { return localStorage.getItem("admin_live_preview") === "1"; } catch { return false; }
+  });
 
   const isOwner = profile?.role === "owner";
   const isAdmin = hasPermission("admin");

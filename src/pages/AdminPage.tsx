@@ -233,11 +233,21 @@ const AdminPage = () => {
     }] : []),
   ], [isOwner, isAdmin]);
 
-  const tabs = useMemo(() => categories.flatMap(c => c.tabs), [categories]);
+  // Apply per-role tab visibility overrides (Role Access tab)
+  const roleFeaturesSetting = (settings as any)?.roleFeatures;
+  const visibleCategories = useMemo(() => {
+    return categories
+      .map((c) => ({ ...c, tabs: c.tabs.filter((t) => tabAllowed(t.id)) }))
+      .filter((c) => c.tabs.length > 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categories, roleFeaturesSetting, profile?.role, isOwner]);
+
+  const tabs = useMemo(() => visibleCategories.flatMap(c => c.tabs), [visibleCategories]);
   const activeCategory = useMemo(
-    () => categories.find(c => c.tabs.some(t => t.id === activeTab)) || categories[0],
-    [categories, activeTab]
+    () => visibleCategories.find(c => c.tabs.some(t => t.id === activeTab)) || visibleCategories[0],
+    [visibleCategories, activeTab]
   );
+
 
   const handleSubTabKeyDown = useCallback((e: React.KeyboardEvent<HTMLButtonElement>, idx: number) => {
     const subTabs = activeCategory?.tabs || [];

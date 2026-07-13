@@ -777,10 +777,17 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
 
 /* V2 helpers */
 [data-ui-version="v2"] .v2-stat-num {
-  font-family: var(--font-heading);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "cv11" 1;
   font-weight: 700;
   color: hsl(var(--primary));
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
+}
+[data-ui-version="v2"] .v2-wallet-amount,
+[data-ui-version="v2"] .tabular-num {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-variant-numeric: tabular-nums;
 }
 [data-ui-version="v2"] .v2-underline {
   display: inline-block;

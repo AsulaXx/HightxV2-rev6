@@ -415,14 +415,7 @@ interface MatchReceiverAccount {
   type: 'bank' | 'promptpay' | 'truewallet';
 }
 
-export type UIVersion = "glass" | "neo" | "saas" | "cyber" | "editorial";
-export const UI_PRESETS: { id: UIVersion; label: string; description: string; accent: string }[] = [
-  { id: "glass",     label: "Liquid Glass",   description: "โปร่งใส ฟุ้ง เลเยอร์กระจก (ค่าเริ่มต้น)", accent: "#7c7cff" },
-  { id: "neo",       label: "Neo-Brutal",     description: "แบน ขอบหนา เงาแข็ง สีตัดกันจัด",         accent: "#ffeb3b" },
-  { id: "saas",      label: "Minimal SaaS",   description: "สะอาด ระยะห่างเยอะ เส้นบาง ทันสมัย",      accent: "#3b82f6" },
-  { id: "cyber",     label: "Cyber Neon",     description: "ดำมืด นีออนเรืองแสง สไตล์อนาคต",         accent: "#22d3ee" },
-  { id: "editorial", label: "Editorial",      description: "เซริฟ เน้นตัวอักษร แบบนิตยสาร",            accent: "#b45309" },
-];
+export type UIVersion = "v1";
 
 export interface RuzienBypassDuration {
   id: string;
@@ -624,7 +617,7 @@ const DEFAULT_ROLE_PERMISSIONS: RolePermissions = {
 };
 
 const defaultSettings: SiteSettings = {
-  uiVersion: "glass",
+  uiVersion: "v1",
   bankAccountInfo: "",
   matchReceiverAccount: "",
   matchReceiverAccounts: [],
@@ -977,12 +970,9 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   }, [settings.theme]);
 
-  // Apply UI version preset (swaps design tokens via [data-ui-version="..."])
+  // Apply UI version (v1 = single skin)
   useEffect(() => {
-    const v = settings.uiVersion || "glass";
-    // Back-compat: old saved value "v1" -> "glass"
-    const preset = (v as string) === "v1" ? "glass" : v;
-    document.documentElement.setAttribute("data-ui-version", preset);
+    document.documentElement.setAttribute("data-ui-version", "v1");
   }, [settings.uiVersion]);
 
   // Apply 3D effect CSS variables (glow / tilt / gradient)

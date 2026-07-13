@@ -622,3 +622,191 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
   .animate-glow-pulse, .animate-subtle-rotate { animation: none !important; }
   .glass-card-hover:hover { transform: none !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   UI VERSION 2 — AWANG VIOLET
+   Global preset inspired by awang.store: deep violet-black,
+   solid cards (no glass), neon violet primary, pill buttons.
+   ═══════════════════════════════════════════════════════════════ */
+
+[data-ui-version="v2"],
+[data-ui-version="v2"].dark {
+  /* Core tokens */
+  --background: 270 55% 4%;
+  --foreground: 270 20% 96%;
+
+  --card: 270 40% 8%;
+  --card-foreground: 270 15% 95%;
+
+  --popover: 270 45% 6%;
+  --popover-foreground: 270 15% 95%;
+
+  --primary: 265 90% 62%;
+  --primary-foreground: 0 0% 100%;
+  --primary-glow: 275 100% 72%;
+
+  --secondary: 270 30% 14%;
+  --secondary-foreground: 270 15% 90%;
+
+  --muted: 270 25% 12%;
+  --muted-foreground: 270 12% 65%;
+
+  --accent: 270 40% 18%;
+  --accent-foreground: 270 15% 95%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 270 45% 20%;
+  --input: 270 40% 16%;
+  --ring: 265 90% 62%;
+
+  --radius: 1rem;
+
+  --fx-grad-from: #7c3aed;
+  --fx-grad-to: #a855f7;
+
+  /* Body font swap to Thai-friendly Prompt */
+  --font-body: 'Prompt', 'Inter', system-ui, sans-serif;
+  --font-heading: 'Prompt', 'Inter', system-ui, sans-serif;
+}
+
+[data-ui-version="v2"] body {
+  font-family: 'Prompt', 'Inter', system-ui, sans-serif;
+  background: hsl(var(--background));
+  background-image:
+    radial-gradient(1200px 600px at 15% -10%, hsl(265 80% 20% / 0.45), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, hsl(275 70% 22% / 0.35), transparent 55%),
+    radial-gradient(700px 400px at 50% 100%, hsl(280 70% 18% / 0.28), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Override glassmorphism → solid awang-style cards */
+[data-ui-version="v2"] .glass-card {
+  background: linear-gradient(160deg, hsl(270 40% 10%) 0%, hsl(270 45% 7%) 100%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid hsl(var(--border) / 0.6);
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px -12px hsl(0 0% 0% / 0.6);
+}
+
+[data-ui-version="v2"] .glass-panel {
+  background: hsl(270 42% 8%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid hsl(var(--border) / 0.5);
+}
+
+[data-ui-version="v2"] .glass-card-hover:hover {
+  border-color: hsl(var(--primary) / 0.5);
+  box-shadow:
+    0 12px 40px -12px hsl(var(--primary) / 0.35),
+    0 0 0 1px hsl(var(--primary) / 0.15);
+}
+
+[data-ui-version="v2"] .glass-pill {
+  background: hsl(var(--primary) / 0.12);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid hsl(var(--primary) / 0.35);
+  color: hsl(var(--primary-glow));
+  border-radius: 9999px;
+}
+
+/* Solid violet gradient buttons */
+[data-ui-version="v2"] .btn-gradient {
+  background: linear-gradient(135deg, hsl(265 90% 62%) 0%, hsl(275 95% 68%) 100%);
+  border-radius: 9999px;
+  box-shadow:
+    0 6px 20px -6px hsl(265 90% 55% / 0.55),
+    inset 0 1px 0 hsl(0 0% 100% / 0.15);
+}
+[data-ui-version="v2"] .btn-gradient:hover {
+  box-shadow:
+    0 10px 30px -8px hsl(265 90% 55% / 0.7),
+    inset 0 1px 0 hsl(0 0% 100% / 0.2);
+  filter: brightness(1.08);
+}
+[data-ui-version="v2"] .btn-glass {
+  background: transparent;
+  border: 1px solid hsl(var(--primary) / 0.4);
+  color: hsl(var(--primary-glow));
+  border-radius: 9999px;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+[data-ui-version="v2"] .btn-glass:hover {
+  background: hsl(var(--primary) / 0.12);
+  border-color: hsl(var(--primary) / 0.7);
+}
+
+/* Inputs */
+[data-ui-version="v2"] .input-glass,
+[data-ui-version="v2"] input:not([type="checkbox"]):not([type="radio"]),
+[data-ui-version="v2"] textarea,
+[data-ui-version="v2"] select {
+  background: hsl(270 40% 10%) !important;
+  border: 1px solid hsl(var(--border) / 0.6) !important;
+  border-radius: 0.75rem !important;
+  color: hsl(var(--foreground)) !important;
+  backdrop-filter: none !important;
+}
+[data-ui-version="v2"] input:focus,
+[data-ui-version="v2"] textarea:focus,
+[data-ui-version="v2"] select:focus {
+  border-color: hsl(var(--primary) / 0.7) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.15) !important;
+}
+
+/* Kill heavy backdrop effects for perf and clean look */
+[data-ui-version="v2"] .backdrop-blur-xl,
+[data-ui-version="v2"] .backdrop-blur-2xl,
+[data-ui-version="v2"] .backdrop-blur-3xl {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Gradient text tuned for violet */
+[data-ui-version="v2"] .gradient-text {
+  background: linear-gradient(135deg, hsl(265 100% 78%) 0%, hsl(285 100% 82%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* V2-only helpers */
+[data-ui-version="v2"] .v2-stat-num {
+  font-family: 'Kanit', 'Prompt', sans-serif;
+  font-weight: 700;
+  color: hsl(var(--primary-glow));
+  letter-spacing: -0.02em;
+}
+[data-ui-version="v2"] .v2-underline {
+  display: inline-block;
+  width: 32px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, hsl(265 90% 62%), hsl(275 100% 72%));
+}
+[data-ui-version="v2"] .v2-nav-tab {
+  position: relative;
+  padding: 0.5rem 0.25rem;
+  color: hsl(var(--muted-foreground));
+  font-weight: 500;
+  transition: color 0.2s;
+}
+[data-ui-version="v2"] .v2-nav-tab:hover { color: hsl(var(--foreground)); }
+[data-ui-version="v2"] .v2-nav-tab.active {
+  color: hsl(var(--primary-glow));
+}
+[data-ui-version="v2"] .v2-nav-tab.active::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -8px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, hsl(265 90% 62%), hsl(275 100% 72%));
+  box-shadow: 0 0 12px hsl(265 90% 62% / 0.6);
+}

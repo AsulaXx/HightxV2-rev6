@@ -27,6 +27,7 @@ const StorePage = () => {
   const navigate = useNavigate();
   const [claimedCount, setClaimedCount] = useState<Record<string, number>>({});
   const [availableCounts, setAvailableCounts] = useState<Record<string, number>>({});
+  const [soldCounts, setSoldCounts] = useState<Record<string, number>>({});
   const [lastClaimTimes, setLastClaimTimes] = useState<Record<string, number>>({});
   const [countsLoading, setCountsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(paramCategoryId || searchParams.get("category"));

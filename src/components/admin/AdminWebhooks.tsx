@@ -71,30 +71,278 @@ interface MultiWebhookFieldProps {
   onToggle: (next: boolean) => void;
 }
 
+/**
+ * Test webhook = ยิง embed หน้าตาเหมือนของจริงเป๊ะ แต่ใช้ข้อมูล placeholder
+ * เพื่อให้แอดมินเห็นตัวอย่างจริงและตัดสินใจว่าจะปรับ layout ตรงไหนได้
+ *
+ * Event ที่ในการใช้งานจริงจะมีรูปแนบ (สลิป / หลักฐาน / รูปสินค้า) จะเติมโน้ต
+ * ที่ท้าย description ให้ชัดเจน เพราะ webhook ทดสอบไม่ได้ส่งไฟล์แนบมาด้วย
+ */
+const IMAGE_NOTES: Record<string, string> = {
+  topUp: "📎 ใช้งานจริง: จะแนบรูป **สลิปธนาคาร / TrueWallet** มาด้วย",
+  slipVerify: "📎 ใช้งานจริง: จะแนบรูป **สลิป** มาด้วย",
+  freeClaim: "📎 ใช้งานจริง: จะแนบรูป **หลักฐานจากผู้กดฟรี** มาด้วย",
+  keyClaim: "📎 ใช้งานจริง: จะแนบ **thumbnail รูปสินค้า** ถ้าตั้งค่าไว้",
+  purchase: "📎 ใช้งานจริง: จะแนบ **thumbnail รูปสินค้าชิ้นแรก** ถ้าตั้งค่าไว้",
+  keyImport: "📎 ใช้งานจริง: จะแนบ **thumbnail รูปสินค้า** ถ้าตั้งค่าไว้",
+  keyDelete: "📎 ใช้งานจริง: จะแนบ **thumbnail รูปสินค้า** ถ้าตั้งค่าไว้",
+  wheelSpin: "📎 ใช้งานจริง: จะแนบ **thumbnail รูปสินค้า/รางวัล** ถ้ารางวัลเป็นสินค้า",
+  wheelKey: "📎 ใช้งานจริง: จะแนบ **thumbnail รูปสินค้า** ถ้าตั้งค่าไว้",
+};
+
+const withImageNote = (embed: any, type: string) => {
+  const note = IMAGE_NOTES[type];
+  if (!note) return embed;
+  // ล้าง `image` / `thumbnail` ออกก่อนส่งเทส (ของจริงเป็น attachment:// URL ที่ Discord จะ 404)
+  const { image: _img, thumbnail: _thumb, ...rest } = embed;
+  return {
+    ...rest,
+    description: [embed.description, note].filter(Boolean).join("\n\n"),
+  };
+};
+
 const testWebhook = async (url: string, type: string, brandName: string) => {
   if (!url) { toast.error("กรุณากรอก Webhook URL ก่อน"); return; }
-  const embeds: Record<string, any> = {
-    fallback: { title: "🧪 ทดสอบ Webhook หลัก", color: 0x6366f1, description: "Webhook หลักทำงานปกติ!", footer: { text: brandName } },
-    keyClaim: { title: "🧪 ทดสอบ Webhook กดคีย์", color: 0x6366f1, fields: [{ name: "👤 ผู้ใช้", value: "ทดสอบ", inline: true }, { name: "📦 สินค้า", value: "Test Product", inline: true }, { name: "🔑 คีย์", value: "`TEST-KEY-1234`" }], footer: { text: brandName } },
-    lowStock: { title: "🧪 ทดสอบ Webhook สต็อกต่ำ", color: 0xff9900, description: "⚠️ สินค้า **Test Product** เหลือเพียง **2** คีย์!", footer: { text: brandName } },
-    dailySummary: { title: "🧪 ทดสอบ Webhook สรุปรายวัน", color: 0x00cc66, description: "📊 วันนี้มีการกดคีย์ทั้งหมด **5** ครั้ง\n📦 สินค้ายอดนิยม: Test Product", footer: { text: brandName } },
-    linkPage: { title: "🧪 ทดสอบ Webhook Link รวม", color: 0x3b82f6, fields: [{ name: "📄 ชื่อหน้า", value: "Test Page", inline: true }, { name: "👤 โดย", value: "ทดสอบ", inline: true }, { name: "🔗 ลิงก์", value: "https://example.com/l/test" }], footer: { text: brandName } },
-    topUp: { title: "🧪 ทดสอบ Webhook เติมเงิน", color: 0x22c55e, fields: [{ name: "👤 ผู้ใช้", value: "ทดสอบ", inline: true }, { name: "💰 จำนวน", value: "฿100", inline: true }, { name: "📝 Ref", value: "`TEST-REF-1234`", inline: true }], footer: { text: brandName } },
-    purchase: { title: "🧪 ทดสอบ Webhook ซื้อสินค้า", color: 0xf59e0b, fields: [{ name: "👤 ผู้ใช้", value: "ทดสอบ", inline: true }, { name: "🛒 สินค้า", value: "Test Product x1", inline: true }, { name: "💰 ราคา", value: "฿100", inline: true }], footer: { text: brandName } },
-    slipVerify: { title: "🧪 ทดสอบ Webhook ตรวจสลิป", color: 0x8b5cf6, fields: [{ name: "👤 ผู้ใช้", value: "ทดสอบ", inline: true }, { name: "💵 จำนวน", value: "฿100", inline: true }, { name: "📝 Ref", value: "`TEST-REF-1234`", inline: true }, { name: "📱 ช่องทาง", value: "web", inline: true }, { name: "✅ ผลลัพธ์", value: "สำเร็จ", inline: true }], footer: { text: brandName } },
-    
-    signup: { title: "🧪 ทดสอบ Webhook สมัครสมาชิก", color: 0x22c55e, fields: [{ name: "👤 ชื่อ", value: "ทดสอบ", inline: true }, { name: "📧 อีเมล", value: "test@example.com", inline: true }, { name: "🌐 IP", value: "`127.0.0.1`", inline: true }, { name: "📱 อุปกรณ์", value: "Windows / Chrome", inline: true }, { name: "🕐 Timezone", value: "Asia/Bangkok", inline: true }, { name: "🖥️ หน้าจอ", value: "1920x1080", inline: true }], footer: { text: brandName } },
-    login: { title: "🧪 ทดสอบ Webhook เข้าสู่ระบบ", color: 0x3b82f6, fields: [{ name: "👤 ชื่อ", value: "ทดสอบ", inline: true }, { name: "📧 อีเมล", value: "test@example.com", inline: true }, { name: "🎭 ยศ", value: "user", inline: true }], footer: { text: brandName } },
-    keyImport: { title: "🧪 ทดสอบ Webhook เพิ่มคีย์", color: 0x22c55e, fields: [{ name: "👤 ผู้เพิ่ม", value: "Admin (test@example.com)", inline: true }, { name: "🎭 บทบาท", value: "admin", inline: true }, { name: "🔢 เพิ่มสำเร็จ", value: "10 คีย์", inline: true }, { name: "📦 สินค้า", value: "Test Product — 30 วัน", inline: false }], footer: { text: brandName } },
-    keyDelete: { title: "🧪 ทดสอบ Webhook ลบคีย์", color: 0xf59e0b, fields: [{ name: "👤 ผู้ลบ", value: "Admin (test@example.com)", inline: true }, { name: "🎭 บทบาท", value: "admin", inline: true }, { name: "🔢 จำนวน", value: "5 คีย์", inline: true }], footer: { text: brandName } },
-    freeClaim: { title: "🧪 ทดสอบ Webhook กดฟรี", color: 0xa855f7, fields: [{ name: "👤 ผู้กดฟรี", value: "ทดสอบ", inline: true }, { name: "🎭 บทบาท", value: "hightxcrew", inline: true }, { name: "🔢 จำนวนรวม", value: "3 คีย์", inline: true }, { name: "🖼️ แนบหลักฐาน", value: "✅ ใช่", inline: true }], footer: { text: brandName } },
-    topUpQR: { title: "🧪 ทดสอบ Webhook เติมเงินผ่าน QR", color: 0x22c55e, fields: [{ name: "👤 ผู้ใช้", value: "ทดสอบ", inline: true }, { name: "💵 จำนวน", value: "฿100", inline: true }, { name: "🏷️ Provider", value: "PLERNPAY", inline: true }, { name: "📝 Ref", value: "`QR-TEST-1234`", inline: false }], footer: { text: brandName } },
-    giftCode: { title: "🧪 ทดสอบ Webhook แลก Gift Code", color: 0xa855f7, fields: [{ name: "👤 ผู้ใช้", value: "ทดสอบ", inline: true }, { name: "💵 จำนวน", value: "฿50", inline: true }, { name: "🎟️ Code", value: "`TESTCODE`", inline: true }], footer: { text: brandName } },
-    wheelSpin: { title: "🧪 ทดสอบ Webhook หมุนวงล้อ", color: 0xa855f7, fields: [{ name: "👤 ผู้ใช้", value: "ทดสอบ", inline: true }, { name: "🎯 วงล้อ", value: "Test Wheel", inline: true }, { name: "💸 ค่าหมุน", value: "฿10", inline: true }, { name: "🏆 รางวัล", value: "📦 Test Product", inline: false }], footer: { text: brandName } },
-    wheelKey: { title: "🧪 ทดสอบ Webhook คีย์จากวงล้อ", color: 0xa855f7, fields: [{ name: "👤 ผู้ได้รับ", value: "ทดสอบ", inline: true }, { name: "🎭 บทบาท", value: "user", inline: true }, { name: "📦 สินค้า", value: "Test Product — 30 วัน", inline: true }, { name: "🔑 คีย์", value: "`TEST-KEY-XXXX`", inline: false }, { name: "📝 หมายเหตุ", value: "ได้จากวงล้อ: Test Wheel", inline: false }], footer: { text: brandName } },
+  const brand = brandName || "HightXClient";
+  const now = new Date().toISOString();
+  const sampleUser = "TestUser (test@example.com)";
+  const sampleImg = "https://cdn.discordapp.com/embed/avatars/0.png";
+
+  const build = (): any => {
+    switch (type) {
+      case "fallback":
+        return { title: "🧪 ทดสอบ Webhook หลัก (Fallback)", color: 0x6366f1, description: "> Webhook หลักทำงานปกติ — ใช้เมื่อไม่ได้ตั้ง Webhook เฉพาะหมวด", footer: { text: brand } };
+
+      case "keyClaim":
+        return keyStockActivityEmbed({
+          action: "purchase",
+          actorDisplay: sampleUser,
+          actorRole: "user",
+          productName: "Test Product",
+          productImageUrl: sampleImg,
+          durationLabel: "30 วัน",
+          count: 2,
+          keys: ["TEST-KEY-AAAA-1111", "TEST-KEY-BBBB-2222"],
+          refId: "cart-TEST123",
+          brandName: brand,
+        });
+
+      case "purchase":
+        return {
+          title: "🛒 ซื้อสินค้า",
+          color: 0xf59e0b,
+          fields: [
+            { name: "👤 ผู้ใช้", value: sampleUser, inline: true },
+            { name: "🎭 ยศ", value: "user", inline: true },
+            { name: "💰 ราคารวม", value: "฿150", inline: true },
+            { name: "📦 รายการ", value: "• Test Product (30 วัน) x1 — ฿100\n• Test Product B (7 วัน) x1 — ฿50", inline: false },
+          ],
+          thumbnail: { url: sampleImg },
+          timestamp: now,
+          footer: { text: brand },
+        };
+
+      case "lowStock":
+        return {
+          title: "⚠️ แจ้งเตือน: คีย์ใกล้หมด!",
+          description: "พบ 2 รายการ (หมดสต็อก 1) (ใกล้หมด 1)",
+          color: 0xff4444,
+          fields: [
+            { name: "📦 Test Product", value: "┗ 30 วัน: ❌ หมดแล้ว!\n┗ 7 วัน: ⚠️ เหลือ 2 คีย์", inline: false },
+          ],
+          timestamp: now,
+          footer: { text: `${brand} • Low Stock Alert` },
+        };
+
+      case "dailySummary":
+        return {
+          title: `📊 สรุปรายวัน - ${new Date().toLocaleDateString("th-TH", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}`,
+          color: 0x00cc66,
+          fields: [
+            { name: "📊 กดคีย์วันนี้", value: "**12** ครั้ง", inline: true },
+            { name: "💰 รายได้วันนี้", value: "**฿1,250**", inline: true },
+            { name: "📦 คีย์คงเหลือ", value: "**48** คีย์", inline: true },
+            { name: "📈 รายได้ 7 วัน", value: "**฿8,900**", inline: true },
+            { name: "🔑 กดคีย์ 7 วัน", value: "**76** ครั้ง", inline: true },
+            { name: "👥 ผู้ใช้ทั้งหมด", value: "**134** คน", inline: true },
+            { name: "📋 สินค้าทั้งหมด", value: "• Test Product: 8 ครั้ง (เหลือ 22)\n• Test Product B: 4 ครั้ง (เหลือ 26)", inline: false },
+            { name: "📉 แนวโน้ม (vs 7 วันก่อน)", value: "📈 เพิ่มขึ้น **12%**", inline: false },
+          ],
+          timestamp: now,
+          footer: { text: `${brand} • Daily Summary` },
+        };
+
+      case "linkPage":
+        return {
+          title: "🔗 สร้างหน้าลิงก์",
+          color: 0x00cc66,
+          fields: [
+            { name: "📄 ชื่อหน้า", value: "Test Page", inline: true },
+            { name: "👤 โดย", value: sampleUser, inline: true },
+            { name: "🔗 ลิงก์", value: `${window.location.origin}/l/test-page`, inline: false },
+            { name: "📊 จำนวนลิงก์", value: "5 รายการ", inline: true },
+          ],
+          timestamp: now,
+          footer: { text: brand },
+        };
+
+      case "topUp":
+        return topUpSuccessEmbed({
+          userDisplay: sampleUser,
+          amount: 100,
+          transRef: "TEST-REF-1234",
+          senderBank: "SCB",
+          senderName: "ทดสอบ ระบบ",
+          receiverBank: "KBANK",
+          receiverName: "ร้านทดสอบ",
+          date: now,
+          channel: "สลิปธนาคาร",
+          deviceInfo: "Windows / Chrome",
+          brandName: brand,
+        });
+
+      case "slipVerify":
+        return slipVerifyEmbed({
+          result: "success",
+          userDisplay: sampleUser,
+          amount: 100,
+          transRef: "TEST-REF-1234",
+          method: "bank",
+          senderBank: "SCB",
+          senderName: "ทดสอบ ระบบ",
+          receiverBank: "KBANK",
+          receiverName: "ร้านทดสอบ",
+          brandName: brand,
+        });
+
+      case "signup":
+        return signupEmbed({
+          userName: "TestUser",
+          email: "test@example.com",
+          method: "Email",
+          deviceInfo: "Windows / Chrome",
+          ip: "127.0.0.1",
+          timezone: "Asia/Bangkok",
+          language: "th-TH",
+          screenSize: "1920x1080",
+          referrer: "ตรง (Direct)",
+          brandName: brand,
+        });
+
+      case "login":
+        return loginEmbed({
+          userName: "TestUser",
+          email: "test@example.com",
+          role: "user",
+          method: "Email",
+          deviceInfo: "Windows / Chrome",
+          ip: "127.0.0.1",
+          brandName: brand,
+        });
+
+      case "keyImport":
+        return keyImportEmbed({
+          actorDisplay: "Admin (admin@example.com)",
+          actorRole: "admin",
+          productName: "Test Product",
+          productImageUrl: sampleImg,
+          durationLabel: "30 วัน",
+          count: 10,
+          duplicateCount: 2,
+          source: "paste",
+          sampleKeys: ["TEST-KEY-0001", "TEST-KEY-0002", "TEST-KEY-0003"],
+          brandName: brand,
+        });
+
+      case "keyDelete":
+        return keyDeleteEmbed({
+          mode: "single",
+          actorDisplay: "Admin (admin@example.com)",
+          actorRole: "admin",
+          count: 1,
+          productName: "Test Product",
+          productImageUrl: sampleImg,
+          durationLabel: "30 วัน",
+          reason: "ทดสอบระบบ",
+          sampleKeys: ["TEST-KEY-DELETED-01"],
+          brandName: brand,
+        });
+
+      case "freeClaim":
+        return freeClaimEmbed({
+          actorDisplay: "HightXCrew (crew@example.com)",
+          actorEmail: "crew@example.com",
+          actorRole: "hightxcrew",
+          totalCount: 3,
+          groups: [{
+            productName: "Test Product",
+            durationLabel: "30 วัน",
+            keys: ["TEST-FREE-01", "TEST-FREE-02", "TEST-FREE-03"],
+            productImageUrl: sampleImg,
+          }],
+          message: "ทดสอบส่งกดฟรี",
+          hasProofImage: true,
+          brandName: brand,
+        });
+
+      case "topUpQR":
+        return topUpQrSuccessEmbed({
+          userDisplay: sampleUser,
+          amount: 100,
+          reference: "QR-TEST-1234",
+          provider: "plernpay",
+          brandName: brand,
+        });
+
+      case "giftCode":
+        return giftCodeRedeemEmbed({
+          userDisplay: sampleUser,
+          code: "TESTCODE",
+          amount: 50,
+          attemptId: "attempt-TEST123",
+          brandName: brand,
+        });
+
+      case "wheelSpin":
+        return wheelSpinEmbed({
+          userDisplay: sampleUser,
+          wheelName: "Test Wheel",
+          prizeLabel: "Test Product",
+          rewardType: "product",
+          productName: "Test Product",
+          productKey: "TEST-WHEEL-KEY-01",
+          productImageUrl: sampleImg,
+          cost: 10,
+          attemptId: "attempt-WHEEL123",
+          brandName: brand,
+        });
+
+      case "wheelKey":
+        return keyStockActivityEmbed({
+          action: "wheel",
+          actorDisplay: sampleUser,
+          actorRole: "user",
+          productName: "Test Product",
+          productImageUrl: sampleImg,
+          durationLabel: "30 วัน",
+          count: 1,
+          keys: ["TEST-WHEEL-KEY-01"],
+          note: "ได้จากวงล้อ: Test Wheel",
+          brandName: brand,
+        });
+
+      default:
+        return { title: `🧪 ทดสอบ Webhook (${type})`, color: 0x6366f1, description: "ยังไม่มี template ตัวอย่างสำหรับ event นี้", footer: { text: brand } };
+    }
   };
+
+  const embed = withImageNote(build(), type);
   try {
-    const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ embeds: [{ ...embeds[type], timestamp: new Date().toISOString() }] }) });
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ embeds: [{ ...embed, timestamp: embed.timestamp || now }] }),
+    });
     if (res.ok) toast.success("ส่งทดสอบสำเร็จ! ตรวจสอบ Discord ของคุณ");
     else toast.error(`ส่งไม่สำเร็จ (${res.status})`);
   } catch { toast.error("ไม่สามารถเชื่อมต่อ Webhook ได้"); }

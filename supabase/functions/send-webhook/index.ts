@@ -360,9 +360,20 @@ serve(async (req) => {
 
     const allUrls = await loadUrls();
     const urls = resolveUrls(allUrls, type);
-    // TEMP DEBUG — log what we see for this type
-    const _debugKey = KEY_MAP[type];
-    console.log(`[send-webhook] type=${type} key=${_debugKey} primary=${JSON.stringify(allUrls[_debugKey])} extras=${JSON.stringify(allUrls[_debugKey + "Urls"])} resolved=${urls.length}`);
+
+    // TEMP DEBUG — reveal raw Firestore fields for this type
+    if (body.__debug === "urls") {
+      return new Response(JSON.stringify({
+        ok: true, debug: true, type,
+        key: KEY_MAP[type],
+        primary: allUrls[KEY_MAP[type]],
+        extras: allUrls[KEY_MAP[type] + "Urls"],
+        fallback: allUrls.discordWebhookUrl,
+        resolvedCount: urls.length,
+        allKeys: Object.keys(allUrls),
+      }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     if (urls.length === 0) {
       return new Response(JSON.stringify({ ok: true, status: "skipped", reason: "no URL configured" }), {
         status: 200,

@@ -358,46 +358,14 @@ serve(async (req) => {
       });
     }
 
-    const allUrls = await loadUrls();
-    const urls = resolveUrls(allUrls, type);
-
-    // TEMP DEBUG — reveal raw Firestore fields for this type
-    if (body.__debug === "urls") {
-      return new Response(JSON.stringify({
-        ok: true, debug: true, type,
-        key: KEY_MAP[type],
-        primary: allUrls[KEY_MAP[type]],
-        extras: allUrls[KEY_MAP[type] + "Urls"],
-        fallback: allUrls.discordWebhookUrl,
-        resolvedCount: urls.length,
-        resolvedUrls: urls,
-        allKeys: Object.keys(allUrls),
-      }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-
-    // TEMP DEBUG — write test extras array to Firestore
-    if (body.__debug === "seed" && typeof body.__seedKey === "string" && Array.isArray(body.__seedUrls)) {
-      const token = await gcpToken();
-      const fields: any = {};
-      fields[body.__seedKey + "Urls"] = {
-        arrayValue: { values: body.__seedUrls.map((u: string) => ({ stringValue: u })) }
-      };
-      const patchRes = await fetch(
-        `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/siteSettingsPrivate/webhooks?updateMask.fieldPaths=${body.__seedKey}Urls`,
-        { method: "PATCH", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ fields }) }
-      );
-      urlCache = null; // bust
-      return new Response(JSON.stringify({ ok: patchRes.ok, status: patchRes.status, body: await patchRes.text() }), {
-        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
-    }
-
+    const urls = resolveUrls(await loadUrls(), type);
     if (urls.length === 0) {
       return new Response(JSON.stringify({ ok: true, status: "skipped", reason: "no URL configured" }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
 
 
     const results = await Promise.all(

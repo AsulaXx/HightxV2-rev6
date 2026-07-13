@@ -141,12 +141,23 @@ const Index = () => {
   const enabledProducts = (settings.products || []).filter(p => p.enabled && p.name);
 
   const fade = {
-    hidden: { opacity: 0, y: 16 },
+    hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } }
   };
   const stagger = {
     hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.08 } }
+    show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.05 } }
+  };
+  // Below-the-fold sections animate on scroll into view
+  const sectionInView = {
+    variants: stagger,
+    initial: "hidden" as const,
+    whileInView: "show" as const,
+    viewport: { once: true, margin: "-60px" },
+  };
+  const cardHover = {
+    whileHover: { y: -4, transition: { type: "spring" as const, stiffness: 380, damping: 22 } },
+    whileTap: { scale: 0.98 },
   };
 
   return (

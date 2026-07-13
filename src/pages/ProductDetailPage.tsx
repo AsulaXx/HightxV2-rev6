@@ -323,37 +323,43 @@ const ProductDetailPage = () => {
               )}
               {isProductUnavailable && (() => {
                 const meta = productStatus === "updating"
-                  ? { label: "กำลังอัพเดท", Icon: Cog, glow: "animate-unavail-glow", iconAnim: "animate-spin-slow", grad: "linear-gradient(135deg, hsl(38 92% 50% / 0.95), hsl(25 95% 53% / 0.95))", ribbon: "linear-gradient(90deg, hsl(38 92% 50% / 0.92), hsl(25 95% 53% / 0.92))", shine: "via-amber-200/30", msg: "กำลังอัพเดทระบบ กรุณารอสักครู่" }
+                  ? { label: "กำลังอัพเดท", Icon: Cog, iconAnim: "animate-spin-slow", tone: "amber", dot: "hsl(38 92% 55%)", msg: "กำลังอัพเดทระบบ กรุณารอสักครู่" }
                   : productStatus === "closed"
-                  ? { label: "ปิดการขาย", Icon: Ban, glow: "animate-unavail-glow-red", iconAnim: "animate-unavail-bob", grad: "linear-gradient(135deg, hsl(0 84% 60% / 0.95), hsl(350 89% 45% / 0.95))", ribbon: "linear-gradient(90deg, hsl(0 84% 60% / 0.92), hsl(350 89% 45% / 0.92))", shine: "via-red-200/30", msg: "ไม่พร้อมขายในขณะนี้" }
-                  : { label: "สินค้าหมด", Icon: PackageX, glow: "animate-unavail-glow-slate", iconAnim: "animate-unavail-bob", grad: "linear-gradient(135deg, hsl(215 20% 45% / 0.95), hsl(220 15% 30% / 0.95))", ribbon: "linear-gradient(90deg, hsl(215 20% 45% / 0.92), hsl(220 15% 30% / 0.92))", shine: "via-slate-200/30", msg: "สินค้าหมดชั่วคราว" };
+                  ? { label: "ปิดการขาย", Icon: Ban, iconAnim: "", tone: "red", dot: "hsl(0 84% 60%)", msg: "ไม่พร้อมขายในขณะนี้" }
+                  : { label: "สินค้าหมด", Icon: PackageX, iconAnim: "", tone: "slate", dot: "hsl(215 20% 60%)", msg: "สินค้าหมดชั่วคราว" };
                 return (
                   <>
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
-                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                      <div className={`absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent ${meta.shine} to-transparent animate-unavail-shine`} />
+                    {/* Soft dim — keeps the artwork visible */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/70 pointer-events-none" />
+                    {/* Corner status dot */}
+                    <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/55 backdrop-blur-md border border-white/10 pointer-events-none">
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="absolute inset-0 rounded-full animate-ping opacity-70" style={{ background: meta.dot }} />
+                        <span className="relative rounded-full h-1.5 w-1.5" style={{ background: meta.dot }} />
+                      </span>
+                      <span className="text-[10px] font-semibold tracking-wider uppercase text-white/90">{meta.label}</span>
                     </div>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 pointer-events-none">
-                      <div
-                        className={`relative flex items-center justify-center w-28 h-28 rounded-full text-white shadow-2xl ring-2 ring-white/30 backdrop-blur-sm animate-unavail-badge-pop ${meta.glow}`}
-                        style={{ background: meta.grad }}
-                      >
-                        <meta.Icon size={64} strokeWidth={2.5} className={meta.iconAnim} />
+                    {/* Centered clean card */}
+                    <div className="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+                      <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-black/70 backdrop-blur-md border border-white/10 shadow-2xl max-w-[85%]">
+                        <div
+                          className="flex items-center justify-center w-10 h-10 rounded-lg shrink-0"
+                          style={{ background: `${meta.dot} / 0.18`, backgroundColor: `color-mix(in srgb, ${meta.dot} 18%, transparent)`, color: meta.dot }}
+                        >
+                          <meta.Icon size={22} strokeWidth={2.25} className={meta.iconAnim} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[13px] font-bold text-white leading-tight">{meta.label}</p>
+                          <p className="text-[11px] text-white/70 leading-tight mt-0.5 line-clamp-2">
+                            {product.availabilityMessage || meta.msg}
+                          </p>
+                        </div>
                       </div>
-                      <span
-                        className="text-sm font-bold tracking-[0.2em] uppercase text-white px-4 py-1 rounded-full backdrop-blur-sm"
-                        style={{ background: meta.grad }}
-                      >{meta.label}</span>
-                    </div>
-                    <div
-                      className="absolute bottom-0 inset-x-0 text-white text-xs font-medium py-2 px-3 text-center flex items-center justify-center gap-2"
-                      style={{ background: meta.ribbon }}
-                    >
-                      <span className="truncate">{product.availabilityMessage || meta.msg}</span>
                     </div>
                   </>
                 );
               })()}
+
             </div>
 
             {/* Video / Tutorial button */}

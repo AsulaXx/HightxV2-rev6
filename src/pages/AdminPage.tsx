@@ -209,7 +209,6 @@ const AdminPage = () => {
       tabs: [
         { id: "users", label: "จัดการยศ", icon: Users },
         ...(isOwner ? [{ id: "roleaccess", label: "Role Access", icon: Shield }] : []),
-        ...(isOwner ? [{ id: "permissions", label: "ตารางสิทธิ์", icon: Shield }] : []),
       ],
     }] : []),
 
@@ -233,7 +232,42 @@ const AdminPage = () => {
         { id: "backup", label: "สำรองข้อมูล", icon: Database },
       ],
     }] : []),
-  ], [isOwner, isAdmin]);
+    // ─── ทางลัดไปหน้าอื่น (ย้ายมาจาก Hub) ───
+    ...(isHightXCrew ? [{
+      id: "cat-team-tools",
+      label: "เครื่องมือทีมงาน",
+      icon: TrendingUp,
+      tabs: [
+        { id: "goto-dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+        { id: "goto-analytics", label: "วิเคราะห์ยอดขาย", icon: BarChart3, href: "/analytics" },
+        { id: "goto-stock", label: "จัดการสต็อก", icon: Package, href: "/stock" },
+        { id: "goto-links", label: "Link รวม", icon: Share2, href: "/links" },
+      ] as any,
+    }] : []),
+    ...(isMod ? [{
+      id: "cat-mod-tools",
+      label: "เครื่องมือผู้ดูแล",
+      icon: Wrench,
+      tabs: [
+        { id: "goto-keymgmt", label: "จัดการคีย์", icon: KeyRound, href: "/keys" },
+        { id: "goto-activitylog", label: "บันทึกกิจกรรม", icon: ScrollText, href: "/activity-log" },
+      ] as any,
+    }] : []),
+    ...(isAdmin ? [{
+      id: "cat-admin-tools",
+      label: "จัดการระบบ",
+      icon: Settings,
+      tabs: [
+        { id: "goto-allclaims", label: "ประวัติกดคีย์ทั้งหมด", icon: ClipboardList, href: "/all-claims" },
+        { id: "goto-alltopup", label: "ประวัติเติมเงินทั้งหมด", icon: Wallet, href: "/all-topup" },
+        { id: "goto-allwheel", label: "ประวัติวงล้อทั้งหมด", icon: History, href: "/all-wheel" },
+        { id: "goto-allhistory", label: "ประวัติผู้ใช้ทั้งหมด", icon: Search, href: "/all-history" },
+        { id: "goto-balances", label: "ยอดคงค้างลูกค้า", icon: Users, href: "/customer-balances" },
+        { id: "goto-archived", label: "คีย์ Archive", icon: Archive, href: "/archived-keys" },
+        { id: "goto-banned", label: "ผู้ถูกแบน", icon: ShieldBan, href: "/banned-users" },
+      ] as any,
+    }] : []),
+  ], [isOwner, isAdmin, isMod, isHightXCrew]);
 
   // Apply per-role tab visibility overrides (Role Access tab)
   const roleFeaturesSetting = (settings as any)?.roleFeatures;

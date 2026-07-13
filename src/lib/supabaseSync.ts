@@ -10,6 +10,8 @@ import { auth } from "@/lib/firebase";
 import { logError } from "@/lib/errorLogger";
 
 let inflight: Promise<string | null> | null = null;
+let lastSyncError: string | null = null;
+
 
 async function waitForFirebaseUser(timeoutMs = 4000) {
   if (auth.currentUser) return auth.currentUser;

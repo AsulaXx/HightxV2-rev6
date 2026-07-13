@@ -877,7 +877,7 @@ const DashboardPage = () => {
         ) : (
           <>
             {/* Low Stock Alerts */}
-            {lowStockAlerts.length > 0 && (
+            {hasFeature("dash.low_stock") && lowStockAlerts.length > 0 && (
               <div className="mb-3 p-3 rounded-xl bg-destructive/10 border border-destructive/30">
                 <button onClick={toggleLowStock} className="w-full flex items-center justify-between">
                   <h3 className="text-sm font-bold text-destructive flex items-center gap-2">
@@ -899,6 +899,7 @@ const DashboardPage = () => {
                 )}
               </div>
             )}
+
 
             <Suspense fallback={<div className="py-4 text-center text-muted-foreground text-sm">กำลังโหลด...</div>}>
               <DashboardSummaryCards

@@ -801,7 +801,11 @@ const AdminPage = () => {
             )}
 
             {activeTab === "datareset" && isOwner && user && (
-              <AdminDataReset user={user} profile={profile} />
+              <div className="space-y-8">
+                <AdminFinanceCleanup user={user} profile={profile} />
+                <div className="border-t border-border/30" />
+                <AdminDataReset user={user} profile={profile} />
+              </div>
             )}
 
             {activeTab === "backup" && isOwner && user && (

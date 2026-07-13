@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { TENANT_BRAND } from "@/lib/tenantConfig";
+import FooterV2 from "@/components/v2/layout/FooterV2";
 
 const Footer = () => {
   const { settings } = useSiteSettings();
+
+  if (settings.uiVersion === "v2") return <FooterV2 />;
 
   return (
     <footer className="relative z-10 mt-auto">

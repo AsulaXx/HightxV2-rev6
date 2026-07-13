@@ -11,9 +11,29 @@ import { logError } from "@/lib/errorLogger";
 
 let inflight: Promise<string | null> | null = null;
 
+async function waitForFirebaseUser(timeoutMs = 4000) {
+  if (auth.currentUser) return auth.currentUser;
+  return await new Promise<typeof auth.currentUser>((resolve) => {
+    let done = false;
+    const unsub = auth.onAuthStateChanged((u) => {
+      if (done) return;
+      done = true;
+      unsub();
+      resolve(u);
+    });
+    setTimeout(() => {
+      if (done) return;
+      done = true;
+      unsub();
+      resolve(auth.currentUser);
+    }, timeoutMs);
+  });
+}
+
 async function doSync(): Promise<string | null> {
-  const fbUser = auth.currentUser;
+  const fbUser = await waitForFirebaseUser();
   if (!fbUser) return null;
+
   try {
     const idToken = await fbUser.getIdToken();
     const { data, error } = await supabase.functions.invoke("firebase-supabase-sync", {

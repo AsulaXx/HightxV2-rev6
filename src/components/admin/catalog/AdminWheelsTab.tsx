@@ -1,7 +1,7 @@
 import { Save, Plus, Trash2, MoveUp, MoveDown, CircleDot, ExternalLink } from "lucide-react";
-import { AdminTabProps, generateId } from "./AdminTabProps";
+import { AdminTabProps, generateId } from "../shared/AdminTabProps";
 import type { WheelConfig, WheelPrize } from "@/contexts/SiteSettingsContext";
-import ImageUploadField from "./ImageUploadField";
+import ImageUploadField from "../shared/ImageUploadField";
 
 const SLICE_COLORS = ["#6366f1", "#8b5cf6", "#ec4899", "#f59e0b", "#10b981", "#06b6d4", "#ef4444", "#14b8a6"];
 

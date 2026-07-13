@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { FileDown, Filter } from "lucide-react";
-import { AdminTabProps } from "./AdminTabProps";
+import { AdminTabProps } from "../shared/AdminTabProps";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, query, orderBy, limit as firestoreLimit } from "firebase/firestore";
 import { toast } from "sonner";

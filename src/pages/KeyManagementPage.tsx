@@ -12,7 +12,7 @@ import { db } from "@/lib/firebase";
 import { collection, getDocs, deleteDoc, doc, query, where, writeBatch, addDoc } from "firebase/firestore";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
-import KeyImportLog from "@/components/admin/KeyImportLog";
+import KeyImportLog from "@/components/admin/catalog/KeyImportLog";
 import { sendWebhook } from "@/lib/webhookSender";
 import { keyStockActivityEmbed, keyImportEmbed, keyDeleteEmbed } from "@/lib/webhookTemplates";
 

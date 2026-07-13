@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Save, FileText, Shield, Rocket, Info } from "lucide-react";
-import { AdminTabProps } from "./AdminTabProps";
+import { AdminTabProps } from "../shared/AdminTabProps";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { toast } from "sonner";
 

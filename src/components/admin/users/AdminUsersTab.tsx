@@ -8,7 +8,7 @@ import { applyLedger, generateAttemptId } from "@/lib/walletLedger";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logActivity } from "@/lib/activityLogger";
-import type { AdminTabWithUsersProps, FirestoreUser } from "./AdminTabProps";
+import type { AdminTabWithUsersProps, FirestoreUser } from "../shared/AdminTabProps";
 import { User } from "firebase/auth";
 
 const ROLE_COLORS: Record<string, string> = {

@@ -1,8 +1,8 @@
 import { Settings, Image, ExternalLink, Plus, Trash2, GripVertical, ChevronDown, ChevronUp, Save } from "lucide-react";
-import AdminSection from "./AdminSection";
-import { AdminTabProps, generateId } from "./AdminTabProps";
+import AdminSection from "../shared/AdminSection";
+import { AdminTabProps, generateId } from "../shared/AdminTabProps";
 import { type SocialLink } from "@/contexts/SiteSettingsContext";
-import ImageUploadField from "./ImageUploadField";
+import ImageUploadField from "../shared/ImageUploadField";
 
 const AdminGeneralTab = ({ form, setForm, handleSave }: AdminTabProps) => (
   <div className="space-y-6">

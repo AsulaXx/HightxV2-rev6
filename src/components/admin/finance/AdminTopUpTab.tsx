@@ -1,5 +1,5 @@
 import { Save, Plus, Trash2, Wallet, CreditCard, Gift, Tag, Percent, DollarSign, XCircle, Eye, CheckCircle, AlertTriangle, Copy, Building2, Smartphone, QrCode, Info, CircleCheck, Megaphone, Bell, ShieldAlert } from "lucide-react";
-import { AdminTabProps, generateId } from "./AdminTabProps";
+import { AdminTabProps, generateId } from "../shared/AdminTabProps";
 import { type TopUpSettings, type GiftCode } from "@/contexts/SiteSettingsContext";
 import { toast } from "sonner";
 import AdminTopUpProviders from "./AdminTopUpProviders";

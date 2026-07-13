@@ -999,6 +999,19 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
       root.style.setProperty("--font-body", `${settings.theme.fontBody}, sans-serif`);
       loadStack(settings.theme.fontBody);
     }
+    // Extended font tokens — apply if set, otherwise CSS defaults remain
+    const setFontVar = (key: string, val?: string) => {
+      if (val && val.trim()) {
+        root.style.setProperty(key, `${val}, sans-serif`);
+        loadStack(val);
+      } else {
+        root.style.removeProperty(key);
+      }
+    };
+    setFontVar("--font-numeric", settings.theme.fontNumeric);
+    setFontVar("--font-button",  settings.theme.fontButton);
+    setFontVar("--font-product", settings.theme.fontProduct);
+    setFontVar("--font-brand",   settings.theme.fontBrand);
   }, [settings.theme]);
 
   // Apply UI version (v1 = Liquid Glass, v2 = Awang Violet)

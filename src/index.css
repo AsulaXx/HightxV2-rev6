@@ -816,7 +816,7 @@ button, .btn-glass, .btn-gradient, [role="button"] {
 
 /* V2 helpers */
 [data-ui-version="v2"] .v2-stat-num {
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-numeric);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1, "cv11" 1;
   font-weight: 700;
@@ -825,7 +825,7 @@ button, .btn-glass, .btn-gradient, [role="button"] {
 }
 [data-ui-version="v2"] .v2-wallet-amount,
 [data-ui-version="v2"] .tabular-num {
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-numeric);
   font-variant-numeric: tabular-nums;
 }
 [data-ui-version="v2"] .v2-underline {

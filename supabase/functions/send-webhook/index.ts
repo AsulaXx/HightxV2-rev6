@@ -366,6 +366,8 @@ serve(async (req) => {
       });
     }
 
+
+
     const results = await Promise.all(
       urls.map(async (url) => {
         const dKey = dedupeKey || (embeds[0]?.title || type);

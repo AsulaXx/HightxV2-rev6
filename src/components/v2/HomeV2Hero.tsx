@@ -113,31 +113,31 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
   const isSide = pos === "left" || pos === "right";
 
   const SideStatsColumn = () => (
-    <aside aria-label="สถิติผู้ใช้งาน" className="hidden lg:flex flex-col gap-3 w-56 shrink-0 self-stretch">
+    <aside aria-label="สถิติผู้ใช้งาน" className="hidden lg:flex flex-col gap-2 w-48 shrink-0 self-stretch overflow-hidden">
       {statCards.map((s, i) => (
         <motion.div
           key={s.label}
           initial={{ opacity: 0, x: pos === "left" ? -12 : 12 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 + i * 0.06, duration: 0.4 }}
-          className="glass-card v2-stat-3d relative overflow-hidden !p-4 flex-1"
+          className="glass-card v2-stat-3d relative overflow-hidden !p-3 flex-1 min-h-0 flex flex-col justify-center"
         >
-          <s.icon className="pointer-events-none absolute -right-3 -bottom-3 text-primary/10" size={72} strokeWidth={1.5} aria-hidden />
-          <div className="relative flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-primary/15 text-primary">
-              <s.icon size={12} />
+          <s.icon className="pointer-events-none absolute -right-2 -bottom-2 text-primary/10" size={56} strokeWidth={1.5} aria-hidden />
+          <div className="relative flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
+            <span className="inline-flex items-center justify-center w-4 h-4 rounded-md bg-primary/15 text-primary">
+              <s.icon size={10} />
             </span>
             {s.label}
           </div>
-          <div className="relative mt-2 flex items-baseline gap-1.5">
-            <span className="v2-stat-num text-2xl lg:text-3xl">{s.value.toLocaleString()}</span>
-            <span className="text-xs text-muted-foreground">{s.unit}</span>
+          <div className="relative mt-1 flex items-baseline gap-1">
+            <span className="v2-stat-num text-lg xl:text-xl leading-none">{s.value.toLocaleString()}</span>
+            <span className="text-[10px] text-muted-foreground">{s.unit}</span>
           </div>
-          <div className="relative mt-2 v2-underline" />
         </motion.div>
       ))}
     </aside>
   );
+
 
   return (
     <div className={`${maxWidthClass()} mx-auto px-4 sm:px-6 pt-6 sm:pt-8`}>

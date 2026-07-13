@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useLayoutConfig } from "@/hooks/useLayoutConfig";
-import { X, ExternalLink, ArrowRight, ChevronRight, Volume2, LogIn, Megaphone, Star, Package, Wallet, Navigation, Users, BoxesIcon, ShoppingCart, Wrench, RefreshCw } from "lucide-react";
+import { X, ExternalLink, ArrowRight, ChevronRight, Volume2, LogIn, Megaphone, Star, Package, Wallet, Navigation, Users, BoxesIcon, ShoppingCart, Wrench, RefreshCw, ShoppingBag } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useState, useEffect, useCallback } from "react";
 import { db } from "@/lib/firebase";

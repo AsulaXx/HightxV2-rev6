@@ -212,11 +212,9 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
         </div>
       </motion.div>
 
-      {/* Stat cards — 3D hover lift. Position: top | left | right */}
-      {(() => {
-        const pos = settings.statsPosition || "top";
-        const isSide = pos === "left" || pos === "right";
-        const Card = ({ s, i }: { s: typeof statCards[number]; i: number }) => (
+      {/* Stat cards — bottom grid (hidden on lg+ when moved beside hero) */}
+      <div className={`mt-8 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 ${isSide ? "lg:hidden" : ""}`}>
+        {statCards.map((s, i) => (
           <motion.div
             key={s.label}
             initial={{ opacity: 0, y: 12 }}
@@ -239,24 +237,9 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
             </div>
             <div className="relative mt-2 v2-underline" />
           </motion.div>
-        );
+        ))}
+      </div>
 
-        return (
-          <>
-            {isSide && (
-              <aside
-                aria-label="สถิติผู้ใช้งาน"
-                className={`hidden lg:flex fixed top-24 z-30 flex-col gap-3 w-52 ${pos === "left" ? "left-3 xl:left-6" : "right-3 xl:right-6"}`}
-              >
-                {statCards.map((s, i) => <Card key={s.label} s={s} i={i} />)}
-              </aside>
-            )}
-            <div className={`mt-8 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 ${isSide ? "lg:hidden" : ""}`}>
-              {statCards.map((s, i) => <Card key={s.label} s={s} i={i} />)}
-            </div>
-          </>
-        );
-      })()}
 
     </div>
   );

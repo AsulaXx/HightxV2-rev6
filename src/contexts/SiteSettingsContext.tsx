@@ -761,6 +761,7 @@ const defaultSettings: SiteSettings = {
     artist: "",
     startTime: 0,
     autoPlay: true,
+    defaultVolume: 0.5,
   },
   tosContent: "",
   tosContentEn: "",

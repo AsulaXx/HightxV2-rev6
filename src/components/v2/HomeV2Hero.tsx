@@ -62,28 +62,28 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
     img.src = heroImg;
   }, [heroImg]);
 
-  // Compute dynamic banner height. Target aspect ~ 3.2:1 desktop, 2:1 tablet, 1.6:1 mobile.
-  const targetAspect =
-    containerW >= 1024 ? 3.4 : containerW >= 640 ? 2.4 : 1.7;
-  const minH = containerW >= 1024 ? 260 : containerW >= 640 ? 200 : 170;
-  const maxH = containerW >= 1024 ? 460 : containerW >= 640 ? 360 : 280;
-  const dynamicH = containerW > 0 ? Math.round(Math.min(maxH, Math.max(minH, containerW / targetAspect))) : heroHeightPref;
+  // Dynamic frame — height follows the image's natural aspect ratio so the
+  // picture always fills the frame (no letterboxing, no cropping). Clamped
+  // so it never gets absurdly tall/short across viewports.
+  const minH = containerW >= 1024 ? 240 : containerW >= 640 ? 200 : 170;
+  const maxH = containerW >= 1024 ? 520 : containerW >= 640 ? 400 : 300;
+  const fallbackAspect = containerW >= 1024 ? 3.4 : containerW >= 640 ? 2.4 : 1.7;
+  const activeAspect = imgRatio ?? fallbackAspect;
+  const dynamicH = containerW > 0
+    ? Math.round(Math.min(maxH, Math.max(minH, containerW / activeAspect)))
+    : heroHeightPref;
 
-  // Decide "logo mode": when the natural image aspect ratio is far from the
-  // container's aspect ratio, `cover` crops heavily and `contain` leaves big
-  // empty gutters — swap to a centered logo on a themed gradient instead.
-  const containerAspect = containerW > 0 ? containerW / dynamicH : targetAspect;
-  const ratioMismatch = imgRatio ? Math.max(imgRatio / containerAspect, containerAspect / imgRatio) : 1;
-  const useLogoMode = logoFallback || (imgRatio !== null && ratioMismatch > 2.0);
+  // Only fall back to logo if the image itself failed to load.
+  const useLogoMode = logoFallback;
 
-  // Respect explicit auto-fit setting from admin (do not override user choice).
   const finalHeight = heroAutoFit ? undefined : dynamicH;
   const finalFit: React.CSSProperties["objectFit"] = heroAutoFit
     ? "contain"
     : useLogoMode
     ? "contain"
-    : (heroFit as any);
+    : "cover"; // always cover — frame matches image ratio so nothing is cropped
   const displayedImg = useLogoMode ? logoImg : heroImg;
+
 
   // 3D tilt on mouse move
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {

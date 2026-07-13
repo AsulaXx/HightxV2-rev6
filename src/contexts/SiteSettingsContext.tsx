@@ -6,6 +6,7 @@ import { TENANT_BRAND, TENANT_THEME, TENANT_HERO, TENANT_DEFAULT_CATEGORIES, TEN
 export type ParticleMode = "default" | "snow" | "stars" | "bubbles";
 export type BackgroundEffect = "none" | "grid" | "dots" | "waves" | "aurora" | "matrix";
 export type LoaderStyle = "atom" | "ring" | "dots" | "bars" | "pulse" | "orbit";
+export type PerformanceModeSetting = "auto" | "high" | "balanced" | "saver";
 
 export interface ParticlesConfig {
   enabled: boolean;
@@ -46,6 +47,7 @@ interface ThemeSettings {
   bgEffect?: BackgroundEffectConfig;
   loaderStyle?: LoaderStyle;
   commandPaletteEnabled?: boolean;
+  performanceMode?: PerformanceModeSetting;
   fontHeading?: string;
   fontBody?: string;
   fx3d?: Theme3DConfig;
@@ -564,6 +566,7 @@ const defaultTheme: ThemeSettings = {
   bgEffect: { effect: "none", opacity: 0.35, color: "auto", speed: 1 },
   loaderStyle: "atom",
   commandPaletteEnabled: true,
+  performanceMode: "auto",
   fx3d: {
     glow: 55,
     tilt: 3,

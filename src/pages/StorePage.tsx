@@ -699,6 +699,11 @@ const StorePage = () => {
                             <Layers size={9} /> {optionCount}
                           </span>
                         )}
+                        {(soldCounts[product.id] || 0) > 0 && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-400/25 text-emerald-400 text-[9px] font-semibold">
+                            <ShoppingCart size={9} /> {(soldCounts[product.id] || 0).toLocaleString()}
+                          </span>
+                        )}
                         {isUnavailable && statusMeta && tint && (
                           <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full border ${tint.chip} text-[9px] font-semibold uppercase`}>
                             <statusMeta.Icon size={9} className={statusMeta.iconAnim} />

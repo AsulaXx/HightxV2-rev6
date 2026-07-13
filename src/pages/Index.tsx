@@ -380,7 +380,7 @@ const Index = () => {
 
 
       {(settings.homeSectionVisibility?.categories !== false) && (settings.categories || []).filter(c => c.enabled).length > 0 && (
-        <motion.section variants={stagger} initial="hidden" animate="show" className={`${maxWidthClass()} mx-auto px-4 sm:px-6 ${spacingClass()}`}>
+        <motion.section {...sectionInView} className={`${maxWidthClass()} mx-auto px-4 sm:px-6 ${spacingClass()}`}>
           <motion.div variants={fade} className="text-center mb-6 sm:mb-8">
             <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">{settings.homeSectionTitles?.categories || "หมวดหมู่สินค้า"}</h2>
             {settings.homeSectionSubtitles?.categories && <p className="text-xs sm:text-sm text-muted-foreground/60 mt-1">{settings.homeSectionSubtitles.categories}</p>}

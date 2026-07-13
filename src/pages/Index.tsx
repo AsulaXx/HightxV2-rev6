@@ -537,10 +537,11 @@ const Index = () => {
                 ? { href: service.url, target: "_blank", rel: "noopener noreferrer" }
                 : { to: service.url || "#" };
               return (
-                <motion.div key={service.id} variants={fade}>
-                  <Wrapper {...wrapperProps as any} className={`group glass-card-hover !p-0 overflow-hidden block ${radiusClass()}`}>
+                <motion.div key={service.id} variants={fade} {...cardHover}>
+                  <Wrapper {...wrapperProps as any} className={`group relative glass-card-hover !p-0 overflow-hidden block ${radiusClass()}`}>
+                    <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 rotate-12 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-[380%] transition-all duration-700 ease-out z-10" />
                     {service.bannerUrl ? (
-                      <img src={service.bannerUrl} alt={service.name} className="w-full h-auto object-contain group-hover:scale-[1.02] transition-transform duration-500" />
+                      <img src={service.bannerUrl} alt={service.name} className="w-full h-auto object-contain group-hover:scale-[1.03] transition-transform duration-500" />
                     ) : (
                       <div className={`aspect-[4/3] bg-gradient-to-br ${service.gradient || 'from-primary/20 to-accent/20'} flex items-center justify-center p-4 relative overflow-hidden`}>
                         <div className="absolute inset-0 bg-gradient-to-t from-background/30 to-transparent" />

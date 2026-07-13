@@ -73,9 +73,10 @@ const StorePage = () => {
   const loadAvailableCounts = useCallback(async () => {
     try {
       // Use edge function (service account) — Firestore rules block /keys list-reads for non-staff.
-      const { fetchKeyCounts } = await import("@/lib/keyCounts");
-      const counts = await fetchKeyCounts();
+      const { fetchKeyCounts, fetchSoldCounts } = await import("@/lib/keyCounts");
+      const [counts, sold] = await Promise.all([fetchKeyCounts(), fetchSoldCounts()]);
       setAvailableCounts(counts);
+      setSoldCounts(sold);
     } catch (err: any) { console.error("Failed to load available counts:", err?.code, err?.message, err); }
   }, []);
 

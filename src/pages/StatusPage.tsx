@@ -4,6 +4,7 @@ import { CheckCircle, AlertTriangle, XCircle, RefreshCw, Activity, Clock, Wifi, 
 import PageBreadcrumb from "@/components/PageBreadcrumb";
 import { supabase } from "@/integrations/supabase/client";
 import { useLayoutConfig } from "@/hooks/useLayoutConfig";
+import { firebaseConfig } from "@/lib/config";
 
 interface ServiceStatus {
   name: string;
@@ -42,7 +43,9 @@ const StatusPage = () => {
   const fetchHealth = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("health-check");
+      const { data, error } = await supabase.functions.invoke("health-check", {
+        body: { projectId: firebaseConfig.projectId },
+      });
       if (error) throw error;
       setHealth(data as HealthResponse);
       setLastRefresh(new Date());

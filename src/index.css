@@ -1140,3 +1140,204 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
   border: 1px solid hsl(272 60% 25% / 0.5) !important;
   border-radius: 12px !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   V2 — GLOBAL PAGE OVERRIDES (auth, profile, dashboard, hub,
+   wheel, topup, wallet, leaderboard, admin, misc). Scoped only.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Headings tuned for Kanit tactical look */
+[data-ui-version="v2"] h1,
+[data-ui-version="v2"] h2,
+[data-ui-version="v2"] h3 {
+  font-family: 'Kanit', 'Prompt', sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* Buttons — flatter, sharper radii site-wide */
+[data-ui-version="v2"] button,
+[data-ui-version="v2"] .btn,
+[data-ui-version="v2"] [role="button"] {
+  border-radius: 10px;
+}
+
+/* Shadcn Card / any bordered surface: violet border, dark solid bg */
+[data-ui-version="v2"] .rounded-3xl,
+[data-ui-version="v2"] .rounded-2xl {
+  border-radius: 14px !important;
+}
+[data-ui-version="v2"] .rounded-xl { border-radius: 12px !important; }
+
+/* Neutralize white/light backgrounds that leak through pages */
+[data-ui-version="v2"] .bg-white,
+[data-ui-version="v2"] .bg-white\/5,
+[data-ui-version="v2"] .bg-white\/10,
+[data-ui-version="v2"] .bg-white\/20 {
+  background-color: hsl(270 42% 9% / 0.85) !important;
+}
+[data-ui-version="v2"] .bg-black\/40,
+[data-ui-version="v2"] .bg-black\/50,
+[data-ui-version="v2"] .bg-black\/60 {
+  background-color: hsl(270 55% 4% / 0.7) !important;
+}
+
+/* Any card-ish container using bg-card / bg-muted */
+[data-ui-version="v2"] .bg-card {
+  background-color: hsl(270 42% 9%) !important;
+  border-color: hsl(270 45% 18% / 0.7) !important;
+}
+[data-ui-version="v2"] .bg-muted,
+[data-ui-version="v2"] .bg-muted\/20,
+[data-ui-version="v2"] .bg-muted\/30,
+[data-ui-version="v2"] .bg-muted\/40,
+[data-ui-version="v2"] .bg-muted\/50 {
+  background-color: hsl(270 45% 12% / 0.55) !important;
+}
+
+/* Badges & pills */
+[data-ui-version="v2"] .badge,
+[data-ui-version="v2"] [class*="Badge"] {
+  border-radius: 999px !important;
+  font-family: 'Kanit', 'Prompt', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+/* Tabs (shadcn) — tactical segmented */
+[data-ui-version="v2"] [role="tablist"] {
+  background: hsl(270 45% 8%) !important;
+  border: 1px solid hsl(270 45% 18% / 0.7) !important;
+  border-radius: 12px !important;
+  padding: 4px !important;
+}
+[data-ui-version="v2"] [role="tab"] {
+  border-radius: 8px !important;
+  font-family: 'Kanit', 'Prompt', sans-serif;
+  font-weight: 600 !important;
+  color: hsl(var(--muted-foreground)) !important;
+}
+[data-ui-version="v2"] [role="tab"][data-state="active"] {
+  background: linear-gradient(135deg, hsl(272 90% 55%), hsl(285 88% 60%)) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 16px -6px hsl(272 90% 45% / 0.6) !important;
+}
+
+/* Tables / rows */
+[data-ui-version="v2"] table {
+  background: hsl(270 42% 9%);
+  border: 1px solid hsl(270 45% 18% / 0.7);
+  border-radius: 12px;
+  overflow: hidden;
+}
+[data-ui-version="v2"] table thead {
+  background: hsl(270 50% 11%);
+}
+[data-ui-version="v2"] table th {
+  color: hsl(272 60% 78%) !important;
+  font-family: 'Kanit', 'Prompt', sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 11px !important;
+}
+[data-ui-version="v2"] table tbody tr {
+  border-top: 1px solid hsl(270 45% 18% / 0.5);
+}
+[data-ui-version="v2"] table tbody tr:hover {
+  background: hsl(272 60% 15% / 0.35) !important;
+}
+
+/* Dashboard / stat tiles — any div with numeric big text */
+[data-ui-version="v2"] .stat-tile,
+[data-ui-version="v2"] .glass-card .text-3xl,
+[data-ui-version="v2"] .glass-card .text-4xl,
+[data-ui-version="v2"] .glass-card .text-5xl {
+  font-family: 'Kanit', 'Prompt', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, hsl(272 95% 78%), hsl(285 100% 82%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Hub / Tool cards — grid tiles */
+[data-ui-version="v2"] a.glass-card-hover,
+[data-ui-version="v2"] .tool-card {
+  background: linear-gradient(180deg, hsl(270 45% 10%), hsl(272 50% 7%)) !important;
+  border: 1px solid hsl(270 45% 20% / 0.7) !important;
+  position: relative;
+  overflow: hidden;
+}
+[data-ui-version="v2"] a.glass-card-hover::before,
+[data-ui-version="v2"] .tool-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, hsl(272 95% 68% / 0.9), transparent);
+  opacity: 0.5;
+  transition: opacity 0.25s;
+}
+[data-ui-version="v2"] a.glass-card-hover:hover::before,
+[data-ui-version="v2"] .tool-card:hover::before {
+  opacity: 1;
+}
+
+/* Wheel page canvas glow */
+[data-ui-version="v2"] canvas {
+  filter: drop-shadow(0 0 24px hsl(272 95% 55% / 0.35));
+}
+
+/* Auth / Login card — center panel accent */
+[data-ui-version="v2"] .auth-card,
+[data-ui-version="v2"] form.glass-card {
+  background: linear-gradient(180deg, hsl(270 45% 10%), hsl(272 50% 7%)) !important;
+  border: 1px solid hsl(272 60% 25% / 0.6) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 20px 60px -20px hsl(272 90% 30% / 0.5) !important;
+}
+
+/* Status page: recolor status "bg" combinations to solid dark */
+[data-ui-version="v2"] .bg-emerald-500\/10,
+[data-ui-version="v2"] .bg-yellow-500\/10,
+[data-ui-version="v2"] .bg-red-500\/10 {
+  background-color: hsl(270 45% 10%) !important;
+}
+[data-ui-version="v2"] .border-emerald-500\/20 { border-color: hsl(150 75% 45% / 0.4) !important; }
+[data-ui-version="v2"] .border-yellow-500\/20 { border-color: hsl(45 95% 55% / 0.4) !important; }
+[data-ui-version="v2"] .border-red-500\/20    { border-color: hsl(0 82% 60% / 0.4) !important; }
+
+/* Breadcrumb panels */
+[data-ui-version="v2"] .page-breadcrumb,
+[data-ui-version="v2"] nav[aria-label="breadcrumb"] {
+  background: hsl(270 42% 9%);
+  border: 1px solid hsl(270 45% 18% / 0.7);
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+}
+
+/* Dialog / Sheet / Popover — dark tactical */
+[data-ui-version="v2"] [role="dialog"],
+[data-ui-version="v2"] [data-radix-popper-content-wrapper] > * {
+  background: hsl(270 45% 8%) !important;
+  border: 1px solid hsl(272 60% 25% / 0.5) !important;
+  border-radius: 14px !important;
+  backdrop-filter: none !important;
+}
+
+/* Toaster */
+[data-ui-version="v2"] [data-sonner-toaster] [data-sonner-toast] {
+  background: hsl(270 45% 9%) !important;
+  border: 1px solid hsl(272 60% 25% / 0.6) !important;
+  border-radius: 12px !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Progress bar */
+[data-ui-version="v2"] [role="progressbar"] > div {
+  background: linear-gradient(90deg, hsl(272 90% 55%), hsl(340 85% 60%)) !important;
+}
+
+/* Switch / Checkbox accents */
+[data-ui-version="v2"] [role="switch"][data-state="checked"] {
+  background: linear-gradient(135deg, hsl(272 90% 55%), hsl(340 85% 55%)) !important;
+}

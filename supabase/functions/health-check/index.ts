@@ -106,6 +106,19 @@ serve(async (req) => {
   }
 
   try {
+    // Allow client to pass firebase projectId (frontend may have it via VITE_ env / tenantConfig)
+    let clientProjectId: string | undefined;
+    if (req.method === "POST") {
+      try {
+        const body = await req.json();
+        if (body && typeof body.projectId === "string" && body.projectId.length > 0) {
+          clientProjectId = body.projectId;
+          // Expose to check functions via env override
+          Deno.env.set("VITE_FIREBASE_PROJECT_ID", clientProjectId);
+        }
+      } catch { /* ignore */ }
+    }
+
     const [firebaseAuth, firestore, thunder, edge] = await Promise.all([
       checkFirebaseAuth(),
       checkFirestore(),

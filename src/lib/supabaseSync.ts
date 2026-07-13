@@ -34,7 +34,10 @@ async function waitForFirebaseUser(timeoutMs = 4000) {
 
 async function doSync(): Promise<string | null> {
   const fbUser = await waitForFirebaseUser();
-  if (!fbUser) return null;
+  if (!fbUser) {
+    lastSyncError = "ยังไม่ได้เข้าสู่ระบบ (Firebase user null)";
+    return null;
+  }
 
   try {
     const idToken = await fbUser.getIdToken();
@@ -50,12 +53,15 @@ async function doSync(): Promise<string | null> {
       token_hash: data.token_hash,
     });
     if (verifyErr) throw verifyErr;
+    lastSyncError = null;
     return verifyData.user?.id ?? null;
   } catch (err) {
+    lastSyncError = err instanceof Error ? err.message : String(err);
     logError("supabaseSync.doSync", err);
     return null;
   }
 }
+
 
 /** Ensures a Supabase session exists for the current Firebase user. Idempotent. */
 export async function syncSupabaseSession(force = false): Promise<string | null> {

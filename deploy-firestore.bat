@@ -3,7 +3,7 @@ chcp 65001 >nul
 setlocal EnableDelayedExpansion
 
 echo ============================================
-echo  Firestore Auto Deploy
+echo  Firebase Hosting Auto Deploy
 echo ============================================
 echo.
 
@@ -71,9 +71,18 @@ if errorlevel 1 (
 )
 
 echo.
-REM [5/5] Deploy
-echo [5/5] Deploying Firestore Rules + Indexes...
-call firebase deploy --only firestore:rules,firestore:indexes
+REM [5/5] Build + deploy hosting only
+echo [5/5] Deploying Firebase Hosting only...
+echo Building production files...
+call npm run build
+if errorlevel 1 (
+    echo [X] Build failed. Please review the output above.
+    pause
+    exit /b 1
+)
+
+echo Deploying Hosting only...
+call firebase deploy --only hosting --project !PROJECT_ID!
 if errorlevel 1 (
     echo.
     echo [X] Deploy failed. Please review the output above.
@@ -85,6 +94,7 @@ echo.
 echo ============================================
 echo  [OK] Deploy completed successfully!
 echo  Project: !PROJECT_ID!
+echo  Target: Hosting only
 echo ============================================
 pause
 endlocal

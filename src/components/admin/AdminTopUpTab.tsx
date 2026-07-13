@@ -3,6 +3,7 @@ import { AdminTabProps, generateId } from "./AdminTabProps";
 import { type TopUpSettings, type GiftCode } from "@/contexts/SiteSettingsContext";
 import { toast } from "sonner";
 import AdminTopUpProviders from "./AdminTopUpProviders";
+import SlipQuotaLive from "@/components/topup/SlipQuotaLive";
 
 interface BankAccountEntry {
   id: string;
@@ -59,6 +60,9 @@ const AdminTopUpTab = ({ form, setForm, handleSave }: AdminTabProps) => {
         <h1 className="text-2xl font-bold text-foreground">ตั้งค่าเติมเงิน</h1>
         <p className="text-sm text-muted-foreground mt-1">จัดการช่องทางเติมเงิน ค่าธรรมเนียม และ Gift Code</p>
       </div>
+
+      {/* Realtime Slip Quota */}
+      <SlipQuotaLive />
 
       {/* Master Toggle */}
       <div className="glass-card space-y-4">

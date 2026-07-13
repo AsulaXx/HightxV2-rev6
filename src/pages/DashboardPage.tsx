@@ -1120,7 +1120,9 @@ const DashboardPage = () => {
                   })}
                 </div>
               </CollapsibleSection>
+              )}
 
+              {hasFeature("dash.recent_keys") && (
               <div className="relative">
                 <CollapsibleSection
                   title="คีย์ที่ถูกกดล่าสุด"
@@ -1139,8 +1141,8 @@ const DashboardPage = () => {
                   {!canSeeRecentKeys && (
                     <div className="absolute inset-0 rounded-2xl bg-background/60 backdrop-blur-md flex flex-col items-center justify-center z-10">
                       <Lock size={32} className="text-muted-foreground mb-3" />
-                      <p className="text-sm font-semibold text-muted-foreground">ต้องมียศ HightXCrew ขึ้นไป</p>
-                      <p className="text-xs text-muted-foreground mt-1">เพื่อดูคีย์ที่ถูกกดล่าสุด</p>
+                      <p className="text-sm font-semibold text-muted-foreground">ไม่มีสิทธิ์ดูคีย์ล่าสุด</p>
+                      <p className="text-xs text-muted-foreground mt-1">ติดต่อ Owner เพื่อเปิดสิทธิ์ dash.recent_keys</p>
                     </div>
                   )}
 
@@ -1162,7 +1164,9 @@ const DashboardPage = () => {
                   </div>
                 </CollapsibleSection>
               </div>
+              )}
             </div>
+
 
             {/* Dashboard Settings & Reset */}
             <div className="mt-3">

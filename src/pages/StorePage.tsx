@@ -406,16 +406,19 @@ const StorePage = () => {
 
             const cardCommonProps = {
               key: cat.id,
-              initial: { opacity: 0, y: 8 },
-              animate: { opacity: 1, y: 0 },
-              transition: { delay: i * 0.04 },
+              initial: { opacity: 0, y: 16, scale: 0.96 },
+              whileInView: { opacity: 1, y: 0, scale: 1 },
+              viewport: { once: true, margin: "-40px" },
+              transition: { delay: Math.min(i * 0.05, 0.3), type: "spring" as const, stiffness: 260, damping: 22 },
+              whileHover: { y: -5, scale: 1.025, transition: { type: "spring" as const, stiffness: 380, damping: 18 } },
+              whileTap: { scale: 0.97 },
               onClick: () => handleCategoryClick(cat),
             } as const;
 
             const card = categoryDisplayMode === "banner" ? (
               <motion.button
                 {...cardCommonProps}
-                className={`group relative w-full overflow-hidden aspect-[4/1] rounded-xl border transition-all duration-300 text-left ${selectedCategory === cat.id ? 'border-primary/50 ring-1 ring-primary/20' : 'border-border/40 hover:border-primary/40'}`}
+                className={`group relative w-full overflow-hidden aspect-[4/1] rounded-xl border transition-all duration-300 text-left hover:shadow-[0_18px_50px_-18px_hsl(var(--primary)/0.55)] ${selectedCategory === cat.id ? 'border-primary/50 ring-1 ring-primary/20' : 'border-border/40 hover:border-primary/40'}`}
                 style={{ backgroundColor: 'hsl(var(--card))' }}
               >
                 {cat.bannerUrl || cat.imageUrl ? (

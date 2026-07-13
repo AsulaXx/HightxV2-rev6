@@ -295,7 +295,7 @@ const AdminPage = () => {
   }, [categories, menuQuery]);
 
   const currentTab = tabs.find((t) => t.id === activeTab);
-  const hideSaveTabs = ["users", "permissions", "transactions", "linkpages", "auditlog", "wheelclaims", "datareset", "backup", "keys"];
+  const hideSaveTabs = ["users", "permissions", "roleaccess", "transactions", "linkpages", "auditlog", "wheelclaims", "datareset", "backup", "keys"];
   const showSave = !hideSaveTabs.includes(activeTab);
 
   return (

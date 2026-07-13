@@ -46,9 +46,16 @@ const AdminMusicTab = ({ form, setForm, handleSave }: AdminTabProps) => {
                   try {
                     const prefix = await getSupabaseUploadPrefix();
                     path = `${prefix}/${Date.now()}.${ext}`;
-                  } catch (err: any) {
-                    toast.error("เซสชันหมดอายุ กรุณา login ใหม่", { id: "music-upload" });
-                    return;
+                  } catch {
+                    try {
+                      const { syncSupabaseSession } = await import("@/lib/supabaseSync");
+                      const uid = await syncSupabaseSession(true);
+                      if (!uid) throw new Error("no uid");
+                      path = `${uid}/${Date.now()}.${ext}`;
+                    } catch (err: any) {
+                      toast.error("เชื่อมต่อ Storage ไม่สำเร็จ ลองรีเฟรชหน้าแล้วอัปโหลดใหม่", { id: "music-upload" });
+                      return;
+                    }
                   }
                   const { error } = await supabase.storage.from("music").upload(path, file, { cacheControl: "3600", upsert: false });
                   if (error) { toast.error("อัปโหลดล้มเหลว: " + error.message, { id: "music-upload" }); return; }

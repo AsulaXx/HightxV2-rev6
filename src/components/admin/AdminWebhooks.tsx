@@ -79,8 +79,6 @@ const LowStockAlertConfig = ({ form, setForm }: { form: any; setForm: (f: any) =
   };
 
   const selectAll = () => setForm({ ...form, lowStockWebhookProductIds: [] });
-  const clearAll = () => setForm({ ...form, lowStockWebhookProductIds: products.map((p) => "__none__") }); // sentinel avoids "empty=all" collision
-  // Better: use a real "none selected" state via all-but-one? Simpler: keep [] as all, and provide "ปิดหมด" that disables the whole webhook toggle instead.
 
   const isChecked = (id: string) => allSelected || selected.includes(id);
 

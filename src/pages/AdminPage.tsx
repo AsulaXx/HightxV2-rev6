@@ -815,10 +815,6 @@ const AdminPage = () => {
               <AdminAuditLogTab form={form} setForm={setForm} handleSave={handleSave} />
             )}
 
-            {activeTab === "permissions" && isOwner && (
-              <AdminPermissionsTab form={form} setForm={setForm} handleSave={handleSave} />
-            )}
-
             {activeTab === "roleaccess" && isOwner && (
               <AdminRoleAccessTab />
             )}

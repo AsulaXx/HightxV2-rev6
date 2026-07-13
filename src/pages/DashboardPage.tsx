@@ -21,6 +21,8 @@ const DashboardTopUpBreakdown = lazy(() => import("@/components/dashboard/Dashbo
 const DashboardThunderQuota = lazy(() => import("@/components/dashboard/DashboardThunderQuota"));
 const DashboardWheelActivity = lazy(() => import("@/components/dashboard/DashboardWheelActivity"));
 import { ROLE_LABELS, type UserRole } from "@/contexts/AuthContext";
+import { useFeatureChecker } from "@/hooks/useFeature";
+
 import { Bar, Doughnut, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,

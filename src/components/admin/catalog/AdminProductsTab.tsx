@@ -131,11 +131,11 @@ const AdminProductsTab = ({ form, setForm, handleSave }: AdminTabProps) => {
                   } ${isDragOver ? "ring-2 ring-primary/60 border-primary/50" : "border-border hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"}`}
                 >
                   {/* Image / placeholder */}
-                  <div className="relative bg-muted/30 overflow-hidden" style={{ height: tileSize }}>
+                  <div className="relative aspect-[4/5] bg-muted/30 overflow-hidden">
                     {product.imageUrl ? (
-                      <img src={product.thumbnailUrl || product.imageUrl} alt={product.name} className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-105" loading="lazy" />
+                      <img src={product.thumbnailUrl || product.imageUrl} alt={product.name} className="absolute inset-0 w-full h-full object-fill transition-transform group-hover:scale-105" loading="lazy" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center"><Package size={Math.max(32, tileSize / 4)} className="text-muted-foreground/20" /></div>
+                      <div className="w-full h-full flex items-center justify-center"><Package size={32} className="text-muted-foreground/20" /></div>
                     )}
                     {/* gradient overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />

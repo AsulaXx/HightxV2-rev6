@@ -140,20 +140,21 @@ const Index = () => {
   const socialLinks = settings.socialLinks?.filter(l => l.showOnHome !== false) || [];
   const enabledProducts = (settings.products || []).filter(p => p.enabled && p.name);
 
+  // No scroll-triggered fades — they caused only the first (top-left) card to
+  // animate visibly while others were already off-screen, looking broken.
+  // Keep sections mounted-visible; use hover-only motion for delight.
   const fade = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } }
+    hidden: { opacity: 1, y: 0 },
+    show: { opacity: 1, y: 0 },
   };
   const stagger = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.05 } }
+    hidden: { opacity: 1 },
+    show: { opacity: 1 },
   };
-  // Below-the-fold sections animate on scroll into view
   const sectionInView = {
     variants: stagger,
-    initial: "hidden" as const,
-    whileInView: "show" as const,
-    viewport: { once: true, margin: "-60px" },
+    initial: "show" as const,
+    animate: "show" as const,
   };
   const cardHover = {
     whileHover: { y: -4, transition: { type: "spring" as const, stiffness: 380, damping: 22 } },

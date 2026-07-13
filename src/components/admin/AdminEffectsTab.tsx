@@ -73,8 +73,109 @@ const AdminEffectsTab = ({ form, setForm, handleSave }: Props) => {
     }
   };
 
+  // UI Version preset (V1 = Liquid Glass, V2 = Awang Violet)
+  const uiVersion: "v1" | "v2" = form.uiVersion === "v2" ? "v2" : "v1";
+  const [uiPreview, setUiPreview] = useState<"v1" | "v2" | null>(null);
+  const setUiVersion = (v: "v1" | "v2") => setForm({ ...form, uiVersion: v });
+  useEffect(() => {
+    if (uiPreview) document.documentElement.setAttribute("data-ui-version", uiPreview);
+    return () => {
+      // restore saved
+      document.documentElement.setAttribute("data-ui-version", uiVersion);
+    };
+  }, [uiPreview, uiVersion]);
+
+  const UI_PRESETS = [
+    {
+      id: "v1" as const,
+      label: "V1 — Liquid Glass",
+      desc: "โทนเดิม กระจกเบลอ ม่วง-ครามอ่อน",
+      swatch: ["#6366f1", "#a855f7", "#c4b5fd", "#1e1b4b"],
+    },
+    {
+      id: "v2" as const,
+      label: "V2 — Awang Violet",
+      desc: "สไตล์ awang.store ดำสนิท ม่วงนีออน solid card ปุ่ม pill",
+      swatch: ["#7c3aed", "#a855f7", "#c084fc", "#0a0510"],
+    },
+  ];
+
   return (
     <div className="space-y-6">
+
+      {/* UI Preset — V1 / V2 with realtime preview */}
+      <section className="glass-card !p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <Palette size={16} className="text-primary" />
+          <h3 className="text-sm font-bold">รูปแบบ UI ทั้งเว็บ (Global Preset)</h3>
+          <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+            บันทึกไว้: {uiVersion.toUpperCase()}
+          </span>
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          เปลี่ยนหน้าตาทั้งเว็บทีเดียว เอฟเฟกต์และสีจะปรับตาม preset ที่เลือก
+          <b> วางเมาส์เพื่อพรีวิวสด</b> — กด "ตั้งเป็นค่านี้" เพื่อบันทึก จากนั้นกดปุ่มบันทึกด้านล่าง
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {UI_PRESETS.map((p) => {
+            const isSaved = uiVersion === p.id;
+            const isPreviewing = uiPreview === p.id;
+            return (
+              <div
+                key={p.id}
+                onMouseEnter={() => setUiPreview(p.id)}
+                onMouseLeave={() => setUiPreview(null)}
+                className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                  isSaved
+                    ? "border-primary bg-primary/10 ring-2 ring-primary/40"
+                    : isPreviewing
+                    ? "border-amber-500/60 bg-amber-500/10"
+                    : "border-border/50 bg-muted/20 hover:border-primary/40"
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex gap-1">
+                    {p.swatch.map((c) => (
+                      <span key={c} className="w-4 h-4 rounded-full ring-1 ring-black/30" style={{ background: c }} />
+                    ))}
+                  </div>
+                  {isSaved && <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-primary/20 text-primary">ใช้อยู่</span>}
+                  {!isSaved && isPreviewing && <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300">กำลังพรีวิว</span>}
+                </div>
+                <div className="text-sm font-bold text-foreground">{p.label}</div>
+                <div className="text-[11px] text-muted-foreground mt-1 mb-3">{p.desc}</div>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setUiVersion(p.id); setUiPreview(null); toast.success(`เลือก ${p.label} แล้ว — อย่าลืมกดบันทึก`); }}
+                  disabled={isSaved}
+                  className={`w-full py-2 rounded-lg text-xs font-semibold transition-all ${
+                    isSaved
+                      ? "bg-muted/40 text-muted-foreground cursor-not-allowed"
+                      : "bg-primary text-primary-foreground hover:brightness-110"
+                  }`}
+                >
+                  {isSaved ? "ค่านี้ถูกใช้อยู่" : "ตั้งเป็นค่านี้"}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center gap-2 pt-2 border-t border-border/40">
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-lg border border-border/50 hover:border-primary/40 hover:bg-muted/30 transition-colors"
+          >
+            <RefreshCw size={12} /> รีเฟรชหน้าเพื่อดูผลเต็มรูปแบบ
+          </button>
+          <span className="text-[10px] text-muted-foreground">
+            แนะนำให้รีเฟรชหลังบันทึก เพื่อให้ทุกหน้าอัปเดตพร้อมกัน
+          </span>
+        </div>
+      </section>
+
 
 
 

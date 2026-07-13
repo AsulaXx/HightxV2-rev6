@@ -4,6 +4,7 @@ import { CheckCircle, AlertTriangle, XCircle, RefreshCw, Activity, Clock, Wifi, 
 import PageBreadcrumb from "@/components/PageBreadcrumb";
 import { supabase } from "@/integrations/supabase/client";
 import { useLayoutConfig } from "@/hooks/useLayoutConfig";
+import { firebaseConfig } from "@/lib/config";
 
 interface ServiceStatus {
   name: string;

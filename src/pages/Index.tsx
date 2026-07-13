@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useLayoutConfig } from "@/hooks/useLayoutConfig";
-import { X, ExternalLink, ArrowRight, ChevronRight, Volume2, LogIn, Megaphone, Star, Package, Wallet, Navigation, Users, BoxesIcon, ShoppingCart, Wrench, RefreshCw } from "lucide-react";
+import { X, ExternalLink, ArrowRight, ChevronRight, Volume2, LogIn, Megaphone, Star, Package, Wallet, Navigation, Users, BoxesIcon, ShoppingCart, Wrench, RefreshCw, ShoppingBag } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useState, useEffect, useCallback } from "react";
 import { db } from "@/lib/firebase";
@@ -298,9 +298,10 @@ const Index = () => {
       {/* Stats Bar */}
       {(settings.homeSectionVisibility?.stats !== false) && (
       <section className={`${maxWidthClass()} mx-auto px-4 sm:px-6 ${spacingClass()}`}>
-        <RevealGroup step={90} className="grid grid-cols-3 gap-2 sm:gap-3">
+        <RevealGroup step={90} className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
           {[
             { icon: Users, label: "ผู้ใช้งาน", value: siteStats.users.toLocaleString(), unit: "คน" },
+            { icon: ShoppingBag, label: "สินค้า", value: ((settings.products || []).filter(p => p.enabled !== false).length).toLocaleString(), unit: "รายการ" },
             { icon: BoxesIcon, label: "สต็อก", value: siteStats.stock.toLocaleString(), unit: "ชิ้น" },
             { icon: ShoppingCart, label: "ยอดขาย", value: siteStats.sales.toLocaleString(), unit: "ชิ้น" },
           ].map((stat) => (

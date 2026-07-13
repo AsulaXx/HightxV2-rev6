@@ -82,6 +82,7 @@ const AdminPage = () => {
   const isOwner = profile?.role === "owner";
   const isAdmin = hasPermission("admin");
   const isMod = hasPermission("moderator");
+  const isHightXCrew = hasPermission("hightxcrew");
 
   // Owner-defined per-tab visibility (from Role Access). Falls back to role-based defaults.
   const tabAllowed = (tabId: string): boolean => {

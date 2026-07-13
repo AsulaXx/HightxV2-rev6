@@ -624,7 +624,7 @@ const DEFAULT_ROLE_PERMISSIONS: RolePermissions = {
 };
 
 const defaultSettings: SiteSettings = {
-  uiVersion: "v1",
+  uiVersion: "glass",
   bankAccountInfo: "",
   matchReceiverAccount: "",
   matchReceiverAccounts: [],
@@ -977,9 +977,12 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   }, [settings.theme]);
 
-  // Apply UI version (v1 = Liquid Glass only)
+  // Apply UI version preset (swaps design tokens via [data-ui-version="..."])
   useEffect(() => {
-    document.documentElement.setAttribute("data-ui-version", "v1");
+    const v = settings.uiVersion || "glass";
+    // Back-compat: old saved value "v1" -> "glass"
+    const preset = (v as string) === "v1" ? "glass" : v;
+    document.documentElement.setAttribute("data-ui-version", preset);
   }, [settings.uiVersion]);
 
   // Apply 3D effect CSS variables (glow / tilt / gradient)

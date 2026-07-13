@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
+import NavbarV2 from "@/components/v2/layout/NavbarV2";
 import { useWallet } from "@/hooks/useWallet";
 import logo from "@/assets/logo.png";
 import { LogOut, LogIn, Home, User, ExternalLink, Menu, X, ShoppingBag, History, Wallet, Bell, Compass, Settings, ChevronDown, Shield } from "lucide-react";

@@ -499,21 +499,32 @@ const ProductDetailPage = () => {
               );
             })()}
 
-            {isProductUnavailable && (
-              <div className={`glass-card ${radiusClass()} border border-amber-500/40 bg-amber-500/10`}>
-                <div className="flex items-start gap-2.5">
-                  <span className="text-lg">{productAvailability === "updating" ? "🔧" : "⛔"}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-amber-500">
-                      {productAvailability === "updating" ? "สินค้านี้กำลังอัพเดท" : "สินค้าไม่พร้อมขายในขณะนี้"}
-                    </p>
-                    {product.availabilityMessage && (
-                      <p className="text-[11px] text-amber-500/90 mt-0.5 whitespace-pre-wrap">{product.availabilityMessage}</p>
-                    )}
+            {isProductUnavailable && (() => {
+              const s = productStatus === "updating"
+                ? { Icon: Cog, iconClass: "animate-spin-slow", title: "สินค้านี้กำลังอัพเดท", ring: "border-amber-500/35", bg: "bg-amber-500/[0.06]", chip: "bg-amber-500/15 text-amber-400", label: "UPDATING" }
+                : productStatus === "closed"
+                ? { Icon: Ban, iconClass: "", title: "สินค้าไม่พร้อมขายในขณะนี้", ring: "border-red-500/35", bg: "bg-red-500/[0.06]", chip: "bg-red-500/15 text-red-400", label: "CLOSED" }
+                : { Icon: PackageX, iconClass: "", title: "สินค้าหมดชั่วคราว", ring: "border-slate-400/30", bg: "bg-slate-500/[0.06]", chip: "bg-slate-500/15 text-slate-300", label: "OUT OF STOCK" };
+              return (
+                <div className={`glass-card ${radiusClass()} border ${s.ring} ${s.bg}`}>
+                  <div className="flex items-start gap-3">
+                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${s.chip}`}>
+                      <s.Icon size={18} className={s.iconClass} strokeWidth={2.25} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-[13px] font-bold text-foreground leading-tight">{s.title}</p>
+                        <span className={`text-[9px] font-bold tracking-[0.12em] px-1.5 py-0.5 rounded ${s.chip}`}>{s.label}</span>
+                      </div>
+                      {product.availabilityMessage && (
+                        <p className="text-[11.5px] text-muted-foreground mt-1 whitespace-pre-wrap leading-relaxed">{product.availabilityMessage}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
+
 
             {!user && (
               <button

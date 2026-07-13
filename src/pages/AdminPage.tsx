@@ -308,11 +308,12 @@ const AdminPage = () => {
 
   const filteredCategories = useMemo(() => {
     const q = menuQuery.trim().toLowerCase();
-    if (!q) return categories;
-    return categories
+    if (!q) return visibleCategories;
+    return visibleCategories
       .map((c) => ({ ...c, tabs: c.tabs.filter((t) => t.label.toLowerCase().includes(q) || c.label.toLowerCase().includes(q)) }))
       .filter((c) => c.tabs.length > 0);
-  }, [categories, menuQuery]);
+  }, [visibleCategories, menuQuery]);
+
 
   const currentTab = tabs.find((t) => t.id === activeTab);
   const hideSaveTabs = ["users", "permissions", "roleaccess", "transactions", "linkpages", "auditlog", "wheelclaims", "datareset", "backup", "keys"];

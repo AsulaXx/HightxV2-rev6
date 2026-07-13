@@ -573,6 +573,10 @@ interface SiteSettingsContextType {
   settings: SiteSettings;
   updateSettings: (newSettings: Partial<SiteSettings>) => void;
   loading: boolean;
+  /** Live preview override (does not persist). Pass null to clear. */
+  setLivePreview: (patch: Partial<SiteSettings> | null) => void;
+  /** True when a live preview override is active. */
+  isLivePreviewing: boolean;
 }
 
 const defaultTheme: ThemeSettings = {

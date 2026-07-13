@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Save, Columns, LayoutGrid, Eye, Monitor, Sparkles } from "lucide-react";
+import { Save, Columns, LayoutGrid, Eye, Monitor, Sparkles, Search, History, Layout } from "lucide-react";
 import { AdminTabProps } from "./AdminTabProps";
 import type { LayoutConfig } from "@/contexts/SiteSettingsContext";
 import AdminCardPreview from "./AdminCardPreview";

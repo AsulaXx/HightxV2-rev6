@@ -11,10 +11,13 @@ import { CartProvider, useCart } from "@/contexts/CartContext";
 import Navbar from "@/components/Navbar";
 import AnnouncementTicker from "@/components/AnnouncementTicker";
 import BackgroundParticles from "@/components/BackgroundParticles";
+import BackgroundEffects from "@/components/BackgroundEffects";
 import GlowOrbs from "@/components/GlowOrbs";
 import Footer from "@/components/Footer";
 import GlobalMusicPlayer from "@/components/GlobalMusicPlayer";
 import GlobalCartPanel from "@/components/GlobalCartPanel";
+import CommandPalette from "@/components/CommandPalette";
+import ImpersonationBanner from "@/components/ImpersonationBanner";
 import NotificationPanel, { NotificationProvider, useNotifications } from "@/components/NotificationPanel";
 import { useAuth } from "@/contexts/AuthContext";
 import PageTransition from "@/components/PageTransition";
@@ -187,12 +190,15 @@ const App = () => (
                   <NotificationAuthBridge />
                    <GlowOrbs />
                    <BackgroundParticles />
+                   <BackgroundEffects />
                    <div className="relative z-10 flex flex-col min-h-screen">
                      <ConsentGate>
                        <AnimatedRoutes />
                        <GlobalMusicPlayer />
                        <GlobalCartPanel />
                        <NotificationPanel />
+                       <CommandPalette />
+                       <ImpersonationBanner />
                      </ConsentGate>
                    </div>
               </BrowserRouter>

@@ -14,6 +14,12 @@ const AdminProductsTab = ({ form, setForm, handleSave }: AdminTabProps) => {
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  // Dynamic tile size: 120 – 320 px (min width per card). Persisted.
+  const [tileSize, setTileSize] = useState<number>(() => {
+    try { return Math.max(120, Math.min(320, parseInt(localStorage.getItem("admin_products_tile") || "170"))); }
+    catch { return 170; }
+  });
+  useEffect(() => { try { localStorage.setItem("admin_products_tile", String(tileSize)); } catch {} }, [tileSize]);
   const touchStartY = useRef<number>(0);
   const touchDragIdx = useRef<number | null>(null);
 

@@ -502,6 +502,7 @@ interface SiteSettings {
   ogType: string;
   ogSiteUrl: string;
   categoryDisplayMode: DisplayMode;
+  storeHeaderStyle?: "compact" | "classic" | "off";
   categoryBannerLayout: BannerLayout;
   categoryBannerColumns: number;
   productDisplayMode: DisplayMode;
@@ -689,6 +690,7 @@ const defaultSettings: SiteSettings = {
   ogType: "website",
   ogSiteUrl: TENANT_URLS.siteUrl,
   categoryDisplayMode: "card",
+  storeHeaderStyle: "compact",
   categoryBannerLayout: "vertical",
   categoryBannerColumns: 2,
   productDisplayMode: "card",

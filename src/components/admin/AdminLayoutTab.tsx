@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Save, Columns, LayoutGrid, Eye, Monitor, Sparkles } from "lucide-react";
+import { Save, Columns, LayoutGrid, Eye, Monitor, Sparkles, Search, History, Layout } from "lucide-react";
 import { AdminTabProps } from "./AdminTabProps";
 import type { LayoutConfig } from "@/contexts/SiteSettingsContext";
 import AdminCardPreview from "./AdminCardPreview";
@@ -208,6 +208,90 @@ const AdminLayoutTab = ({ form, setForm, handleSave }: AdminTabProps) => {
             />
             <p className="text-[10px] text-muted-foreground mt-1">หากตัวเลือกของสินค้ามีเกินจำนวนนี้ จะถูกพับซ่อนพร้อมปุ่ม "ดูเพิ่ม" (0 = แสดงทั้งหมด)</p>
           </div>
+        </div>
+      </div>
+
+      {/* Store Header Style — realtime preview */}
+      <div className="glass-card space-y-4">
+        <h3 className="text-base font-bold text-foreground flex items-center gap-2"><Layout size={16} className="text-primary" /> รูปแบบหัวหน้าร้าน (Store Header)</h3>
+        <p className="text-xs text-muted-foreground -mt-2">เลือกดีไซน์แถบหัวเรื่องของหน้าร้านค้า พร้อมพรีวิวสดตามธีมปัจจุบัน</p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {([
+            { key: "compact", label: "Compact (แนวนอน)", desc: "ไอคอน + ชื่อ + จำนวน + ค้นหา ในบรรทัดเดียว" },
+            { key: "classic", label: "Classic (ซ้อน)", desc: "หัวเรื่องใหญ่ + ค้นหาเต็มแถวด้านล่าง" },
+            { key: "off", label: "ปิด (ไม่แสดง)", desc: "ซ่อนหัวหน้าร้านทั้งหมด" },
+          ] as const).map((opt) => {
+            const active = (form.storeHeaderStyle ?? "compact") === opt.key;
+            return (
+              <button
+                key={opt.key}
+                type="button"
+                onClick={() => setForm({ ...form, storeHeaderStyle: opt.key })}
+                className={`text-left p-3 rounded-xl border transition-all ${active ? "border-primary bg-primary/10 ring-2 ring-primary/40" : "border-border/50 bg-muted/20 hover:border-primary/40"}`}
+              >
+                <div className="text-sm font-semibold text-foreground">{opt.label}</div>
+                <div className="text-[11px] text-muted-foreground mt-1">{opt.desc}</div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Live preview panel */}
+        <div className="rounded-xl border border-border/50 bg-background/40 p-4">
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
+            <Eye size={12} /> พรีวิวสด (ใช้สีธีมปัจจุบัน)
+          </div>
+          {(() => {
+            const style = form.storeHeaderStyle ?? "compact";
+            if (style === "off") {
+              return <div className="text-xs text-muted-foreground italic py-6 text-center">— ไม่แสดงหัวหน้าร้าน —</div>;
+            }
+            if (style === "classic") {
+              return (
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="inline-flex items-center justify-center shrink-0 w-11 h-11 rounded-xl bg-primary/10 text-primary">
+                      <LayoutGrid size={22} />
+                    </span>
+                    <div className="min-w-0">
+                      <div className="text-[22px] font-bold leading-tight tracking-tight text-foreground">หมวดหมู่สินค้า</div>
+                      <div className="text-xs text-muted-foreground">ทั้งหมด 8 หมวดหมู่</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 mt-3">
+                    <div className="relative flex-1">
+                      <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+                      <input readOnly placeholder="ค้นหาสินค้า..." className="h-10 w-full rounded-lg pl-9 pr-3 text-sm bg-muted/40 border border-border/40 text-foreground" />
+                    </div>
+                    <div className="inline-flex items-center gap-1.5 h-10 px-3 rounded-lg text-xs font-medium bg-muted/40 border border-border/40 text-muted-foreground">
+                      <History size={13} /> ประวัติ
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            return (
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-primary/10 text-primary">
+                    <LayoutGrid size={16} />
+                  </span>
+                  <div className="text-[20px] font-bold leading-tight truncate tracking-tight text-foreground">หมวดหมู่สินค้า</div>
+                  <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold tabular-nums whitespace-nowrap shrink-0 bg-primary/10 text-primary">8 หมวดหมู่</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+                    <input readOnly placeholder="ค้นหาสินค้า..." className="h-9 w-full md:w-[220px] rounded-lg pl-9 pr-3 text-xs bg-muted/40 border border-border/40 text-foreground" />
+                  </div>
+                  <div className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium bg-muted/40 border border-border/40 text-muted-foreground">
+                    <History size={13} /> ประวัติ
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
 

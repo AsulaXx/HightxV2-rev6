@@ -290,38 +290,78 @@ const StorePage = () => {
         icon={ShoppingBag}
       />
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        {/* Header — awang-style: icon square + title + count pill + search on right */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className="inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-primary/10 text-primary">
-              <LayoutGrid size={16} />
-            </span>
-            <h1 className="text-[20px] font-bold leading-tight truncate tracking-tight text-foreground">
-              หมวดหมู่สินค้า
-            </h1>
-            <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold tabular-nums whitespace-nowrap shrink-0 bg-primary/10 text-primary">
-              {visibleTopCategories.length} หมวดหมู่
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ค้นหาสินค้า..."
-                className="h-9 w-full md:w-[220px] rounded-lg pl-9 pr-3 text-xs outline-none transition-colors bg-muted/40 border border-border/40 focus:border-primary/40 focus:bg-muted/60 text-foreground"
-              />
+        {/* Header — switchable style (compact row / classic stacked / off) */}
+        {(() => {
+          const headerStyle = settings.storeHeaderStyle ?? "compact";
+          if (headerStyle === "off") return null;
+          if (headerStyle === "classic") {
+            return (
+              <div className="mb-5">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="inline-flex items-center justify-center shrink-0 w-11 h-11 rounded-xl bg-primary/10 text-primary">
+                    <LayoutGrid size={22} />
+                  </span>
+                  <div className="min-w-0">
+                    <h1 className="text-[22px] sm:text-2xl font-bold leading-tight tracking-tight text-foreground">หมวดหมู่สินค้า</h1>
+                    <p className="text-xs text-muted-foreground">ทั้งหมด {visibleTopCategories.length} หมวดหมู่</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mt-3">
+                  <div className="relative flex-1">
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="ค้นหาสินค้า..."
+                      className="h-10 w-full rounded-lg pl-9 pr-3 text-sm outline-none transition-colors bg-muted/40 border border-border/40 focus:border-primary/40 focus:bg-muted/60 text-foreground"
+                    />
+                  </div>
+                  <Link
+                    to="/history/claims"
+                    className="inline-flex items-center gap-1.5 h-10 px-3 rounded-lg text-xs font-medium bg-muted/40 border border-border/40 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
+                  >
+                    <History size={13} /> ประวัติ
+                  </Link>
+                </div>
+              </div>
+            );
+          }
+          // compact (default)
+          return (
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-primary/10 text-primary">
+                  <LayoutGrid size={16} />
+                </span>
+                <h1 className="text-[20px] font-bold leading-tight truncate tracking-tight text-foreground">
+                  หมวดหมู่สินค้า
+                </h1>
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold tabular-nums whitespace-nowrap shrink-0 bg-primary/10 text-primary">
+                  {visibleTopCategories.length} หมวดหมู่
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="ค้นหาสินค้า..."
+                    className="h-9 w-full md:w-[220px] rounded-lg pl-9 pr-3 text-xs outline-none transition-colors bg-muted/40 border border-border/40 focus:border-primary/40 focus:bg-muted/60 text-foreground"
+                  />
+                </div>
+                <Link
+                  to="/history/claims"
+                  className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium bg-muted/40 border border-border/40 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
+                >
+                  <History size={13} /> ประวัติ
+                </Link>
+              </div>
             </div>
-            <Link
-              to="/history/claims"
-              className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium bg-muted/40 border border-border/40 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
-            >
-              <History size={13} /> ประวัติ
-            </Link>
-          </div>
-        </div>
+          );
+        })()}
 
 
         {/* Category breadcrumb path (when navigated into a sub-category) */}

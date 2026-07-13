@@ -573,17 +573,31 @@ const AdminPage = () => {
               )}
             </div>
             {showSave && (
-              <button
-                onClick={handleSave}
-                className={`flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold transition-all ${
-                  saved
-                    ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-400/40'
-                    : 'btn-gradient text-white shadow-sm hover:brightness-110 active:scale-95'
-                }`}
-              >
-                {saved ? <CheckCircle size={14} /> : <Save size={14} />}
-                <span className="hidden sm:inline">{saved ? 'บันทึกแล้ว' : 'บันทึก'}</span>
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setLivePreviewOn((v) => !v)}
+                  title={livePreviewOn ? "ปิด Realtime Preview" : "เปิด Realtime Preview — เห็นผลทันทีก่อนบันทึก"}
+                  className={`flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-[11px] font-semibold border transition-all ${
+                    livePreviewOn
+                      ? 'bg-amber-500/15 text-amber-300 border-amber-500/40 shadow-[0_0_10px_-2px_hsl(45_95%_55%/0.4)]'
+                      : 'bg-muted/30 text-muted-foreground border-border/40 hover:border-primary/40'
+                  }`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${livePreviewOn ? 'bg-amber-400 animate-pulse' : 'bg-muted-foreground/50'}`} />
+                  <span className="hidden sm:inline">{livePreviewOn ? 'Live Preview ON' : 'Live Preview'}</span>
+                </button>
+                <button
+                  onClick={handleSave}
+                  className={`flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold transition-all ${
+                    saved
+                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-400/40'
+                      : 'btn-gradient text-white shadow-sm hover:brightness-110 active:scale-95'
+                  }`}
+                >
+                  {saved ? <CheckCircle size={14} /> : <Save size={14} />}
+                  <span className="hidden sm:inline">{saved ? 'บันทึกแล้ว' : 'บันทึก'}</span>
+                </button>
+              </div>
             )}
           </div>
 

@@ -270,7 +270,8 @@ const AdminRoleAccessTab = () => {
             </thead>
             <tbody>
               {filteredGroups.map((g) => (
-                <>
+                <Fragment key={g.id}>
+
                   <tr key={`h-${g.id}`} className="bg-muted/20">
                     <td colSpan={ROLE_HIERARCHY.length + 1} className="text-[11px] font-bold text-primary py-1.5 px-2">
                       {g.label}

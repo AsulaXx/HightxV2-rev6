@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ShoppingBag, Wallet, Users, Package, Boxes, ShoppingCart } from "lucide-react";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useLayoutConfig } from "@/hooks/useLayoutConfig";
@@ -11,6 +11,7 @@ interface Props {
   productsCount: number;
 }
 
+
 /**
  * V2 hero — full-bleed banner with 3D tilt, parallax shine, and floating stat cards.
  */
@@ -18,18 +19,71 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
   const { settings } = useSiteSettings();
   const { maxWidthClass } = useLayoutConfig();
   const heroRef = useRef<HTMLDivElement>(null);
+  const sceneRef = useRef<HTMLDivElement>(null);
   const hero = settings.heroBanner || ({} as any);
 
   const imageEnabled = hero.imageEnabled !== false;
   const heroImg = hero.imageUrl || settings.heroImageUrl || settings.logoUrl || logo;
+  const logoImg = settings.logoUrl || logo;
   const heroAutoFit = hero.imageAutoFit === true;
-  const heroHeight = hero.imageHeight ?? 320;
+  const heroHeightPref = hero.imageHeight ?? 320;
   const heroFit = hero.imageFit || "cover";
   const heroRadius = hero.imageRadius ?? 20;
   const brand = settings.brandName || "SHOP";
   const subtitle =
     settings.subtitle ||
     "แหล่งรวมสินค้าและบริการที่คุณต้องการ พร้อมทีมงานดูแลและให้คำแนะนำตลอด 24 ชั่วโมง";
+
+  // Dynamic sizing: react to container width + image natural aspect ratio.
+  const [containerW, setContainerW] = useState<number>(0);
+  const [imgRatio, setImgRatio] = useState<number | null>(null); // width / height
+  const [logoFallback, setLogoFallback] = useState(false);
+
+  useEffect(() => {
+    if (!sceneRef.current) return;
+    const el = sceneRef.current;
+    const ro = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect.width ?? el.clientWidth;
+      setContainerW(w);
+    });
+    ro.observe(el);
+    setContainerW(el.clientWidth);
+    return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => {
+    setLogoFallback(false);
+    setImgRatio(null);
+    const img = new Image();
+    img.onload = () => {
+      if (img.naturalHeight > 0) setImgRatio(img.naturalWidth / img.naturalHeight);
+    };
+    img.onerror = () => setLogoFallback(true);
+    img.src = heroImg;
+  }, [heroImg]);
+
+  // Compute dynamic banner height. Target aspect ~ 3.2:1 desktop, 2:1 tablet, 1.6:1 mobile.
+  const targetAspect =
+    containerW >= 1024 ? 3.4 : containerW >= 640 ? 2.4 : 1.7;
+  const minH = containerW >= 1024 ? 260 : containerW >= 640 ? 200 : 170;
+  const maxH = containerW >= 1024 ? 460 : containerW >= 640 ? 360 : 280;
+  const dynamicH = containerW > 0 ? Math.round(Math.min(maxH, Math.max(minH, containerW / targetAspect))) : heroHeightPref;
+
+  // Decide "logo mode": when the natural image aspect ratio is far from the
+  // container's aspect ratio, `cover` crops heavily and `contain` leaves big
+  // empty gutters — swap to a centered logo on a themed gradient instead.
+  const containerAspect = containerW > 0 ? containerW / dynamicH : targetAspect;
+  const ratioMismatch = imgRatio ? Math.max(imgRatio / containerAspect, containerAspect / imgRatio) : 1;
+  const useLogoMode = logoFallback || (imgRatio !== null && ratioMismatch > 2.0);
+
+  // Respect explicit auto-fit setting from admin (do not override user choice).
+  const finalHeight = heroAutoFit ? undefined : dynamicH;
+  const finalFit: React.CSSProperties["objectFit"] = heroAutoFit
+    ? "contain"
+    : useLogoMode
+    ? "contain"
+    : (heroFit as any);
+  const displayedImg = useLogoMode ? logoImg : heroImg;
 
   // 3D tilt on mouse move
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -60,7 +114,7 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
   return (
     <div className={`${maxWidthClass()} mx-auto px-4 sm:px-6 pt-6 sm:pt-8`}>
       {imageEnabled && (
-        <div className="v2-hero-scene" onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+        <div ref={sceneRef} className="v2-hero-scene" onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
           <motion.div
             ref={heroRef}
             initial={{ opacity: 0, y: 20 }}
@@ -68,16 +122,25 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
             transition={{ duration: 0.6 }}
             className="v2-hero-3d relative w-full overflow-hidden border border-primary/25"
             style={{
-              height: heroAutoFit ? "auto" : `${heroHeight}px`,
+              height: heroAutoFit ? "auto" : `${finalHeight}px`,
               borderRadius: `${heroRadius}px`,
               boxShadow: "0 30px 80px -30px hsl(var(--primary) / 0.55), 0 0 0 1px hsl(var(--primary) / 0.15)",
+              background: useLogoMode
+                ? "radial-gradient(120% 100% at 50% 0%, hsl(var(--primary) / 0.22), transparent 60%), linear-gradient(160deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%)"
+                : undefined,
             }}
           >
             <img
-              src={heroImg}
+              src={displayedImg}
               alt={`${brand} banner`}
-              className={heroAutoFit ? "v2-hero-img relative w-full h-auto block" : "v2-hero-img absolute inset-0 w-full h-full block"}
-              style={{ objectFit: heroAutoFit ? "contain" : heroFit }}
+              className={
+                heroAutoFit
+                  ? "v2-hero-img relative w-full h-auto block"
+                  : useLogoMode
+                  ? "v2-hero-img absolute inset-0 m-auto block max-w-[46%] max-h-[70%] drop-shadow-[0_10px_30px_hsl(var(--primary)/0.45)]"
+                  : "v2-hero-img absolute inset-0 w-full h-full block"
+              }
+              style={{ objectFit: finalFit }}
             />
             {/* Parallax shine sweep */}
             <div className="v2-hero-shine pointer-events-none absolute inset-0" aria-hidden />
@@ -87,6 +150,7 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
             <div className="v2-hero-grid pointer-events-none absolute inset-0 opacity-40" aria-hidden />
           </motion.div>
         </div>
+
       )}
 
       {/* Welcome row */}

@@ -6,7 +6,7 @@ import { useSiteSettings, roleHasPermission, ProductDuration } from "@/contexts/
 import { useLayoutConfig } from "@/hooks/useLayoutConfig";
 import { useWallet } from "@/hooks/useWallet";
 import { useCart } from "@/contexts/CartContext";
-import { Clock, ArrowLeft, ShoppingCart, ShoppingBag, Package, PackageX, CheckCircle, ChevronDown, ChevronUp, Timer, MessageSquare, Cog, Ban, Share2, LogIn, PlayCircle, ExternalLink } from "lucide-react";
+import { Clock, ArrowLeft, ShoppingCart, ShoppingBag, Package, PackageX, CheckCircle, ChevronDown, ChevronUp, Timer, MessageSquare, Cog, Ban, Share2, LogIn, PlayCircle, ExternalLink, Coins } from "lucide-react";
 import { ReviewForm, ReviewList, StarDisplay } from "@/components/ProductReview";
 import PageBreadcrumb from "@/components/PageBreadcrumb";
 import { Progress } from "@/components/ui/progress";

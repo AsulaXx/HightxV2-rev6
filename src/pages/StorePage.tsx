@@ -633,12 +633,19 @@ const StorePage = () => {
                       )}
                       {product.description && <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{product.description}</p>}
                       {priceLabel && (
-                        <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gradient-to-r from-primary/15 to-accent/15 border border-primary/25">
-                          <Coins size={10} className="text-primary" />
-                          <span className="text-[11px] font-bold text-primary">
-                            {priceLabel}
-                            {!allFree && <span className="ml-1 text-[9px] font-medium text-primary/70">เครดิต</span>}
-                          </span>
+                        <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gradient-to-r from-primary/15 to-accent/15 border border-primary/25">
+                            <Coins size={10} className="text-primary" />
+                            <span className="text-[11px] font-bold text-primary">
+                              {priceLabel}
+                              {!allFree && <span className="ml-1 text-[9px] font-medium text-primary/70">เครดิต</span>}
+                            </span>
+                          </div>
+                          {(soldCounts[product.id] || 0) > 0 && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-400/25 text-emerald-400 text-[9px] font-semibold">
+                              <ShoppingCart size={9} /> ขายแล้ว {(soldCounts[product.id] || 0).toLocaleString()}
+                            </span>
+                          )}
                         </div>
                       )}
                       <motion.button

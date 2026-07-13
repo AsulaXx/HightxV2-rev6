@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback } from "react";
-import { Save, Plus, Trash2, Search, ChevronDown, ChevronUp, Package, Clock, ArrowUp, ArrowDown, GripVertical, Edit3, X, ExternalLink, Upload } from "lucide-react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { Save, Plus, Trash2, Search, ChevronDown, ChevronUp, Package, Clock, ArrowUp, ArrowDown, GripVertical, Edit3, X, ExternalLink, Upload, Maximize2, Minimize2 } from "lucide-react";
 import { AdminTabProps, generateId } from "../shared/AdminTabProps";
 import { type Product, type ProductDuration } from "@/contexts/SiteSettingsContext";
 import { TENANT_URLS } from "@/lib/tenantConfig";

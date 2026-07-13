@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast } from "sonner";
+import { classifyClaim } from "@/lib/claimClassifier";
 
 /**
  * Sends a daily Discord summary embed and updates the lastDailySummaryDate flag.
@@ -26,6 +27,9 @@ export const sendDailySummary = async (
       return claimedDate >= todayStart;
     });
     const productCounts: Record<string, number> = {};
+    // Free-claim breakdown
+    const freeClaims = todayClaims.filter((k: any) => classifyClaim(k) === "free");
+    const freeByUser: Record<string, { display: string; count: number }> = {};
     todayClaims.forEach((k: any) => {
       const pName =
         settings.products?.find((p: any) => p.id === k.productId)?.name ||
@@ -33,18 +37,32 @@ export const sendDailySummary = async (
         "ไม่ระบุ";
       productCounts[pName] = (productCounts[pName] || 0) + 1;
     });
+    freeClaims.forEach((k: any) => {
+      const uid = k.claimedBy || k.claimedByEmail || "unknown";
+      const display = k.claimedByName || k.claimedByEmail || "ไม่ทราบชื่อ";
+      if (!freeByUser[uid]) freeByUser[uid] = { display, count: 0 };
+      freeByUser[uid].count += 1;
+    });
+    const topFree = Object.values(freeByUser).sort((a, b) => b.count - a.count)[0];
     const topProduct = Object.entries(productCounts).sort(
       (a, b) => b[1] - a[1],
     )[0];
     const totalAvailable = allKeys.filter((k: any) => !k.claimed).length;
     const fields: any[] = [
       { name: "📊 กดคีย์วันนี้", value: `**${todayClaims.length}** ครั้ง`, inline: true },
+      { name: "🎁 กดฟรีวันนี้", value: `**${freeClaims.length}** ครั้ง`, inline: true },
       { name: "📦 คีย์คงเหลือ", value: `**${totalAvailable}** คีย์`, inline: true },
     ];
     if (topProduct)
       fields.push({
         name: "🏆 สินค้ายอดนิยม",
         value: `**${topProduct[0]}** (${topProduct[1]} ครั้ง)`,
+        inline: true,
+      });
+    if (topFree)
+      fields.push({
+        name: "👑 กดฟรีมากสุด",
+        value: `**${topFree.display}** (${topFree.count} ครั้ง)`,
         inline: true,
       });
     if (Object.keys(productCounts).length > 0) {

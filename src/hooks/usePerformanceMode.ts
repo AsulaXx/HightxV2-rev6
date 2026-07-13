@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 
 export type PerformanceMode = "auto" | "high" | "balanced" | "saver";
@@ -28,9 +28,22 @@ function detectDeviceMode(): EffectivePerfMode {
   }
 }
 
+/* ── Preview override (real-time, does not persist) ───────────────────── */
+let previewMode: PerformanceMode | null = null;
+const listeners = new Set<() => void>();
+const subscribe = (cb: () => void) => { listeners.add(cb); return () => { listeners.delete(cb); }; };
+const getSnapshot = () => previewMode;
+
+/** Set/clear a temporary preview override (real-time, not saved). Pass null to clear. */
+export function setPerformancePreview(mode: PerformanceMode | null) {
+  previewMode = mode;
+  listeners.forEach((cb) => cb());
+}
+
 export function usePerformanceMode() {
   const { settings } = useSiteSettings();
   const setting = (settings.theme.performanceMode || "auto") as PerformanceMode;
+  const preview = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
   const [detected, setDetected] = useState<EffectivePerfMode>(() => detectDeviceMode());
 
@@ -42,10 +55,11 @@ export function usePerformanceMode() {
     return () => mq?.removeEventListener?.("change", on);
   }, []);
 
+  const active: PerformanceMode = preview ?? setting;
   const effective: EffectivePerfMode = useMemo(() => {
-    if (setting === "auto") return detected;
-    return setting;
-  }, [setting, detected]);
+    if (active === "auto") return detected;
+    return active;
+  }, [active, detected]);
 
   useEffect(() => {
     document.documentElement.dataset.perfMode = effective;
@@ -54,6 +68,8 @@ export function usePerformanceMode() {
   return {
     setting,
     detected,
+    preview,
+    isPreviewing: preview !== null,
     mode: effective,
     isSaver: effective === "saver",
     isBalanced: effective === "balanced",

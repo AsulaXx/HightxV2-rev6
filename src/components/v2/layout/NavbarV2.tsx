@@ -181,6 +181,9 @@ const NavbarV2 = () => {
                     <LogOut size={14} className="mr-2" /> ออกจากระบบ
                   </DropdownMenuItem>
                 </DropdownMenuContent>
+                    <LogOut size={14} className="shrink-0" /> <span className="truncate">ออกจากระบบ</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <div className="flex items-center gap-1.5">

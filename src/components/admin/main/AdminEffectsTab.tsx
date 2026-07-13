@@ -102,8 +102,8 @@ const AdminEffectsTab = ({ form, setForm, handleSave }: Props) => {
     },
     {
       id: "v2" as const,
-      label: "V2 Hx",
-      desc: "สไตล์ awang.store ดำสนิท ม่วงนีออน solid card ปุ่ม pill",
+      label: "Main Preset Hx",
+      desc: "พรีเซ็ตหลักของ Hx — ดำสนิท ม่วงนีออน solid card ปุ่ม pill",
       swatch: ["#7c3aed", "#a855f7", "#c084fc", "#0a0510"],
     },
   ];

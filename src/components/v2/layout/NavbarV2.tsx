@@ -178,9 +178,6 @@ const NavbarV2 = () => {
                   {isMod && <DropdownMenuItem asChild><Link to="/admin" className="flex items-center gap-2 whitespace-nowrap"><Settings size={14} className="shrink-0" /> <span className="truncate">ตั้งค่าเว็บไซต์</span></Link></DropdownMenuItem>}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onSelect={() => logout()} className="flex items-center gap-2 whitespace-nowrap text-destructive focus:text-destructive focus:bg-destructive/10">
-                    <LogOut size={14} className="mr-2" /> ออกจากระบบ
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
                     <LogOut size={14} className="shrink-0" /> <span className="truncate">ออกจากระบบ</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>

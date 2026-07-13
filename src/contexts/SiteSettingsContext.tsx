@@ -388,6 +388,12 @@ export interface HeroBannerConfig {
   textGradientTo: string;
   textGradientDirection: string;
   textAlign: "left" | "center" | "right";
+  // Hero image (V2 full-bleed banner)
+  imageEnabled?: boolean;
+  imageUrl?: string;
+  imageHeight?: number; // px
+  imageFit?: "cover" | "contain";
+  imageRadius?: number; // px
 }
 
 export interface TickerConfig {

@@ -4,8 +4,8 @@ import { doc, setDoc, onSnapshot } from "firebase/firestore";
 import { TENANT_BRAND, TENANT_THEME, TENANT_HERO, TENANT_DEFAULT_CATEGORIES, TENANT_URLS } from "@/lib/tenantConfig";
 
 export type ParticleMode = "default" | "snow" | "stars" | "bubbles";
-export type BackgroundEffect = "none" | "grid" | "dots" | "waves" | "aurora" | "matrix";
-export type LoaderStyle = "atom" | "ring" | "dots" | "bars" | "pulse" | "orbit";
+export type BackgroundEffect = "none" | "grid" | "dots" | "waves" | "aurora" | "matrix" | "starfield" | "mesh" | "noise" | "ripple";
+export type LoaderStyle = "atom" | "ring" | "dots" | "bars" | "pulse" | "orbit" | "quantum" | "wave" | "nebula" | "cube3d";
 export type PerformanceModeSetting = "auto" | "high" | "balanced" | "saver";
 
 export interface ParticlesConfig {

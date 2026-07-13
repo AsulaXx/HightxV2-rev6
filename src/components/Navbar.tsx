@@ -51,8 +51,6 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  if (settings.uiVersion === "v2") return <NavbarV2 />;
-
   const isMod = !!user && hasPermission("moderator");
 
   useEffect(() => {
@@ -64,6 +62,8 @@ const Navbar = () => {
 
   // Centralized, reference-counted scroll lock (iOS-safe). See useScrollLock.
   useScrollLock(mobileMenuOpen);
+
+  if (settings.uiVersion === "v2") return <NavbarV2 />;
 
 
 

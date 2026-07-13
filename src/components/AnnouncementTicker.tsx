@@ -3,6 +3,7 @@ import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, query, orderBy, limit as fbLimit } from "firebase/firestore";
 import { Megaphone } from "lucide-react";
+import AnnouncementTickerV2 from "@/components/v2/layout/AnnouncementTickerV2";
 
 interface Announcement {
   id: string;
@@ -13,6 +14,8 @@ interface Announcement {
 const AnnouncementTicker = () => {
   const { settings } = useSiteSettings();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+
+  if (settings.uiVersion === "v2") return <AnnouncementTickerV2 />;
 
   useEffect(() => {
     const load = async () => {

@@ -82,6 +82,16 @@ const AdminPage = () => {
   const isAdmin = hasPermission("admin");
   const isMod = hasPermission("moderator");
 
+  // Owner-defined per-tab visibility (from Role Access). Falls back to role-based defaults.
+  const tabAllowed = (tabId: string): boolean => {
+    if (isOwner) return true;
+    const featId = `admin.tab.${tabId}`;
+    const roleFeatures = (settings as any)?.roleFeatures?.[profile?.role || ""];
+    if (Array.isArray(roleFeatures)) return roleFeatures.includes(featId);
+    return true; // no overrides set — keep existing behaviour
+  };
+
+
   const getDefaultTab = (): string => {
     if (isOwner) return "general";
     if (isAdmin) return "users";

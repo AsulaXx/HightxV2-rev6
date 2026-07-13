@@ -810,3 +810,77 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
   background: linear-gradient(90deg, hsl(265 90% 62%), hsl(275 100% 72%));
   box-shadow: 0 0 12px hsl(265 90% 62% / 0.6);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   V2 — Awang-style overrides for Store list & Product detail
+   ═══════════════════════════════════════════════════════════ */
+
+/* Category cards — rounded 10px, flat surface, purple hover border */
+[data-ui-version="v2"] .category-card {
+  background: hsl(270 40% 8%) !important;
+  border: 1px solid hsl(270 45% 18% / 0.7) !important;
+  border-radius: 10px !important;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s !important;
+  backdrop-filter: none !important;
+}
+[data-ui-version="v2"] .category-card:hover {
+  border-color: hsl(265 90% 62% / 0.55) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -12px hsl(265 90% 40% / 0.6) !important;
+}
+
+/* Product cards (glass-card-hover) — awang look */
+[data-ui-version="v2"] .glass-card-hover {
+  background: hsl(270 40% 8%) !important;
+  border: 1px solid hsl(270 45% 18% / 0.7) !important;
+  border-radius: 12px !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+[data-ui-version="v2"] .glass-card-hover:hover {
+  border-color: hsl(265 90% 62% / 0.6) !important;
+  box-shadow: 0 12px 32px -14px hsl(265 90% 40% / 0.55) !important;
+}
+
+/* Product detail: sticky image column, awang framing */
+[data-ui-version="v2"] .grid.lg\:grid-cols-5 > :first-child,
+[data-ui-version="v2"] .grid.lg\:grid-cols-2 > :first-child {
+  position: sticky;
+  top: 5rem;
+  align-self: start;
+}
+
+/* Price pill emphasis */
+[data-ui-version="v2"] .gradient-text {
+  font-family: 'Kanit', 'Prompt', sans-serif;
+}
+
+/* Duration/option buttons — flatter, purple accents */
+[data-ui-version="v2"] .glass-card button,
+[data-ui-version="v2"] .glass-card-hover button {
+  border-radius: 10px !important;
+}
+
+/* Kill blur washes on product hero image for awang crisp look */
+[data-ui-version="v2"] img.blur-2xl,
+[data-ui-version="v2"] img.blur-xl {
+  display: none !important;
+}
+
+/* Breadcrumb & category chip: tighter awang spacing */
+[data-ui-version="v2"] .glass-card {
+  border-radius: 12px !important;
+}
+
+/* Search input in store header — awang pill */
+[data-ui-version="v2"] input[type="text"][placeholder*="ค้นหา"] {
+  background: hsl(270 40% 8%) !important;
+  border: 1px solid hsl(270 45% 18% / 0.7) !important;
+  border-radius: 999px !important;
+  height: 40px !important;
+  padding-left: 2.25rem !important;
+}
+[data-ui-version="v2"] input[type="text"][placeholder*="ค้นหา"]:focus {
+  border-color: hsl(265 90% 62% / 0.6) !important;
+  box-shadow: 0 0 0 3px hsl(265 90% 62% / 0.15) !important;
+}

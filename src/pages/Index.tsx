@@ -485,15 +485,16 @@ const Index = () => {
           </motion.div>
           <div className={`dynamic-grid ${gapClass()}`} style={colsToStyle(layout.featuredCols)}>
             {enabledProducts.slice(0, settings.featuredCount || 8).map((product) => (
-              <motion.div key={product.id} variants={fade}>
-                <Link to="/store" className={`group glass-card-hover !p-0 overflow-hidden block ${radiusClass()}`}>
+              <motion.div key={product.id} variants={fade} {...cardHover}>
+                <Link to="/store" className={`group relative glass-card-hover !p-0 overflow-hidden block ${radiusClass()}`}>
+                  <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 rotate-12 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-[380%] transition-all duration-700 ease-out z-10" />
                   {layout.showProductImage && product.imageUrl ? (
                     <div className={`${imageRatioClass()} overflow-hidden`}>
-                      <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
                     </div>
                   ) : !layout.showProductImage ? null : (
                     <div className={`${imageRatioClass()} bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center`}>
-                      <Package size={20} className="text-primary/30 sm:w-6 sm:h-6" />
+                      <Package size={20} className="text-primary/30 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform duration-500" />
                     </div>
                   )}
                   <div className={cardPaddingClass()}>

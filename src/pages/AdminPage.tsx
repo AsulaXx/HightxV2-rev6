@@ -669,6 +669,11 @@ const AdminPage = () => {
               <AdminPermissionsTab form={form} setForm={setForm} handleSave={handleSave} />
             )}
 
+            {activeTab === "roleaccess" && isOwner && (
+              <AdminRoleAccessTab />
+            )}
+
+
                 </Suspense>
                 </ErrorBoundary>
               </motion.div>

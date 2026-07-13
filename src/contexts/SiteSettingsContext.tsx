@@ -928,7 +928,7 @@ if (typeof window !== "undefined" && !localStorage.getItem(LEGACY_PURGE_FLAG)) {
 }
 
 export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [settings, setSettings] = useState<SiteSettings>(() => {
+  const [baseSettings, setSettings] = useState<SiteSettings>(() => {
     const saved = localStorage.getItem("hx-site-settings");
     if (saved) {
       try {
@@ -942,14 +942,17 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [loading, setLoading] = useState(true);
   const [livePreview, setLivePreviewState] = useState<Partial<SiteSettings> | null>(null);
 
-  // Effective settings = base + live preview overlay (theme merged nested)
-  const effectiveSettings: SiteSettings = livePreview
+  // Effective settings = base + live preview overlay (theme merged nested).
+  // Shadow the name `settings` so all downstream reads automatically reflect preview.
+  const settings: SiteSettings = livePreview
     ? {
-        ...settings,
+        ...baseSettings,
         ...livePreview,
-        theme: { ...settings.theme, ...((livePreview as any).theme || {}) },
+        theme: { ...baseSettings.theme, ...((livePreview as any).theme || {}) },
       }
-    : settings;
+    : baseSettings;
+
+  const setLivePreview = (patch: Partial<SiteSettings> | null) => setLivePreviewState(patch);
 
   useEffect(() => {
     const docRef = doc(db, "settings", "site");

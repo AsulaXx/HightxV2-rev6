@@ -361,7 +361,9 @@ serve(async (req) => {
       });
     }
 
-    const urls = resolveUrls(await loadUrls(), type);
+    const bust = body.bustCache === true;
+    const urls = resolveUrls(await loadUrls(bust), type);
+    console.log(`[send-webhook] type=${type} resolved ${urls.length} URL(s)`);
     if (urls.length === 0) {
       return new Response(JSON.stringify({ ok: true, status: "skipped", reason: "no URL configured" }), {
         status: 200,

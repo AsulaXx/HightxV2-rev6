@@ -276,6 +276,7 @@ const AdminBrandingTab = ({ form, setForm, handleSave }: AdminTabProps) => {
                         style={{
                           height: autoFit ? "auto" : "100%",
                           objectFit: autoFit ? "contain" : (hb.imageFit || "cover"),
+                          objectPosition: `${hb.imagePositionX ?? 50}% ${hb.imagePositionY ?? 50}%`,
                         }}
                       />
                     ) : (

@@ -56,6 +56,114 @@ const blankUrlFields = (): Record<string, any> => {
   return out;
 };
 
+/* ── Low-stock webhook config sub-panel ── */
+const LowStockAlertConfig = ({ form, setForm }: { form: any; setForm: (f: any) => void }) => {
+  const products: Array<{ id: string; name: string }> = Array.isArray(form.products) ? form.products : [];
+  const selected: string[] = Array.isArray(form.lowStockWebhookProductIds) ? form.lowStockWebhookProductIds : [];
+  const allSelected = selected.length === 0; // empty = all products
+  const onlyZero = !!form.lowStockWebhookOnlyZero;
+  const threshold = typeof form.lowStockWebhookThreshold === "number"
+    ? form.lowStockWebhookThreshold
+    : (form.lowStockThreshold ?? 5);
+
+  const toggleProduct = (id: string) => {
+    if (allSelected) {
+      // Currently "all" — clicking one starts an explicit list containing everything EXCEPT that id
+      const others = products.filter((p) => p.id !== id).map((p) => p.id);
+      setForm({ ...form, lowStockWebhookProductIds: others });
+      return;
+    }
+    const next = selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id];
+    // If everything is now selected, collapse back to empty (= all)
+    setForm({ ...form, lowStockWebhookProductIds: next.length === products.length ? [] : next });
+  };
+
+  const selectAll = () => setForm({ ...form, lowStockWebhookProductIds: [] });
+  const clearAll = () => setForm({ ...form, lowStockWebhookProductIds: products.map((p) => "__none__") }); // sentinel avoids "empty=all" collision
+  // Better: use a real "none selected" state via all-but-one? Simpler: keep [] as all, and provide "ปิดหมด" that disables the whole webhook toggle instead.
+
+  const isChecked = (id: string) => allSelected || selected.includes(id);
+
+  return (
+    <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 space-y-3">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1">⚙️ ตั้งค่าการแจ้งเตือน</span>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <div
+            className={`toggle-slider ${onlyZero ? "toggle-active" : ""}`}
+            onClick={() => setForm({ ...form, lowStockWebhookOnlyZero: !onlyZero })}
+          />
+          <span className="text-[10px] text-foreground">แจ้งเฉพาะตอนคีย์หมด (0)</span>
+        </label>
+      </div>
+
+      <div>
+        <label className="block text-[10px] font-semibold text-muted-foreground mb-1">
+          เตือนเมื่อคีย์เหลือ ≤ (จำนวน)
+        </label>
+        <input
+          type="number"
+          min={0}
+          max={999}
+          value={threshold}
+          disabled={onlyZero}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              lowStockWebhookThreshold: Math.max(0, parseInt(e.target.value) || 0),
+            })
+          }
+          className="input-glass w-full px-3 py-2 text-xs disabled:opacity-50"
+          placeholder="5"
+        />
+        <p className="text-[10px] text-muted-foreground mt-1">
+          {onlyZero ? "โหมด 'เฉพาะตอนหมด' เปิดอยู่ — ค่านี้ถูกละเว้น" : `จะแจ้งเมื่อคีย์เหลือ ≤ ${threshold}`}
+        </p>
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-1.5">
+          <label className="text-[10px] font-semibold text-muted-foreground">
+            แจ้งเฉพาะสินค้า ({allSelected ? `ทั้งหมด (${products.length})` : `${selected.length}/${products.length}`})
+          </label>
+          <button
+            type="button"
+            onClick={selectAll}
+            className="text-[10px] text-primary hover:underline"
+          >
+            เลือกทั้งหมด
+          </button>
+        </div>
+        {products.length === 0 ? (
+          <p className="text-[10px] text-muted-foreground italic">ยังไม่มีสินค้าในระบบ</p>
+        ) : (
+          <div className="max-h-40 overflow-y-auto rounded-md border border-border/30 bg-background/30 divide-y divide-border/10">
+            {products.map((p) => (
+              <label
+                key={p.id}
+                className="flex items-center gap-2 px-2.5 py-1.5 cursor-pointer hover:bg-muted/20 transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  checked={isChecked(p.id)}
+                  onChange={() => toggleProduct(p.id)}
+                  className="accent-amber-500"
+                />
+                <span className="text-[11px] text-foreground truncate">{p.name}</span>
+              </label>
+            ))}
+          </div>
+        )}
+        <p className="text-[10px] text-muted-foreground mt-1">
+          {allSelected ? "กำลังแจ้งเตือนทุกสินค้า" : `กำลังแจ้งเตือน ${selected.length} สินค้าที่เลือก`}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+
+
 interface MultiWebhookFieldProps {
   label: string;
   primaryValue: string;

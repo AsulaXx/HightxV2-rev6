@@ -25,7 +25,7 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
   const imageEnabled = hero.imageEnabled !== false;
   const heroImg = hero.imageUrl || settings.heroImageUrl || settings.logoUrl || logo;
   const logoImg = settings.logoUrl || logo;
-  const heroAutoFit = hero.imageAutoFit === true;
+  const heroAutoFitLegacy = hero.imageAutoFit === true;
   const heroHeightPref = hero.imageHeight ?? 320;
   const heroFit = hero.imageFit || "cover";
   const heroRadius = hero.imageRadius ?? 20;

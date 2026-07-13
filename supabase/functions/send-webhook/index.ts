@@ -392,7 +392,13 @@ serve(async (req) => {
       });
     }
 
+    if (urls.length === 0) {
+      return new Response(JSON.stringify({ ok: true, status: "skipped", reason: "no URL configured" }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
+
 
     const results = await Promise.all(
       urls.map(async (url) => {

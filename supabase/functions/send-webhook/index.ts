@@ -358,27 +358,6 @@ serve(async (req) => {
       });
     }
 
-    // TEMP cleanup — clear any test extras arrays injected during debugging
-    if (body.__cleanup === "extras") {
-      const token = await gcpToken();
-      const fields: any = {};
-      const paths: string[] = [];
-      for (const k of Object.keys(KEY_MAP)) {
-        const f = KEY_MAP[k] + "Urls";
-        fields[f] = { arrayValue: { values: [] } };
-        paths.push(f);
-      }
-      const q = paths.map(p => `updateMask.fieldPaths=${p}`).join("&");
-      const patchRes = await fetch(
-        `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/siteSettingsPrivate/webhooks?${q}`,
-        { method: "PATCH", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ fields }) }
-      );
-      urlCache = null;
-      return new Response(JSON.stringify({ ok: patchRes.ok, status: patchRes.status }), {
-        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
-    }
-
     const urls = resolveUrls(await loadUrls(), type);
     if (urls.length === 0) {
       return new Response(JSON.stringify({ ok: true, status: "skipped", reason: "no URL configured" }), {

@@ -36,6 +36,8 @@ const AdminLinkPagesTab = lazy(() => import("@/components/admin/AdminLinkPagesTa
 const AdminAuditLogTab = lazy(() => import("@/components/admin/AdminAuditLogTab"));
 const AdminPermissionsTab = lazy(() => import("@/components/admin/AdminPermissionsTab"));
 const AdminRuzienBypassTab = lazy(() => import("@/components/admin/AdminRuzienBypassTab"));
+const AdminRoleAccessTab = lazy(() => import("@/components/admin/AdminRoleAccessTab"));
+
 
 import PageBreadcrumb from "@/components/PageBreadcrumb";
 import PermIcon from "@/components/PermIcon";

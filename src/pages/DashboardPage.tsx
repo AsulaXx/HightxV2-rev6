@@ -902,47 +902,55 @@ const DashboardPage = () => {
 
 
             <Suspense fallback={<div className="py-4 text-center text-muted-foreground text-sm">กำลังโหลด...</div>}>
-              <DashboardSummaryCards
-                totalUsers={totalUsers}
-                totalClaimedKeys={totalClaimedKeys}
-                totalAvailableKeys={totalAvailableKeys}
-                roleBreakdown={roleBreakdown}
-                todayRevenue={todayRevenue}
-                todayClaims={todayClaims}
-                totalRevenue={totalRevenue}
-                revenueTrend={revenueTrend}
-              />
+              {hasFeature("dash.summary_cards") && (
+                <DashboardSummaryCards
+                  totalUsers={totalUsers}
+                  totalClaimedKeys={totalClaimedKeys}
+                  totalAvailableKeys={totalAvailableKeys}
+                  roleBreakdown={roleBreakdown}
+                  todayRevenue={todayRevenue}
+                  todayClaims={todayClaims}
+                  totalRevenue={totalRevenue}
+                  revenueTrend={revenueTrend}
+                />
+              )}
             </Suspense>
 
             {/* Today Sales Summary */}
-            <div className="mb-3">
-              <CollapsibleSection title="ยอดขายสินค้าวันนี้" icon={<ShoppingCart size={18} />} isOpen={showPurchaseAnalytics} onToggle={togglePurchaseAnalytics} glass>
-                <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
-                  <TodaySalesSummary dailyProductClaims={dailyProductClaims} />
-                </Suspense>
-              </CollapsibleSection>
-            </div>
+            {hasFeature("dash.today_sales") && (
+              <div className="mb-3">
+                <CollapsibleSection title="ยอดขายสินค้าวันนี้" icon={<ShoppingCart size={18} />} isOpen={showPurchaseAnalytics} onToggle={togglePurchaseAnalytics} glass>
+                  <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
+                    <TodaySalesSummary dailyProductClaims={dailyProductClaims} />
+                  </Suspense>
+                </CollapsibleSection>
+              </div>
+            )}
 
             {/* Purchase Analytics */}
-            <div className="mb-3">
-              <CollapsibleSection title="ข้อมูลการซื้อสินค้า (เติมเงิน)" icon={<BarChart3 size={18} />} isOpen={showCharts} onToggle={toggleCharts} glass>
-                <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
-                  <PurchaseAnalytics dailyData={dailyData} productStats={productStats} dailyProductClaims={dailyProductClaims} />
-                </Suspense>
-              </CollapsibleSection>
-            </div>
+            {hasFeature("dash.purchase_analytics") && (
+              <div className="mb-3">
+                <CollapsibleSection title="ข้อมูลการซื้อสินค้า (เติมเงิน)" icon={<BarChart3 size={18} />} isOpen={showCharts} onToggle={toggleCharts} glass>
+                  <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
+                    <PurchaseAnalytics dailyData={dailyData} productStats={productStats} dailyProductClaims={dailyProductClaims} />
+                  </Suspense>
+                </CollapsibleSection>
+              </div>
+            )}
 
             {/* Top-Up Breakdown */}
-            <div className="mb-3">
-              <CollapsibleSection title="สรุปยอดเติมเงินแยกช่องทาง" icon={<Wallet size={18} />} isOpen={showTopUp} onToggle={toggleTopUp} glass>
-                <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
-                  <DashboardTopUpBreakdown topUpBreakdown={topUpBreakdown} />
-                </Suspense>
-              </CollapsibleSection>
-            </div>
+            {hasFeature("dash.topup_breakdown") && (
+              <div className="mb-3">
+                <CollapsibleSection title="สรุปยอดเติมเงินแยกช่องทาง" icon={<Wallet size={18} />} isOpen={showTopUp} onToggle={toggleTopUp} glass>
+                  <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
+                    <DashboardTopUpBreakdown topUpBreakdown={topUpBreakdown} />
+                  </Suspense>
+                </CollapsibleSection>
+              </div>
+            )}
 
             {/* Provider Quota — show only when Thunder is the active slip provider */}
-            {(settings.slipProvider || 'thunder') === 'thunder' && (
+            {hasFeature("dash.thunder_quota") && (settings.slipProvider || 'thunder') === 'thunder' && (
               <div className="mb-3">
                 <CollapsibleSection title="โควต้า Thunder API" icon={<Zap size={18} />} isOpen={showThunder} onToggle={toggleThunder} glass>
                   <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
@@ -957,28 +965,33 @@ const DashboardPage = () => {
                 </CollapsibleSection>
               </div>
             )}
-            {(settings.slipProvider || 'thunder') !== 'thunder' && (
+            {hasFeature("dash.thunder_quota") && (settings.slipProvider || 'thunder') !== 'thunder' && (
               <div className="mb-3 glass-card text-center text-sm text-muted-foreground py-3">
                 กำลังใช้ผู้ให้บริการตรวจสลิป: <strong className="text-foreground">{(settings.slipProvider || 'thunder').toUpperCase()}</strong> — ระบบนี้ไม่รองรับการแสดงโควต้า
               </div>
             )}
-            <div className="mb-3">
-              <CollapsibleSection title="กิจกรรมวงล้อ (Wheel)" icon={<RotateCcw size={18} />} isOpen={showWheel} onToggle={toggleWheel} glass>
-                <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
-                  <DashboardWheelActivity />
-                </Suspense>
-              </CollapsibleSection>
-            </div>
-            <div className="mb-3">
-              <CollapsibleSection title="สรุปการกดคีย์รายวันแยกประเภท" icon={<ListChecks size={18} />} isOpen={showDailyClaims} onToggle={toggleDailyClaims} glass>
-                <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
-                  <DailyClaimBreakdown
-                    data={dailyProductClaims}
-                    productNames={productStats.map((p) => p.productName)}
-                  />
-                </Suspense>
-              </CollapsibleSection>
-            </div>
+            {hasFeature("dash.wheel_activity") && (
+              <div className="mb-3">
+                <CollapsibleSection title="กิจกรรมวงล้อ (Wheel)" icon={<RotateCcw size={18} />} isOpen={showWheel} onToggle={toggleWheel} glass>
+                  <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
+                    <DashboardWheelActivity />
+                  </Suspense>
+                </CollapsibleSection>
+              </div>
+            )}
+            {hasFeature("dash.daily_claim_breakdown") && (
+              <div className="mb-3">
+                <CollapsibleSection title="สรุปการกดคีย์รายวันแยกประเภท" icon={<ListChecks size={18} />} isOpen={showDailyClaims} onToggle={toggleDailyClaims} glass>
+                  <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
+                    <DailyClaimBreakdown
+                      data={dailyProductClaims}
+                      productNames={productStats.map((p) => p.productName)}
+                    />
+                  </Suspense>
+                </CollapsibleSection>
+              </div>
+            )}
+
 
             {/* Product Claim Breakdown */}
             <div className="mb-3">

@@ -394,6 +394,7 @@ export interface HeroBannerConfig {
   imageHeight?: number; // px
   imageFit?: "cover" | "contain";
   imageRadius?: number; // px
+  imageAutoFit?: boolean; // frame size auto-follows image aspect ratio
 }
 
 export interface TickerConfig {

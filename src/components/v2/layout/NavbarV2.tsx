@@ -153,12 +153,22 @@ const NavbarV2 = () => {
                     <ChevronDown size={12} style={{ color: "hsl(270 30% 60%)" }} />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" sideOffset={8} className="w-60">
-                  <DropdownMenuLabel className="flex flex-col gap-0.5">
-                    <span className="text-sm font-semibold truncate">{profile?.displayName || "ผู้ใช้"}</span>
-                    <span className="text-[11px] font-normal text-muted-foreground truncate">{profile?.email}</span>
+                <DropdownMenuContent align="end" sideOffset={8} className="w-64 p-1.5">
+                  <DropdownMenuLabel className="p-2.5 mb-1 rounded-lg bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/15">
+                    <div className="flex items-center gap-2.5">
+                      <div className="v2-user-avatar shrink-0" style={{ width: 38, height: 38, borderRadius: 10 }}>
+                        <User size={16} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[13px] font-semibold text-foreground truncate leading-tight">
+                          {profile?.displayName || "ผู้ใช้"}
+                        </div>
+                        <div className="text-[10.5px] text-muted-foreground truncate leading-tight mt-0.5 font-normal">
+                          {profile?.email}
+                        </div>
+                      </div>
+                    </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
                   <DropdownMenuItem asChild><Link to="/profile"><User size={14} className="mr-2" /> โปรไฟล์</Link></DropdownMenuItem>
                   <DropdownMenuItem asChild><Link to="/history"><History size={14} className="mr-2" /> ประวัติ</Link></DropdownMenuItem>
                   <DropdownMenuItem asChild><Link to="/wallet"><Wallet size={14} className="mr-2" /> Wallet</Link></DropdownMenuItem>

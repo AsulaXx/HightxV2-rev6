@@ -89,41 +89,120 @@ const AdminBrandingTab = ({ form, setForm, handleSave }: AdminTabProps) => {
             </label>
             <span className="text-sm font-medium text-foreground">แสดงรูป Hero Banner (V2)</span>
           </div>
-          {form.heroBanner?.imageEnabled !== false && (
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">รูป Hero Banner</label>
-                <ImageUploadField
-                  value={form.heroBanner?.imageUrl || ""}
-                  onChange={(url) => setForm({ ...form, heroBanner: { ...(form.heroBanner || {} as HeroBannerConfig), imageUrl: url } })}
-                  folder="hero"
-                  placeholder="อัปโหลดหรือวาง URL รูป (ถ้าว่างจะใช้ Logo)"
-                  previewClassName="w-16 h-16 rounded-xl object-cover border border-border shrink-0"
-                />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {form.heroBanner?.imageEnabled !== false && (() => {
+            const hb = form.heroBanner || ({} as HeroBannerConfig);
+            const setHB = (patch: Partial<HeroBannerConfig>) =>
+              setForm({ ...form, heroBanner: { ...hb, ...patch } });
+            const previewUrl = hb.imageUrl || form.logoUrl || "";
+            const heightPresets = [
+              { label: "เตี้ย", v: 200 },
+              { label: "มาตรฐาน", v: 320 },
+              { label: "สูง", v: 480 },
+              { label: "ซินีม่า", v: 560 },
+            ];
+            const autoFit = hb.imageAutoFit === true;
+            const previewHeight = autoFit ? undefined : (hb.imageHeight ?? 320);
+            return (
+              <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-semibold text-foreground mb-1.5">ความสูง (px)</label>
-                  <input type="number" min={120} max={720} step={10} value={form.heroBanner?.imageHeight ?? 320} onChange={(e) => setForm({ ...form, heroBanner: { ...(form.heroBanner || {} as HeroBannerConfig), imageHeight: parseInt(e.target.value) || 320 } })} className="input-glass w-full px-3 py-2 text-sm" />
+                  <label className="block text-sm font-semibold text-foreground mb-2">รูป Hero Banner</label>
+                  <ImageUploadField
+                    value={hb.imageUrl || ""}
+                    onChange={(url) => setHB({ imageUrl: url })}
+                    folder="hero"
+                    placeholder="อัปโหลดหรือวาง URL รูป (ถ้าว่างจะใช้ Logo)"
+                    previewClassName="w-16 h-16 rounded-xl object-cover border border-border shrink-0"
+                  />
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-foreground mb-1.5">มุมโค้ง (px)</label>
-                  <input type="number" min={0} max={48} step={2} value={form.heroBanner?.imageRadius ?? 20} onChange={(e) => setForm({ ...form, heroBanner: { ...(form.heroBanner || {} as HeroBannerConfig), imageRadius: parseInt(e.target.value) || 0 } })} className="input-glass w-full px-3 py-2 text-sm" />
+
+                {/* Auto-fit frame toggle */}
+                <div className="flex items-center justify-between gap-3 p-2.5 rounded-lg border border-border/30 bg-card/40">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-foreground">กรอบตามอัตราส่วนรูป</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">ให้ความสูงของกรอบยืดหยุ่นตามรูปที่อัปโหลด</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input type="checkbox" checked={autoFit} onChange={(e) => setHB({ imageAutoFit: e.target.checked })} className="sr-only peer" />
+                    <div className="w-9 h-5 rounded-full bg-muted peer-checked:bg-primary transition-colors after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-background after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+                  </label>
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-foreground mb-1.5">การครอบ</label>
-                  <div className="flex gap-1.5">
-                    {(["cover", "contain"] as const).map(fit => (
-                      <button key={fit} onClick={() => setForm({ ...form, heroBanner: { ...(form.heroBanner || {} as HeroBannerConfig), imageFit: fit } })}
-                        className={`flex-1 py-2 rounded-lg text-xs font-medium border transition-colors ${(form.heroBanner?.imageFit || "cover") === fit ? "bg-primary/15 border-primary/30 text-primary" : "border-border/20 text-muted-foreground hover:bg-muted/20"}`}>
-                        {fit}
-                      </button>
-                    ))}
+
+                {/* Height presets */}
+                {!autoFit && (
+                  <div>
+                    <label className="block text-xs font-semibold text-foreground mb-1.5">ขนาดสำเร็จรูป</label>
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {heightPresets.map(p => (
+                        <button key={p.v} onClick={() => setHB({ imageHeight: p.v })}
+                          className={`py-2 rounded-lg text-[11px] font-medium border transition-colors ${(hb.imageHeight ?? 320) === p.v ? "bg-primary/15 border-primary/40 text-primary" : "border-border/20 text-muted-foreground hover:bg-muted/20"}`}>
+                          {p.label}
+                          <div className="text-[9px] opacity-60 font-normal">{p.v}px</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-foreground mb-1.5">ความสูง (px)</label>
+                    <input type="number" min={120} max={800} step={10} disabled={autoFit} value={hb.imageHeight ?? 320} onChange={(e) => setHB({ imageHeight: parseInt(e.target.value) || 320 })} className="input-glass w-full px-3 py-2 text-sm disabled:opacity-40" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-foreground mb-1.5">มุมโค้ง (px)</label>
+                    <input type="number" min={0} max={48} step={2} value={hb.imageRadius ?? 20} onChange={(e) => setHB({ imageRadius: parseInt(e.target.value) || 0 })} className="input-glass w-full px-3 py-2 text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-foreground mb-1.5">การครอบ</label>
+                    <div className="flex gap-1.5">
+                      {(["cover", "contain"] as const).map(fit => (
+                        <button key={fit} onClick={() => setHB({ imageFit: fit })}
+                          className={`flex-1 py-2 rounded-lg text-xs font-medium border transition-colors ${(hb.imageFit || "cover") === fit ? "bg-primary/15 border-primary/30 text-primary" : "border-border/20 text-muted-foreground hover:bg-muted/20"}`}>
+                          {fit}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Realtime Preview */}
+                <div className="rounded-xl border border-primary/25 bg-background/40 p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      พรีวิวแบบ Realtime
+                    </p>
+                    <span className="text-[10px] text-muted-foreground">
+                      {autoFit ? "auto" : `${hb.imageHeight ?? 320}px`} • {hb.imageFit || "cover"}
+                    </span>
+                  </div>
+                  <div
+                    className="relative w-full overflow-hidden border border-primary/25 bg-muted/10"
+                    style={{
+                      height: previewHeight ? `${previewHeight}px` : undefined,
+                      borderRadius: `${hb.imageRadius ?? 20}px`,
+                      boxShadow: "0 20px 50px -20px hsl(var(--primary) / 0.45)",
+                    }}
+                  >
+                    {previewUrl ? (
+                      <img
+                        src={previewUrl}
+                        alt="Hero preview"
+                        className="w-full block"
+                        style={{
+                          height: autoFit ? "auto" : "100%",
+                          objectFit: autoFit ? "contain" : (hb.imageFit || "cover"),
+                        }}
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-40 text-xs text-muted-foreground">อัปโหลดรูปเพื่อดูตัวอย่าง</div>
+                    )}
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background/70 to-transparent" />
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
 
 

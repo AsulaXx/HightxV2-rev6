@@ -22,6 +22,7 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
 
   const imageEnabled = hero.imageEnabled !== false;
   const heroImg = hero.imageUrl || settings.heroImageUrl || settings.logoUrl || logo;
+  const heroAutoFit = hero.imageAutoFit === true;
   const heroHeight = hero.imageHeight ?? 320;
   const heroFit = hero.imageFit || "cover";
   const heroRadius = hero.imageRadius ?? 20;
@@ -67,7 +68,7 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
             transition={{ duration: 0.6 }}
             className="v2-hero-3d relative w-full overflow-hidden border border-primary/25"
             style={{
-              height: `${heroHeight}px`,
+              height: heroAutoFit ? "auto" : `${heroHeight}px`,
               borderRadius: `${heroRadius}px`,
               boxShadow: "0 30px 80px -30px hsl(var(--primary) / 0.55), 0 0 0 1px hsl(var(--primary) / 0.15)",
             }}
@@ -75,8 +76,8 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
             <img
               src={heroImg}
               alt={`${brand} banner`}
-              className="v2-hero-img absolute inset-0 w-full h-full block"
-              style={{ objectFit: heroFit }}
+              className={heroAutoFit ? "v2-hero-img relative w-full h-auto block" : "v2-hero-img absolute inset-0 w-full h-full block"}
+              style={{ objectFit: heroAutoFit ? "contain" : heroFit }}
             />
             {/* Parallax shine sweep */}
             <div className="v2-hero-shine pointer-events-none absolute inset-0" aria-hidden />

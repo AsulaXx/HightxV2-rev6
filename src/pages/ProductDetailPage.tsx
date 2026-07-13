@@ -300,11 +300,20 @@ const ProductDetailPage = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 items-start">
           {/* Product Image - sticky on desktop */}
-          <div className={`lg:col-span-2 lg:sticky lg:top-24 flex flex-col gap-4`}>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className={`lg:col-span-2 lg:sticky lg:top-24 flex flex-col gap-3 sm:gap-4`}
+          >
             {/* Product Image */}
-            <div className={`glass-card overflow-hidden !p-0 ${radiusClass()} relative ${isProductUnavailable ? (productStatus === "updating" ? 'ring-2 ring-amber-500/40' : productStatus === "closed" ? 'ring-2 ring-red-500/40' : 'ring-2 ring-slate-400/40') : ''}`}>
+            <motion.div
+              whileHover={{ y: -2 }}
+              transition={{ type: "spring", stiffness: 300, damping: 22 }}
+              className={`glass-card overflow-hidden !p-0 ${radiusClass()} relative group ${isProductUnavailable ? (productStatus === "updating" ? 'ring-2 ring-amber-500/40' : productStatus === "closed" ? 'ring-2 ring-red-500/40' : 'ring-2 ring-slate-400/40') : ''}`}
+            >
               {product.imageUrl ? (
                 <>
                   {/* Blurred background fill */}
@@ -360,7 +369,7 @@ const ProductDetailPage = () => {
                 );
               })()}
 
-            </div>
+            </motion.div>
 
             {/* Video / Tutorial button */}
             {product.videoUrl && (
@@ -457,10 +466,15 @@ const ProductDetailPage = () => {
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
 
           {/* Product Info */}
-          <div className="lg:col-span-3 flex flex-col gap-4">
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="lg:col-span-3 flex flex-col gap-3 sm:gap-4"
+          >
             <div>
               {category && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-medium mb-2">
@@ -679,7 +693,7 @@ const ProductDetailPage = () => {
               <ReviewList productId={product.id} />
             </div>
 
-          </div>
+          </motion.div>
         </div>
       </motion.div>
     </div>

@@ -148,6 +148,17 @@ const AdminPage = () => {
     contentScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }, [activeTab]);
 
+  // Realtime preview: push in-progress form to the site-wide overlay
+  useEffect(() => {
+    if (!formInitialized) return;
+    if (livePreviewOn) setLivePreview(form);
+    else setLivePreview(null);
+  }, [form, livePreviewOn, formInitialized, setLivePreview]);
+  useEffect(() => () => setLivePreview(null), [setLivePreview]);
+  useEffect(() => {
+    try { localStorage.setItem("admin_live_preview", livePreviewOn ? "1" : "0"); } catch {}
+  }, [livePreviewOn]);
+
   useDailySummaryScheduler(settings, updateSettings);
 
   // ─── Categories / tabs (computed every render — must be defined before any hooks that depend on them) ───

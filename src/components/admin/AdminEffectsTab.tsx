@@ -3,7 +3,8 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import type { BackgroundEffect, LoaderStyle } from "@/contexts/SiteSettingsContext";
 import Loader from "@/components/Loader";
-import { Sparkles, Grid3x3, Waves, CircleDot, Layers, Terminal, Command, UserCog, LogOut, Save } from "lucide-react";
+import { Sparkles, Grid3x3, Waves, CircleDot, Layers, Terminal, Command, UserCog, LogOut, Save, Zap, Gauge, Leaf, Cpu } from "lucide-react";
+import { usePerformanceMode, type PerformanceMode } from "@/hooks/usePerformanceMode";
 
 interface Props {
   form: any;
@@ -46,6 +47,18 @@ const AdminEffectsTab = ({ form, setForm, handleSave }: Props) => {
   const setPalette = (v: boolean) =>
     setForm({ ...form, theme: { ...theme, commandPaletteEnabled: v } });
 
+  const perfMode: PerformanceMode = theme.performanceMode || "auto";
+  const setPerf = (m: PerformanceMode) =>
+    setForm({ ...form, theme: { ...theme, performanceMode: m } });
+  const perf = usePerformanceMode();
+
+  const PERF_OPTS: { id: PerformanceMode; label: string; icon: any; desc: string }[] = [
+    { id: "auto",     label: "อัตโนมัติ", icon: Cpu,   desc: "ปรับตามอุปกรณ์" },
+    { id: "high",     label: "เต็มพลัง",  icon: Zap,   desc: "แสดงเอฟเฟกต์ทุกอย่าง" },
+    { id: "balanced", label: "สมดุล",     icon: Gauge, desc: "ลดจำนวน/ความเร็ว 40-50%" },
+    { id: "saver",    label: "ประหยัด",   icon: Leaf,  desc: "ปิดเอฟเฟกต์หนักทั้งหมด" },
+  ];
+
   const doImpersonate = async () => {
     if (!impUid.trim()) return;
     try {
@@ -59,6 +72,44 @@ const AdminEffectsTab = ({ form, setForm, handleSave }: Props) => {
 
   return (
     <div className="space-y-6">
+      {/* Performance Mode */}
+      <section className="glass-card !p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <Gauge size={16} className="text-primary" />
+          <h3 className="text-sm font-bold">โหมดประหยัดทรัพยากร</h3>
+          <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+            ตอนนี้: {perf.mode.toUpperCase()}
+            {perfMode === "auto" && <span className="opacity-60"> (ตรวจจาก {perf.detected})</span>}
+          </span>
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          ปิดหรือย่อเอฟเฟกต์ที่กิน GPU/CPU (Glow, Particles, Waves, Matrix…) โหมด <b>อัตโนมัติ</b> จะเลือกให้เองจาก
+          จำนวน core, RAM, การเชื่อมต่อ, save-data และ reduced-motion ของผู้ใช้
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {PERF_OPTS.map((o) => {
+            const active = perfMode === o.id;
+            return (
+              <button
+                key={o.id}
+                onClick={() => setPerf(o.id)}
+                className={`flex items-center gap-2 p-3 rounded-xl border text-left transition-all ${
+                  active
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border/40 hover:border-primary/40 hover:bg-muted/30"
+                }`}
+              >
+                <o.icon size={16} />
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold truncate">{o.label}</div>
+                  <div className="text-[10px] text-muted-foreground truncate">{o.desc}</div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
       {/* Backgrounds */}
       <section className="glass-card !p-5 space-y-4">
         <div className="flex items-center gap-2">

@@ -53,9 +53,13 @@ const BackgroundParticles = memo(() => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    const perf = (document.documentElement.dataset.perfMode as string) || "high";
+    const perfCountMul = perf === "balanced" ? 0.5 : 1;
+    const perfSpeedMul = perf === "balanced" ? 0.7 : 1;
+
     const mode: ParticleMode = config.mode || "default";
-    const count = config.count ?? 40;
-    const speed = config.speed ?? 0.5;
+    const count = Math.max(4, Math.round((config.count ?? 40) * perfCountMul));
+    const speed = (config.speed ?? 0.5) * perfSpeedMul;
     const size = config.size ?? 2;
     const rawColor = config.color || "auto";
     const color = rawColor === "auto" ? getContrastColor() : rawColor;

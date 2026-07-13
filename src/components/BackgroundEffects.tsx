@@ -35,7 +35,9 @@ const BackgroundEffects = memo(() => {
 
   const effect = cfg?.effect || "none";
   const opacity = cfg?.opacity ?? 0.35;
-  const speed = cfg?.speed ?? 1;
+  const perfMode = (typeof document !== "undefined" && document.documentElement.dataset.perfMode) || "high";
+  const perfSpeedMul = perfMode === "balanced" ? 0.6 : 1;
+  const speed = (cfg?.speed ?? 1) * perfSpeedMul;
   const rawColor = cfg?.color || "auto";
   const color = !rawColor || rawColor === "auto"
     ? getAutoColor()

@@ -335,7 +335,7 @@ const Index = () => {
 
 
       {(settings.homeSectionVisibility?.quicknav !== false) && (settings.quickNavItems || []).filter(n => n.enabled).length > 0 && (
-        <motion.section variants={stagger} initial="hidden" animate="show" className={`${maxWidthClass()} mx-auto px-4 sm:px-6 ${spacingClass()}`}>
+        <motion.section {...sectionInView} className={`${maxWidthClass()} mx-auto px-4 sm:px-6 ${spacingClass()}`}>
           <motion.div variants={fade} className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 border border-primary/10 flex items-center justify-center">
               <Navigation size={14} className="text-primary sm:w-4 sm:h-4" />

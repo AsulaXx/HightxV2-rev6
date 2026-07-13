@@ -621,3 +621,182 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
   .animate-glow-pulse, .animate-subtle-rotate { animation: none !important; }
   .glass-card-hover:hover { transform: none !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   UI PRESETS — sitewide skins swapped via [data-ui-version]
+   glass = default (defined at :root above). Others override tokens
+   and neutralize the frosted-glass look where appropriate.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Neo-Brutal: flat, hard shadows, chunky borders ───────────────────── */
+[data-ui-version="neo"] {
+  --background: 48 100% 96%;
+  --foreground: 0 0% 6%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 6%;
+  --primary: 12 92% 52%;
+  --primary-foreground: 0 0% 100%;
+  --accent: 54 100% 55%;
+  --accent-foreground: 0 0% 6%;
+  --border: 0 0% 6%;
+  --input: 0 0% 100%;
+  --ring: 12 92% 52%;
+  --muted: 48 40% 92%;
+  --muted-foreground: 0 0% 20%;
+  --radius: 0.25rem;
+  --glow-1: 12 92% 52%;
+  --glow-2: 54 100% 55%;
+}
+[data-ui-version="neo"].dark {
+  --background: 0 0% 8%;
+  --foreground: 48 100% 96%;
+  --card: 0 0% 12%;
+  --card-foreground: 48 100% 96%;
+  --border: 48 100% 96%;
+  --input: 0 0% 14%;
+  --muted: 0 0% 16%;
+}
+[data-ui-version="neo"] .glass-card,
+[data-ui-version="neo"] .glass-panel,
+[data-ui-version="neo"] .glass-pill {
+  background: hsl(var(--card)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 2px solid hsl(var(--border)) !important;
+  box-shadow: 4px 4px 0 0 hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
+}
+[data-ui-version="neo"] .btn-gradient,
+[data-ui-version="neo"] .btn-glass {
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  border: 2px solid hsl(var(--border)) !important;
+  box-shadow: 3px 3px 0 0 hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
+}
+
+/* ── Minimal SaaS: clean whitespace, subtle borders, thin shadows ─────── */
+[data-ui-version="saas"] {
+  --background: 210 20% 98%;
+  --foreground: 222 20% 15%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 20% 15%;
+  --primary: 217 91% 60%;
+  --primary-foreground: 0 0% 100%;
+  --accent: 199 89% 48%;
+  --accent-foreground: 0 0% 100%;
+  --border: 220 13% 91%;
+  --input: 220 13% 96%;
+  --ring: 217 91% 60%;
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 9% 46%;
+  --radius: 0.5rem;
+  --glow-1: 217 91% 60%;
+  --glow-2: 199 89% 48%;
+}
+[data-ui-version="saas"].dark {
+  --background: 222 18% 11%;
+  --foreground: 210 20% 96%;
+  --card: 222 16% 15%;
+  --border: 222 12% 22%;
+  --input: 222 14% 18%;
+  --muted: 222 14% 18%;
+}
+[data-ui-version="saas"] .glass-card,
+[data-ui-version="saas"] .glass-panel {
+  background: hsl(var(--card)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid hsl(var(--border)) !important;
+  box-shadow: 0 1px 3px 0 hsl(0 0% 0% / 0.05), 0 1px 2px 0 hsl(0 0% 0% / 0.03) !important;
+  border-radius: var(--radius) !important;
+}
+[data-ui-version="saas"] .glass-pill {
+  background: hsl(var(--muted)) !important;
+  backdrop-filter: none !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+/* ── Cyber Neon: dark, saturated, glowing edges ───────────────────────── */
+[data-ui-version="cyber"],
+[data-ui-version="cyber"].dark {
+  --background: 240 30% 6%;
+  --foreground: 180 100% 92%;
+  --card: 240 30% 10%;
+  --card-foreground: 180 100% 92%;
+  --popover: 240 30% 10%;
+  --popover-foreground: 180 100% 92%;
+  --primary: 187 100% 55%;
+  --primary-foreground: 240 30% 6%;
+  --secondary: 300 60% 20%;
+  --accent: 322 100% 60%;
+  --accent-foreground: 240 30% 6%;
+  --border: 187 80% 30%;
+  --input: 240 30% 12%;
+  --ring: 187 100% 55%;
+  --muted: 240 25% 14%;
+  --muted-foreground: 187 40% 65%;
+  --radius: 0.5rem;
+  --glow-1: 187 100% 55%;
+  --glow-2: 322 100% 60%;
+}
+[data-ui-version="cyber"] .glass-card,
+[data-ui-version="cyber"] .glass-panel {
+  background: linear-gradient(140deg, hsl(240 30% 12% / 0.85), hsl(240 40% 8% / 0.85)) !important;
+  border: 1px solid hsl(var(--primary) / 0.4) !important;
+  box-shadow: 0 0 24px -6px hsl(var(--primary) / 0.35), inset 0 0 12px hsl(var(--primary) / 0.06) !important;
+  border-radius: var(--radius) !important;
+}
+[data-ui-version="cyber"] .btn-gradient {
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent))) !important;
+  color: hsl(240 30% 6%) !important;
+  box-shadow: 0 0 20px hsl(var(--primary) / 0.5) !important;
+}
+
+/* ── Editorial: serif-heavy, muted, generous ──────────────────────────── */
+[data-ui-version="editorial"] {
+  --background: 40 25% 96%;
+  --foreground: 25 25% 12%;
+  --card: 40 30% 99%;
+  --card-foreground: 25 25% 12%;
+  --primary: 25 60% 35%;
+  --primary-foreground: 40 30% 99%;
+  --accent: 15 55% 45%;
+  --accent-foreground: 40 30% 99%;
+  --border: 30 20% 82%;
+  --input: 40 25% 94%;
+  --ring: 25 60% 35%;
+  --muted: 40 20% 92%;
+  --muted-foreground: 25 15% 40%;
+  --radius: 0.125rem;
+  --glow-1: 25 60% 45%;
+  --glow-2: 15 55% 55%;
+}
+[data-ui-version="editorial"].dark {
+  --background: 25 15% 10%;
+  --foreground: 40 25% 94%;
+  --card: 25 15% 14%;
+  --border: 30 12% 24%;
+  --input: 25 15% 16%;
+  --muted: 25 15% 18%;
+}
+[data-ui-version="editorial"] body,
+[data-ui-version="editorial"] {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+}
+[data-ui-version="editorial"] h1,
+[data-ui-version="editorial"] h2,
+[data-ui-version="editorial"] h3 {
+  font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  letter-spacing: -0.01em;
+}
+[data-ui-version="editorial"] .glass-card,
+[data-ui-version="editorial"] .glass-panel {
+  background: hsl(var(--card)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid hsl(var(--border)) !important;
+  box-shadow: none !important;
+  border-radius: var(--radius) !important;
+}
+

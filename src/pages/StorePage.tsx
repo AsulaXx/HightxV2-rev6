@@ -704,6 +704,11 @@ const StorePage = () => {
                             <Layers size={9} /> {optionCount}
                           </span>
                         )}
+                        {!allLinkOnly && totalAvail > 0 && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-500/10 border border-sky-400/25 text-sky-300 text-[9px] font-semibold">
+                            <Package size={9} /> {totalAvail.toLocaleString()}
+                          </span>
+                        )}
                         {(soldCounts[product.id] || 0) > 0 && (
                           <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-400/25 text-emerald-400 text-[9px] font-semibold">
                             <ShoppingCart size={9} /> {(soldCounts[product.id] || 0).toLocaleString()}

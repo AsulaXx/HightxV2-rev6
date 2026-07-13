@@ -378,7 +378,7 @@ const AdminPage = () => {
           {/* Row 2: category navbar (horizontal chips) */}
           <nav aria-label="Admin categories" className="hidden md:block">
             <div className="flex items-center gap-1 overflow-x-auto scrollbar-none [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pb-2">
-              {categories.map((cat) => {
+              {visibleCategories.map((cat) => {
                 const active = activeCategory.id === cat.id;
                 return (
                   <button

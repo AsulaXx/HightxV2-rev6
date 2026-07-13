@@ -14,6 +14,7 @@ const AdminReferral = lazy(() => import("@/components/admin/AdminReferral"));
 const AdminVipTiers = lazy(() => import("@/components/admin/AdminVipTiers"));
 const AdminLeaderboard = lazy(() => import("@/components/admin/AdminLeaderboard"));
 const AdminDataReset = lazy(() => import("@/components/admin/AdminDataReset"));
+const AdminFinanceCleanup = lazy(() => import("@/components/admin/AdminFinanceCleanup"));
 const AdminBackup = lazy(() => import("@/components/admin/AdminBackup"));
 const AdminGeneralTab = lazy(() => import("@/components/admin/AdminGeneralTab"));
 const AdminUsersTab = lazy(() => import("@/components/admin/AdminUsersTab"));
@@ -800,7 +801,11 @@ const AdminPage = () => {
             )}
 
             {activeTab === "datareset" && isOwner && user && (
-              <AdminDataReset user={user} profile={profile} />
+              <div className="space-y-8">
+                <AdminFinanceCleanup user={user} profile={profile} />
+                <div className="border-t border-border/30" />
+                <AdminDataReset user={user} profile={profile} />
+              </div>
             )}
 
             {activeTab === "backup" && isOwner && user && (

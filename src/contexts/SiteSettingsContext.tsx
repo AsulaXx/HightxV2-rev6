@@ -395,6 +395,7 @@ export interface BgMusicConfig {
   artist: string;
   startTime: number;
   autoPlay: boolean;
+  defaultVolume?: number; // 0..1
 }
 
 interface MatchReceiverAccount {

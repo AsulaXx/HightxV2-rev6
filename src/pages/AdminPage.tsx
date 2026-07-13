@@ -160,6 +160,7 @@ const AdminPage = () => {
       tabs: [
         { id: "branding", label: "Branding", icon: Image },
         { id: "theme", label: "ธีม", icon: Palette },
+        { id: "effects", label: "เอฟเฟกต์", icon: Sparkles },
         { id: "layout", label: "เลย์เอาท์", icon: Monitor },
         { id: "music", label: "เพลง", icon: Music },
         { id: "legal", label: "ข้อตกลง", icon: FileText },
@@ -564,6 +565,10 @@ const AdminPage = () => {
 
             {activeTab === "theme" && (
               <AdminThemeTab form={form} setForm={setForm} handleSave={handleSave} />
+            )}
+
+            {activeTab === "effects" && isOwner && (
+              <AdminEffectsTab form={form} setForm={setForm} handleSave={handleSave} />
             )}
 
             {activeTab === "layout" && isOwner && (

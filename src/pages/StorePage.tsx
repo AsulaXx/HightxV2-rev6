@@ -284,7 +284,12 @@ const StorePage = () => {
   };
 
   return (
-    <div className={`relative z-10 ${maxWidthClass()} mx-auto px-4 sm:px-6 py-6`}>
+    <div className={`relative z-10 ${maxWidthClass()} mx-auto px-4 sm:px-6 py-6 scroll-mt-24`}>
+      {/* Ambient store aurora — subtle, non-interactive */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[420px] overflow-hidden -z-10">
+        <div className="absolute -top-32 left-1/4 w-[520px] h-[520px] rounded-full blur-3xl opacity-40" style={{ background: "radial-gradient(circle, hsl(var(--primary) / 0.22), transparent 65%)" }} />
+        <div className="absolute -top-24 right-0 w-[420px] h-[420px] rounded-full blur-3xl opacity-30" style={{ background: "radial-gradient(circle, hsl(var(--accent) / 0.2), transparent 65%)" }} />
+      </div>
       <PageBreadcrumb
         items={[{ label: "เมนู", path: "/hub" }, { label: "ร้านกดคีย์" }]}
         title="ร้านกดคีย์"

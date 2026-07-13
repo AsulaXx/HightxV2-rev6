@@ -465,19 +465,24 @@ const StorePage = () => {
             ) : (
               <motion.button
                 {...cardCommonProps}
-                className={`category-card text-center !rounded-xl ${selectedCategory === cat.id ? '!border-primary/30 ring-1 ring-primary/15' : ''}`}
+                className={`category-card text-center !rounded-xl group relative ${selectedCategory === cat.id ? '!border-primary/40 ring-1 ring-primary/25 shadow-[0_10px_30px_-12px_hsl(var(--primary)/0.5)]' : ''}`}
               >
-                <div className={`aspect-square bg-gradient-to-br ${cat.gradient || 'from-primary/20 to-accent/20'} flex items-center justify-center p-2 relative`}>
+                {/* Shine sweep on hover */}
+                <span aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
+                  <span className="absolute -inset-y-2 -left-1/2 w-1/2 rotate-12 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-[260%] transition-all duration-700 ease-out" />
+                </span>
+                <div className={`aspect-square bg-gradient-to-br ${cat.gradient || 'from-primary/20 to-accent/20'} flex items-center justify-center p-2 relative overflow-hidden`}>
+                  <span aria-hidden className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: "radial-gradient(circle at 50% 40%, hsl(var(--primary) / 0.25), transparent 60%)" }} />
                   {cat.imageUrl ? (
-                    <img src={cat.imageUrl} alt={cat.name} className="w-10 h-10 sm:w-14 sm:h-14 object-contain drop-shadow-md" />
+                    <img src={cat.imageUrl} alt={cat.name} className="w-10 h-10 sm:w-14 sm:h-14 object-contain drop-shadow-md relative z-10 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3" />
                   ) : (
-                    <span className="text-2xl sm:text-3xl">{cat.icon}</span>
+                    <span className="text-2xl sm:text-3xl relative z-10 transition-transform duration-500 group-hover:scale-110">{cat.icon}</span>
                   )}
                   {hasChildren && !cat.displayAsProduct && (
-                    <span className="absolute top-1 right-1 text-[8px] px-1.5 py-0.5 rounded-full bg-background/80 backdrop-blur-sm text-primary border border-primary/20">{childList.length}</span>
+                    <span className="absolute top-1 right-1 text-[8px] px-1.5 py-0.5 rounded-full bg-background/80 backdrop-blur-sm text-primary border border-primary/20 z-10">{childList.length}</span>
                   )}
                 </div>
-                <div className="p-2 flex items-center justify-center gap-1">
+                <div className="p-2 flex items-center justify-center gap-1 relative">
                   <span className="text-xs">{cat.icon}</span>
                   <span className="text-[10px] sm:text-xs font-semibold text-foreground">{cat.name}</span>
                   {isAccordion && (

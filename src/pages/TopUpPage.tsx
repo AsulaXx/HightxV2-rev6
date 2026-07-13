@@ -867,33 +867,21 @@ const TopUpPage = () => {
                 giftCodeLockRef.current = true;
                 setRedeemingGiftCode(true);
                 try {
-                  const settingsRef = doc(db, "settings", "site");
-                  const result = await runTransaction(db, async (transaction) => {
-                    const settingsSnap = await transaction.get(settingsRef);
-                    if (!settingsSnap.exists()) throw new Error("ไม่พบการตั้งค่า");
-                    const currentSettings = settingsSnap.data();
-                    const allCodes = currentSettings.giftCodes || [];
-                    const gc = allCodes.find((c: any) => c.code === giftCodeInput.trim() && c.enabled);
-                    if (!gc) throw new Error("Gift Code ไม่ถูกต้องหรือถูกปิดใช้งาน");
-                    if (gc.usedCount >= gc.maxUses) throw new Error("Gift Code นี้ถูกใช้ครบจำนวนแล้ว");
-                    if (gc.expiresAt && new Date(gc.expiresAt) < new Date()) throw new Error("Gift Code หมดอายุแล้ว");
-                    const updatedCodes = allCodes.map((c: any) => c.id === gc.id ? { ...c, usedCount: c.usedCount + 1 } : c);
-                    transaction.update(settingsRef, { giftCodes: updatedCodes });
-                    return gc;
+                  // Server-side redemption: edge function (service account) validates
+                  // the code, checks per-user duplicate guard, and increments usedCount.
+                  const idToken = await user!.getIdToken();
+                  const { data, error } = await supabase.functions.invoke("redeem-giftcode", {
+                    body: { code: giftCodeInput.trim() },
+                    headers: { Authorization: `Bearer ${idToken}` },
                   });
-
-                  const dupQ = query(collection(db, "topUpHistory"), where("userId", "==", user!.uid), where("transRef", "==", `GIFT_${result.code}`), where("status", "==", "success"), limit(1));
-                  const dupSnap = await getDocs(dupQ);
-                  if (!dupSnap.empty) {
-                    const settingsRef2 = doc(db, "settings", "site");
-                    await runTransaction(db, async (tx) => {
-                      const snap = await tx.get(settingsRef2);
-                      const codes = snap.data()?.giftCodes || [];
-                      const rolledBack = codes.map((c: any) => c.id === result.id ? { ...c, usedCount: Math.max(0, c.usedCount - 1) } : c);
-                      tx.update(settingsRef2, { giftCodes: rolledBack });
-                    });
-                    toast.error("คุณเคยใช้ Gift Code นี้แล้ว"); setRedeemingGiftCode(false); return;
+                  if (error) throw error;
+                  if (!data?.success) {
+                    toast.error(data?.message || "แลก Gift Code ไม่สำเร็จ");
+                    setRedeemingGiftCode(false);
+                    giftCodeLockRef.current = false;
+                    return;
                   }
+                  const result = { id: data.id as string, code: data.code as string, amount: Number(data.amount) };
 
                   const giftAttemptId = generateAttemptId("gift");
                   await applyLedger({
@@ -923,6 +911,7 @@ const TopUpPage = () => {
                   setRedeemingGiftCode(false);
                 }
               }}
+
             />
           ) : topUpMode === "qr" ? (
             <TopUpQR

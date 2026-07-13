@@ -12,6 +12,7 @@ import { cachedQuery, invalidateCache } from "@/lib/firestoreCache";
 import TypingText from "@/components/TypingText";
 import Reveal, { RevealGroup } from "@/components/Reveal";
 import { useMouseParallax } from "@/hooks/useMouseParallax";
+import HomeV2Hero from "@/components/v2/HomeV2Hero";
 
 interface Announcement {
   id: string;

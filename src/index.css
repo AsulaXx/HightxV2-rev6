@@ -1435,11 +1435,21 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
   cursor: pointer;
   transition: background-color .14s ease, color .14s ease;
 }
-[data-ui-version="v2"] [role="menuitem"] > a,
-[data-ui-version="v2"] [role="menuitem"] > * {
+[data-ui-version="v2"] [role="menuitem"] > a {
   display: flex; align-items: center; gap: 0.5rem;
   width: 100%;
   color: inherit !important;
+}
+[data-ui-version="v2"] [role="menuitem"] > svg,
+[data-ui-version="v2"] [role="menuitem"] a > svg {
+  width: 14px !important;
+  height: 14px !important;
+  flex: 0 0 14px !important;
+}
+[data-ui-version="v2"] [role="menuitem"] > span,
+[data-ui-version="v2"] [role="menuitem"] a > span {
+  min-width: 0;
+  white-space: nowrap;
 }
 [data-ui-version="v2"] [role="menuitem"]:hover,
 [data-ui-version="v2"] [role="menuitem"][data-highlighted],

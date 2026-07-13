@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { UI_PRESETS, type BackgroundEffect, type LoaderStyle, type UIVersion } from "@/contexts/SiteSettingsContext";
+import type { BackgroundEffect, LoaderStyle } from "@/contexts/SiteSettingsContext";
 import Loader from "@/components/Loader";
-import { Sparkles, Grid3x3, Waves, CircleDot, Layers, Terminal, Command, UserCog, LogOut, Save, Zap, Gauge, Leaf, Cpu, Eye, EyeOff, Palette, RotateCcw } from "lucide-react";
+import { Sparkles, Grid3x3, Waves, CircleDot, Layers, Terminal, Command, UserCog, LogOut, Save, Zap, Gauge, Leaf, Cpu, Eye, EyeOff } from "lucide-react";
 import { usePerformanceMode, setPerformancePreview, type PerformanceMode } from "@/hooks/usePerformanceMode";
 
 interface Props {
@@ -61,25 +61,6 @@ const AdminEffectsTab = ({ form, setForm, handleSave }: Props) => {
 
   // Clear any active preview when leaving the tab
   useEffect(() => () => setPerformancePreview(null), []);
-
-  // ── UI Preset (sitewide skin) ────────────────────────────────────────
-  const savedPreset: UIVersion = (form.uiVersion as UIVersion) || "glass";
-  const [presetPreview, setPresetPreview] = useState<UIVersion | null>(null);
-
-  // Apply preview by writing data-ui-version directly; restore on unmount.
-  useEffect(() => {
-    const active = presetPreview ?? savedPreset;
-    const prev = document.documentElement.getAttribute("data-ui-version");
-    document.documentElement.setAttribute("data-ui-version", active);
-    return () => {
-      if (prev) document.documentElement.setAttribute("data-ui-version", prev);
-    };
-  }, [presetPreview, savedPreset]);
-
-  const chooseSavedPreset = (id: UIVersion) => {
-    setForm({ ...form, uiVersion: id });
-    setPresetPreview(null);
-  };
 
   const doImpersonate = async () => {
     if (!impUid.trim()) return;

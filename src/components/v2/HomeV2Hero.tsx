@@ -62,27 +62,22 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
     img.src = heroImg;
   }, [heroImg]);
 
-  // Dynamic frame — height follows the image's natural aspect ratio so the
-  // picture always fills the frame (no letterboxing, no cropping). Clamped
-  // so it never gets absurdly tall/short across viewports.
-  const minH = containerW >= 1024 ? 240 : containerW >= 640 ? 200 : 170;
-  const maxH = containerW >= 1024 ? 520 : containerW >= 640 ? 400 : 300;
-  const fallbackAspect = containerW >= 1024 ? 3.4 : containerW >= 640 ? 2.4 : 1.7;
-  const activeAspect = imgRatio ?? fallbackAspect;
-  const dynamicH = containerW > 0
-    ? Math.round(Math.min(maxH, Math.max(minH, containerW / activeAspect)))
-    : heroHeightPref;
+  // Desktop/Tablet: original banner behavior — fixed height, image fills frame (cover).
+  // Mobile (<640px): swap to centered logo on themed gradient.
+  const isMobile = containerW > 0 && containerW < 640;
+  const useLogoMode = logoFallback || isMobile;
 
-  // Only fall back to logo if the image itself failed to load.
-  const useLogoMode = logoFallback;
-
-  const finalHeight = heroAutoFit ? undefined : dynamicH;
+  const mobileH = 180;
+  const finalHeight = heroAutoFit ? undefined : (isMobile ? mobileH : heroHeightPref);
   const finalFit: React.CSSProperties["objectFit"] = heroAutoFit
     ? "contain"
     : useLogoMode
     ? "contain"
-    : "cover"; // always cover — frame matches image ratio so nothing is cropped
+    : (heroFit as any);
   const displayedImg = useLogoMode ? logoImg : heroImg;
+  // Suppress unused warning — imgRatio kept for future tuning.
+  void imgRatio;
+
 
 
   // 3D tilt on mouse move

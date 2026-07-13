@@ -394,7 +394,10 @@ export interface HeroBannerConfig {
   imageHeight?: number; // px
   imageFit?: "cover" | "contain";
   imageRadius?: number; // px
-  imageAutoFit?: boolean; // frame size auto-follows image aspect ratio
+  imageAutoFit?: boolean; // (legacy) frame size auto-follows image aspect ratio (all devices)
+  imageAutoFitDesktop?: boolean; // per-device auto-fit toggle
+  imageAutoFitTablet?: boolean;
+  imageAutoFitMobile?: boolean;
   imagePosition?: string; // object-position, e.g. "center", "top", "50% 20%"
   imagePositionX?: number; // 0-100 %
   imagePositionY?: number; // 0-100 %

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import type { BackgroundEffect, LoaderStyle } from "@/contexts/SiteSettingsContext";
+import { UI_PRESETS, type BackgroundEffect, type LoaderStyle, type UIVersion } from "@/contexts/SiteSettingsContext";
 import Loader from "@/components/Loader";
-import { Sparkles, Grid3x3, Waves, CircleDot, Layers, Terminal, Command, UserCog, LogOut, Save, Zap, Gauge, Leaf, Cpu, Eye, EyeOff } from "lucide-react";
+import { Sparkles, Grid3x3, Waves, CircleDot, Layers, Terminal, Command, UserCog, LogOut, Save, Zap, Gauge, Leaf, Cpu, Eye, EyeOff, Palette, RotateCcw } from "lucide-react";
 import { usePerformanceMode, setPerformancePreview, type PerformanceMode } from "@/hooks/usePerformanceMode";
 
 interface Props {
@@ -62,6 +62,25 @@ const AdminEffectsTab = ({ form, setForm, handleSave }: Props) => {
   // Clear any active preview when leaving the tab
   useEffect(() => () => setPerformancePreview(null), []);
 
+  // ── UI Preset (sitewide skin) ────────────────────────────────────────
+  const savedPreset: UIVersion = (form.uiVersion as UIVersion) || "glass";
+  const [presetPreview, setPresetPreview] = useState<UIVersion | null>(null);
+
+  // Apply preview by writing data-ui-version directly; restore on unmount.
+  useEffect(() => {
+    const active = presetPreview ?? savedPreset;
+    const prev = document.documentElement.getAttribute("data-ui-version");
+    document.documentElement.setAttribute("data-ui-version", active);
+    return () => {
+      if (prev) document.documentElement.setAttribute("data-ui-version", prev);
+    };
+  }, [presetPreview, savedPreset]);
+
+  const chooseSavedPreset = (id: UIVersion) => {
+    setForm({ ...form, uiVersion: id });
+    setPresetPreview(null);
+  };
+
   const doImpersonate = async () => {
     if (!impUid.trim()) return;
     try {
@@ -75,6 +94,79 @@ const AdminEffectsTab = ({ form, setForm, handleSave }: Props) => {
 
   return (
     <div className="space-y-6">
+      {/* UI Preset — sitewide skin */}
+      <section className="glass-card !p-5 space-y-4">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Palette size={16} className="text-primary" />
+          <h3 className="text-sm font-bold">UI Preset (สไตล์ทั้งเว็บ)</h3>
+          <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+            บันทึกไว้: {UI_PRESETS.find(p => p.id === savedPreset)?.label || savedPreset}
+          </span>
+          {presetPreview && (
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 inline-flex items-center gap-1">
+              พรีวิว: {UI_PRESETS.find(p => p.id === presetPreview)?.label}
+              <button onClick={() => setPresetPreview(null)} className="hover:text-amber-100" title="ปิดพรีวิว">
+                <RotateCcw size={10} />
+              </button>
+            </span>
+          )}
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          เลือกสไตล์เดียวเปลี่ยนหน้าตา<b>ทั้งเว็บ</b>ทันที (สี, ฟอนต์, เส้นขอบ, การ์ด, ปุ่ม) —
+          hover เพื่อดูตัวอย่าง, คลิก <b>ตั้งเป็นค่านี้</b> เพื่อบันทึก
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+          {UI_PRESETS.map((p) => {
+            const isSaved = savedPreset === p.id;
+            const isPreview = presetPreview === p.id;
+            return (
+              <div
+                key={p.id}
+                onMouseEnter={() => setPresetPreview(p.id)}
+                onMouseLeave={() => setPresetPreview((cur) => (cur === p.id ? null : cur))}
+                className={`p-3 rounded-xl border transition-all ${
+                  isSaved
+                    ? "border-primary bg-primary/10"
+                    : isPreview
+                      ? "border-amber-500/60 bg-amber-500/5"
+                      : "border-border/40 hover:border-primary/40"
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <span
+                    className="w-3.5 h-3.5 rounded-full border border-border/40"
+                    style={{ background: p.accent }}
+                  />
+                  <span className="text-xs font-semibold">{p.label}</span>
+                  {isSaved && (
+                    <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-primary/20 text-primary">
+                      ใช้อยู่
+                    </span>
+                  )}
+                </div>
+                <p className="text-[10px] text-muted-foreground mb-2 line-clamp-2">
+                  {p.description}
+                </p>
+                <button
+                  onClick={() => chooseSavedPreset(p.id)}
+                  disabled={isSaved}
+                  className={`w-full text-[10px] font-semibold py-1.5 rounded-lg transition-colors ${
+                    isSaved
+                      ? "bg-muted/40 text-muted-foreground cursor-not-allowed"
+                      : "bg-primary/15 text-primary hover:bg-primary/25"
+                  }`}
+                >
+                  {isSaved ? "ใช้ preset นี้อยู่" : "ตั้งเป็นค่านี้"}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+        <p className="text-[10px] text-muted-foreground pt-1 border-t border-border/40">
+          อย่าลืมกด <b>บันทึก</b> ด้านล่างเพื่อให้ preset มีผลกับผู้ใช้ทุกคน
+        </p>
+      </section>
+
       {/* Performance Mode */}
       <section className="glass-card !p-5 space-y-4">
         <div className="flex items-center gap-2">

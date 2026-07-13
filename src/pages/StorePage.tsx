@@ -404,11 +404,11 @@ const StorePage = () => {
             const isAccordion = mode === "accordion" && hasChildren && !cat.displayAsProduct;
             const productCount = enabledProducts.filter(p => p.categoryId === cat.id || getDescendantIds(cat.id).includes(p.categoryId || "")).length;
 
+            // Note: no initial/animate opacity — some cards were fading out on
+            // subsequent renders (state changes) because Framer treated the
+            // remount as a new enter. Use CSS-only hover instead.
             const cardCommonProps = {
               key: cat.id,
-              initial: { opacity: 0, y: 16, scale: 0.96 },
-              animate: { opacity: 1, y: 0, scale: 1 },
-              transition: { delay: Math.min(i * 0.04, 0.25), type: "spring" as const, stiffness: 280, damping: 24 },
               whileHover: { y: -4, scale: 1.02, transition: { type: "spring" as const, stiffness: 380, damping: 20 } },
               whileTap: { scale: 0.97 },
               onClick: () => handleCategoryClick(cat),

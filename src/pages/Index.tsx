@@ -141,12 +141,23 @@ const Index = () => {
   const enabledProducts = (settings.products || []).filter(p => p.enabled && p.name);
 
   const fade = {
-    hidden: { opacity: 0, y: 16 },
+    hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } }
   };
   const stagger = {
     hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.08 } }
+    show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.05 } }
+  };
+  // Below-the-fold sections animate on scroll into view
+  const sectionInView = {
+    variants: stagger,
+    initial: "hidden" as const,
+    whileInView: "show" as const,
+    viewport: { once: true, margin: "-60px" },
+  };
+  const cardHover = {
+    whileHover: { y: -4, transition: { type: "spring" as const, stiffness: 380, damping: 22 } },
+    whileTap: { scale: 0.98 },
   };
 
   return (
@@ -324,7 +335,7 @@ const Index = () => {
 
 
       {(settings.homeSectionVisibility?.quicknav !== false) && (settings.quickNavItems || []).filter(n => n.enabled).length > 0 && (
-        <motion.section variants={stagger} initial="hidden" animate="show" className={`${maxWidthClass()} mx-auto px-4 sm:px-6 ${spacingClass()}`}>
+        <motion.section {...sectionInView} className={`${maxWidthClass()} mx-auto px-4 sm:px-6 ${spacingClass()}`}>
           <motion.div variants={fade} className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 border border-primary/10 flex items-center justify-center">
               <Navigation size={14} className="text-primary sm:w-4 sm:h-4" />
@@ -344,10 +355,12 @@ const Index = () => {
                 ? { href: nav.url, target: "_blank", rel: "noopener noreferrer" } 
                 : { to: nav.url };
               return (
-                <motion.div key={nav.id} variants={fade}>
-                  <Wrapper {...wrapperProps as any} className={`group block overflow-hidden ${radiusClass()}`}>
+                <motion.div key={nav.id} variants={fade} {...cardHover}>
+                  <Wrapper {...wrapperProps as any} className={`group relative block overflow-hidden ${radiusClass()}`}>
+                    {/* shine sweep */}
+                    <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 rotate-12 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-[380%] transition-all duration-700 ease-out z-10" />
                     {nav.bannerUrl ? (
-                      <img src={nav.bannerUrl} alt={nav.name} className="w-full h-auto object-contain group-hover:scale-[1.02] transition-transform duration-500" />
+                      <img src={nav.bannerUrl} alt={nav.name} className="w-full h-auto object-contain group-hover:scale-[1.03] transition-transform duration-500" />
                     ) : (
                       <div className={`aspect-[4/3] bg-gradient-to-br ${nav.gradient || 'from-primary/20 to-accent/20'} flex items-center justify-center p-4 relative overflow-hidden border border-border/30`}>
                         {nav.imageUrl ? (
@@ -367,7 +380,7 @@ const Index = () => {
 
 
       {(settings.homeSectionVisibility?.categories !== false) && (settings.categories || []).filter(c => c.enabled).length > 0 && (
-        <motion.section variants={stagger} initial="hidden" animate="show" className={`${maxWidthClass()} mx-auto px-4 sm:px-6 ${spacingClass()}`}>
+        <motion.section {...sectionInView} className={`${maxWidthClass()} mx-auto px-4 sm:px-6 ${spacingClass()}`}>
           <motion.div variants={fade} className="text-center mb-6 sm:mb-8">
             <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">{settings.homeSectionTitles?.categories || "หมวดหมู่สินค้า"}</h2>
             {settings.homeSectionSubtitles?.categories && <p className="text-xs sm:text-sm text-muted-foreground/60 mt-1">{settings.homeSectionSubtitles.categories}</p>}
@@ -381,7 +394,7 @@ const Index = () => {
             }>
               {(settings.categories || []).filter(c => c.enabled).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((cat) => {
                 return (
-                  <motion.div key={cat.id} variants={fade}>
+                  <motion.div key={cat.id} variants={fade} {...cardHover}>
                     <Link
                       to={`/store/${cat.id}`}
                       className={`group block relative overflow-hidden border border-border/30 hover:border-primary/20 transition-all duration-300 ${radiusClass()}`}
@@ -409,11 +422,12 @@ const Index = () => {
           ) : (
             <div className={`dynamic-grid ${gapClass()}`} style={colsToStyle(layout.categoryCols)}>
               {(settings.categories || []).filter(c => c.enabled).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((cat) => (
-                <motion.div key={cat.id} variants={fade}>
+                <motion.div key={cat.id} variants={fade} {...cardHover}>
                   <Link
                     to={`/store/${cat.id}`}
-                    className={`group glass-card-hover !p-0 overflow-hidden block ${radiusClass()}`}
+                    className={`group relative glass-card-hover !p-0 overflow-hidden block ${radiusClass()}`}
                   >
+                    <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 rotate-12 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-[380%] transition-all duration-700 ease-out z-10" />
                     {cat.bannerUrl ? (
                       <img src={cat.bannerUrl} alt={cat.name} className="w-full h-auto object-contain group-hover:scale-[1.02] transition-transform duration-500" />
                     ) : cat.imageUrl ? (
@@ -453,7 +467,7 @@ const Index = () => {
 
       {/* Featured Products */}
       {(settings.homeSectionVisibility?.featured !== false) && enabledProducts.length > 0 && (
-        <motion.section variants={stagger} initial="hidden" animate="show" className={`${maxWidthClass()} mx-auto px-4 sm:px-6 pb-8 sm:pb-12`}>
+        <motion.section {...sectionInView} className={`${maxWidthClass()} mx-auto px-4 sm:px-6 pb-8 sm:pb-12`}>
           <motion.div variants={fade} className="flex items-center justify-between mb-4 sm:mb-6">
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 border border-primary/10 flex items-center justify-center">
@@ -471,15 +485,16 @@ const Index = () => {
           </motion.div>
           <div className={`dynamic-grid ${gapClass()}`} style={colsToStyle(layout.featuredCols)}>
             {enabledProducts.slice(0, settings.featuredCount || 8).map((product) => (
-              <motion.div key={product.id} variants={fade}>
-                <Link to="/store" className={`group glass-card-hover !p-0 overflow-hidden block ${radiusClass()}`}>
+              <motion.div key={product.id} variants={fade} {...cardHover}>
+                <Link to="/store" className={`group relative glass-card-hover !p-0 overflow-hidden block ${radiusClass()}`}>
+                  <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 rotate-12 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-[380%] transition-all duration-700 ease-out z-10" />
                   {layout.showProductImage && product.imageUrl ? (
                     <div className={`${imageRatioClass()} overflow-hidden`}>
-                      <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
                     </div>
                   ) : !layout.showProductImage ? null : (
                     <div className={`${imageRatioClass()} bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center`}>
-                      <Package size={20} className="text-primary/30 sm:w-6 sm:h-6" />
+                      <Package size={20} className="text-primary/30 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform duration-500" />
                     </div>
                   )}
                   <div className={cardPaddingClass()}>
@@ -503,7 +518,7 @@ const Index = () => {
 
       {/* Services Section */}
       {(settings.homeSectionVisibility?.services !== false) && (settings.serviceItems || []).filter(s => s.enabled).length > 0 && (
-        <motion.section variants={stagger} initial="hidden" animate="show" className={`${maxWidthClass()} mx-auto px-4 sm:px-6 pb-8 sm:pb-12`}>
+        <motion.section {...sectionInView} className={`${maxWidthClass()} mx-auto px-4 sm:px-6 pb-8 sm:pb-12`}>
           <motion.div variants={fade} className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 border border-primary/10 flex items-center justify-center">
               <Wrench size={14} className="text-primary sm:w-4 sm:h-4" />
@@ -522,10 +537,11 @@ const Index = () => {
                 ? { href: service.url, target: "_blank", rel: "noopener noreferrer" }
                 : { to: service.url || "#" };
               return (
-                <motion.div key={service.id} variants={fade}>
-                  <Wrapper {...wrapperProps as any} className={`group glass-card-hover !p-0 overflow-hidden block ${radiusClass()}`}>
+                <motion.div key={service.id} variants={fade} {...cardHover}>
+                  <Wrapper {...wrapperProps as any} className={`group relative glass-card-hover !p-0 overflow-hidden block ${radiusClass()}`}>
+                    <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 rotate-12 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-[380%] transition-all duration-700 ease-out z-10" />
                     {service.bannerUrl ? (
-                      <img src={service.bannerUrl} alt={service.name} className="w-full h-auto object-contain group-hover:scale-[1.02] transition-transform duration-500" />
+                      <img src={service.bannerUrl} alt={service.name} className="w-full h-auto object-contain group-hover:scale-[1.03] transition-transform duration-500" />
                     ) : (
                       <div className={`aspect-[4/3] bg-gradient-to-br ${service.gradient || 'from-primary/20 to-accent/20'} flex items-center justify-center p-4 relative overflow-hidden`}>
                         <div className="absolute inset-0 bg-gradient-to-t from-background/30 to-transparent" />
@@ -550,7 +566,7 @@ const Index = () => {
 
       {/* Social Links */}
       {(settings.homeSectionVisibility?.social !== false) && socialLinks.length > 0 && (
-        <motion.section variants={stagger} initial="hidden" animate="show" className={`${maxWidthClass()} mx-auto px-4 sm:px-6 pb-8 sm:pb-12`}>
+        <motion.section {...sectionInView} className={`${maxWidthClass()} mx-auto px-4 sm:px-6 pb-8 sm:pb-12`}>
           <motion.div variants={fade} className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 border border-primary/10 flex items-center justify-center">
               <ExternalLink size={14} className="text-primary sm:w-4 sm:h-4" />

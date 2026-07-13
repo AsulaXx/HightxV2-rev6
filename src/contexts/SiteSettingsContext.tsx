@@ -877,6 +877,8 @@ const SiteSettingsContext = createContext<SiteSettingsContextType>({
   settings: defaultSettings,
   updateSettings: () => {},
   loading: true,
+  setLivePreview: () => {},
+  isLivePreviewing: false,
 });
 
 export const useSiteSettings = () => useContext(SiteSettingsContext);

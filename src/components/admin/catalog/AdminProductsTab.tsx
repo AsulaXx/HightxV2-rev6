@@ -133,7 +133,7 @@ const AdminProductsTab = ({ form, setForm, handleSave }: AdminTabProps) => {
                   {/* Image / placeholder */}
                   <div className="relative aspect-[4/5] bg-muted/30 overflow-hidden">
                     {product.imageUrl ? (
-                      <img src={product.thumbnailUrl || product.imageUrl} alt={product.name} className="absolute inset-0 w-full h-full object-fill transition-transform group-hover:scale-105" loading="lazy" />
+                      <img src={product.thumbnailUrl || product.imageUrl} alt={product.name} className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-105" loading="lazy" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center"><Package size={32} className="text-muted-foreground/20" /></div>
                     )}

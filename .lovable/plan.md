@@ -1,98 +1,94 @@
 
-# Phase 10: Admin & Compliance — Full Rollout
+# แท็บ Role Access ใน Admin
 
-ทำเรียงตาม priority 5 tracks. ทุก track deploy ได้อิสระ ไม่ break ของเดิม.
-
----
-
-## 🔴 Track 1: Re-consent Gate + Consent Log (PDPA)
-
-**เป้า:** เก็บหลักฐานว่า user ยอมรับ Terms/Privacy version ไหน + บังคับ re-accept เมื่อมีการอัปเดต
-
-- เพิ่ม field `termsVersion`, `privacyVersion`, `updatedAt` ใน `settings/site` (แก้ผ่าน AdminLegalTab)
-- เก็บ `acceptedTermsVersion`, `acceptedPrivacyVersion`, `acceptedAt` ใน user profile
-- สร้าง collection `consentLogs/{autoId}` — uid, version, ip, ua, timestamp (audit trail)
-- Component `ConsentGate.tsx` — ครอบ `App.tsx` หลัง login: ถ้า version ไม่ตรง → modal บังคับ accept ก่อนใช้งาน
-- AdminLegalTab: ปุ่ม "Publish new version" bump version + timestamp
-
-## 🔴 Track 2: Server-side Rate Limiting
-
-**เป้า:** ปิดช่องโหว่ client-side bypass (ล้าง localStorage แล้วผ่าน)
-
-- Collection `rateLimits/{uid}_{action}` — count, windowStart, blockedUntil
-- Helper `src/lib/serverRateLimit.ts` — check + increment ใน Firestore transaction
-- ใช้กับ actions สำคัญ: `claim_key`, `topup_submit`, `wheel_spin`, `ruzien_claim`
-- Edge functions ที่มีอยู่ (`claim-keys`, `ruzien-bypass-claim`, `spin-wheel`): เพิ่ม server check ก่อน mutate
-- Owner/Admin bypass ผ่าน role check
-- แสดง countdown UI แทน error message (component `CooldownBadge.tsx`)
-
-## 🟡 Track 3: Admin Tabs Hardening
-
-**เป้า:** admin 30+ tabs โหลดเร็ว, tab เดียวพังไม่ล่มทั้งหน้า, หาง่ายขึ้น
-
-- Lazy-load ทุก admin tab component ด้วย `React.lazy` + `Suspense`
-- `AdminTabErrorBoundary.tsx` — wrap ทุก tab, แสดง fallback + reload button
-- Tab search bar ใน AdminPage sidebar (filter by name)
-- Pin favorite tabs — เก็บใน localStorage `admin_pinned_tabs`
-- Permission-gate ระดับ tab (ซ่อนเลยถ้าไม่มีสิทธิ์ — ไม่ใช่แค่ block content)
-
-## 🟡 Track 4: Audit Log Enhancement
-
-**เป้า:** traceability ครบ + filter หายาก + retention
-
-- เพิ่ม `ip`, `userAgent` ในทุก `logActivity()` call (helper อยู่แล้วใน `activityLogger.ts`)
-- Settings action: เก็บ `beforeJson`, `afterJson` → diff view UI (สีแดง/เขียว)
-- AdminAuditLogTab: เพิ่ม filter action-type dropdown + date range picker
-- Auto-archive logs > 90 วัน (ใช้ pattern เดียวกับ archived-keys) via existing `cleanup-logs` edge function
-
-## 🟢 Track 5: Permissions Matrix QoL
-
-**เป้า:** จัดการ role/permission ง่ายขึ้น + มี audit trail
-
-- Log ทุก permission mutation ลง `activityLogs` (action: `permission_change`)
-- "View as role" — dropdown ให้ Owner ดู UI ในมุมของ role อื่น (session storage flag, view-only)
-- Bulk toggle: checkbox column header + "toggle all in group"
+ระบบเดิมมี `AdminPermissionsTab` อยู่แล้ว (จัดการ `settings.rolePermissions` แบบ role→permission_id) แต่ครอบคลุมแค่ ~17 permission และหลายหน้ายังใช้ role hardcoded (เช่น Dashboard, Wheel, Ruzien, Admin tabs). แผนนี้ทำ **แท็บใหม่ที่ยกเครื่อง permission matrix ทั้งระบบ**
 
 ---
 
-## 📐 Technical Notes
+## สิ่งที่จะทำ
 
-**Data model additions:**
+### 1. ขยายรายการ permission เป็นระดับหน้า + section
+เพิ่ม permission ID ใหม่ให้ครอบคลุม เพื่อให้แต่ละ role toggle ได้ละเอียด:
+
+**หน้า (page-level)**
+- `page.dashboard`, `page.analytics`, `page.admin`, `page.stock`, `page.key_management`
+- `page.wheel`, `page.wheel_history`, `page.ruzien_bypass`
+- `page.leaderboard`, `page.referral_dashboard`, `page.banned_users`
+- `page.customer_balances`, `page.wallet_history`, `page.all_topup_history`, `page.all_user_history`, `page.all_claim_history`
+- `page.activity_log`, `page.link_analytics`, `page.archived_keys`
+
+**Section ย่อยใน Dashboard**
+- `dash.low_stock`, `dash.recent_keys`, `dash.users_breakdown`, `dash.wallet_tx`, `dash.top_up_breakdown`, `dash.wheel_activity`, `dash.thunder_quota`, `dash.today_sales`, `dash.purchase_analytics`
+
+**Admin tab access** (ยศ Admin/Moderator เห็นแท็บไหนบ้าง)
+- `admin.tab.general`, `admin.tab.products`, `admin.tab.keys`, `admin.tab.users`, `admin.tab.topup`, `admin.tab.webhooks`, `admin.tab.discounts`, `admin.tab.categories`, `admin.tab.wheels`, `admin.tab.ruzien_bypass`, `admin.tab.role_access` (ใหม่), `admin.tab.audit_log`, `admin.tab.backup`, `admin.tab.data_reset`
+
+Owner ได้ทุก permission โดย default; ยศต่ำสุด (user) เห็นแค่ store/wallet/history
+
+### 2. แท็บใหม่ `AdminRoleAccessTab`
+- อยู่ใน `/admin` ต่อจาก tab เดิม (แสดงเฉพาะ Owner)
+- UI: 
+  - **มุมมองที่ 1 – By Role**: เลือก role → เห็น checklist ทุก permission จัดกลุ่มตามหมวด (Page/Section/Admin Tab) พร้อม toggle
+  - **มุมมองที่ 2 – Matrix**: ตารางแนวนอน role × permission (คล้าย AdminPermissionsTab เดิม แต่มี group heading)
+  - ปุ่ม "Reset เป็น default", "บันทึก", "Copy from role" (คัดสิทธิ์จาก role อื่นมาเป็นฐาน)
+  - Preview: "ยศ X จะเห็น N หน้า / M section"
+
+### 3. ใช้ permission จริงในหน้า (แทน role hardcoded)
+สร้าง helper `hasFeature(permId)` ใน `AuthContext` ที่อ่านจาก `settings.rolePermissions` แล้วแทนที่จุด hardcoded:
+- `DashboardPage.tsx`: guard เปลี่ยนจาก `allowedRoles` array → `hasFeature("page.dashboard")`; แต่ละ section (Low Stock, Recent Keys, Users Breakdown, Wallet TX ฯลฯ) เช็ค `hasFeature("dash.xxx")`
+- `AdminPage.tsx`: ซ่อนแท็บที่ไม่มีสิทธิ์ตาม `admin.tab.*`
+- `WheelPage`, `WheelHubPage`, `RuzienBypassPage`, `AnalyticsPage`, `AllClaimHistoryPage` ฯลฯ: guard ด้วย `hasFeature("page.*")`
+- Owner จะได้ทุก permission ตลอด (bypass check) เพื่อกันล็อกตัวเอง
+
+### 4. Firestore rules & safety
+- ห้ามลบ/แก้สิทธิ์ Owner (UI lock)
+- `settings.rolePermissions` เขียนได้แค่ Owner (rule เดิมเป็น `isOwner()` อยู่แล้ว ✓)
+- ปุ่ม Save = ยืนยัน 2 ชั้น ถ้ามีการปิดสิทธิ์สำคัญ (`admin.tab.role_access`, `site_settings`)
+
+---
+
+## รายละเอียดเทคนิค
+
+### ไฟล์ที่แก้/สร้าง
+
+**สร้างใหม่**
+- `src/components/admin/AdminRoleAccessTab.tsx` – UI แท็บใหม่ (By Role + Matrix)
+- `src/lib/permissionRegistry.ts` – รวม permission ID + label + group + default role grants ที่จุดเดียว
+
+**แก้ไข**
+- `src/contexts/SiteSettingsContext.tsx` – merge default permissions ใหม่จาก `permissionRegistry`
+- `src/contexts/AuthContext.tsx` – เพิ่ม `hasFeature(id)` (Owner = true เสมอ; อ่าน `settings.rolePermissions[profile.role]`)
+- `src/pages/AdminPage.tsx` – ลงทะเบียนแท็บใหม่ + ซ่อน tabs ตาม `admin.tab.*`
+- `src/pages/DashboardPage.tsx` – guard หน้า + section ด้วย `hasFeature`
+- `src/pages/WheelPage.tsx`, `WheelHubPage.tsx`, `RuzienBypassPage.tsx`, `AnalyticsPage.tsx`, `AllClaimHistoryPage.tsx`, `AllTopUpHistoryPage.tsx`, `CustomerBalancesPage.tsx`, `WalletHistoryPage.tsx`, `LeaderboardPage.tsx` ฯลฯ – แทน role check
+- `src/App.tsx` (ถ้าจำเป็น) – ไม่แก้ route; ใช้ guard ในแต่ละหน้า
+
+### โครง permissionRegistry
+```ts
+export const PERMISSION_GROUPS = [
+  { id: "shop", label: "ร้านค้า & ประวัติ", items: [...] },
+  { id: "wallet", label: "กระเป๋าเงิน", items: [...] },
+  { id: "dashboard_page", label: "หน้า Dashboard", items: [...] },
+  { id: "dashboard_sections", label: "Section ใน Dashboard", items: [...] },
+  { id: "tools", label: "เครื่องมือ (Wheel, Ruzien, Analytics)", items: [...] },
+  { id: "admin_tabs", label: "แท็บ Admin", items: [...] },
+  { id: "history", label: "ประวัติทั้งหมด", items: [...] },
+];
 ```
-settings/site
-  ├─ termsVersion: number
-  ├─ privacyVersion: number
-  └─ legalUpdatedAt: timestamp
 
-users/{uid}
-  ├─ acceptedTermsVersion: number
-  └─ acceptedPrivacyVersion: number
-
-consentLogs/{autoId}   ← new
-rateLimits/{uid_action} ← new (TTL 24h via scheduled cleanup)
+### พฤติกรรม `hasFeature`
+```
+if (role === "owner") return true;
+const list = settings.rolePermissions?.[role] ?? DEFAULT_ROLE_PERMISSIONS[role] ?? [];
+return list.includes(id);
 ```
 
-**Files ใหม่:**
-- `src/components/ConsentGate.tsx`
-- `src/components/CooldownBadge.tsx`
-- `src/components/admin/AdminTabErrorBoundary.tsx`
-- `src/lib/serverRateLimit.ts`
-- `src/lib/consentLogger.ts`
-
-**Files แก้:**
-- `src/App.tsx` (ครอบ ConsentGate)
-- `src/pages/AdminPage.tsx` (lazy load + search + pin)
-- `src/components/admin/AdminLegalTab.tsx` (version publish button)
-- `src/components/admin/AdminAuditLogTab.tsx` (filter + diff)
-- `src/components/admin/AdminPermissionsTab.tsx` (log + bulk)
-- `src/lib/activityLogger.ts` (ip/ua auto-inject)
-- `src/pages/PermissionsPage.tsx` (view-as-role)
-- Edge functions: `claim-keys`, `ruzien-bypass-claim`, `spin-wheel` (server rate check)
-
-**Firestore rules:** เพิ่ม rules สำหรับ `consentLogs` (create-only by owner), `rateLimits` (server-only writes)
-
-**Verify:** เปิด admin หลังสร้าง — ทุก tab โหลดได้, กด accept terms flow ครบ, rate limit ทำงานหลังล้าง localStorage
+### Migration
+- ถ้า `settings.rolePermissions` มีอยู่แล้ว → merge เข้ากับ default (ไม่ทับสิทธิ์เดิมที่ Owner ตั้งไว้; แค่เติม permission ใหม่ให้ role default)
+- ทำใน `AuthContext` ตอนโหลด settings ครั้งแรก หรือใน settings context
 
 ---
 
-**ประมาณการ:** ~15-20 file changes, 5 new files, 1 migration (Firestore rules update). ทำเรียง Track 1→5, commit หลังจบแต่ละ track เพื่อให้ preview เห็นความคืบหน้า.
+## ที่ **ไม่** ทำในรอบนี้
+- ไม่แตะ Firestore rules สำหรับ data-level (ยศไหนอ่าน collection อะไรได้) – ยังเป็น admin-only เหมือนเดิม เพราะจะกระทบ security model ทั้งระบบ ถ้าต้องการค่อยแยก phase 2
+- ไม่ทำ per-user override (permission ผูกกับ role เท่านั้น)

@@ -36,6 +36,8 @@ const AdminLinkPagesTab = lazy(() => import("@/components/admin/AdminLinkPagesTa
 const AdminAuditLogTab = lazy(() => import("@/components/admin/AdminAuditLogTab"));
 const AdminPermissionsTab = lazy(() => import("@/components/admin/AdminPermissionsTab"));
 const AdminRuzienBypassTab = lazy(() => import("@/components/admin/AdminRuzienBypassTab"));
+const AdminRoleAccessTab = lazy(() => import("@/components/admin/AdminRoleAccessTab"));
+
 
 import PageBreadcrumb from "@/components/PageBreadcrumb";
 import PermIcon from "@/components/PermIcon";
@@ -79,6 +81,16 @@ const AdminPage = () => {
   const isOwner = profile?.role === "owner";
   const isAdmin = hasPermission("admin");
   const isMod = hasPermission("moderator");
+
+  // Owner-defined per-tab visibility (from Role Access). Falls back to role-based defaults.
+  const tabAllowed = (tabId: string): boolean => {
+    if (isOwner) return true;
+    const featId = `admin.tab.${tabId}`;
+    const roleFeatures = (settings as any)?.roleFeatures?.[profile?.role || ""];
+    if (Array.isArray(roleFeatures)) return roleFeatures.includes(featId);
+    return true; // no overrides set — keep existing behaviour
+  };
+
 
   const getDefaultTab = (): string => {
     if (isOwner) return "general";
@@ -194,9 +206,11 @@ const AdminPage = () => {
       icon: Users,
       tabs: [
         { id: "users", label: "จัดการยศ", icon: Users },
+        ...(isOwner ? [{ id: "roleaccess", label: "Role Access", icon: Shield }] : []),
         ...(isOwner ? [{ id: "permissions", label: "ตารางสิทธิ์", icon: Shield }] : []),
       ],
     }] : []),
+
     ...(isAdmin ? [{
       id: "cat-logs",
       label: "บันทึก",
@@ -219,11 +233,21 @@ const AdminPage = () => {
     }] : []),
   ], [isOwner, isAdmin]);
 
-  const tabs = useMemo(() => categories.flatMap(c => c.tabs), [categories]);
+  // Apply per-role tab visibility overrides (Role Access tab)
+  const roleFeaturesSetting = (settings as any)?.roleFeatures;
+  const visibleCategories = useMemo(() => {
+    return categories
+      .map((c) => ({ ...c, tabs: c.tabs.filter((t) => tabAllowed(t.id)) }))
+      .filter((c) => c.tabs.length > 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categories, roleFeaturesSetting, profile?.role, isOwner]);
+
+  const tabs = useMemo(() => visibleCategories.flatMap(c => c.tabs), [visibleCategories]);
   const activeCategory = useMemo(
-    () => categories.find(c => c.tabs.some(t => t.id === activeTab)) || categories[0],
-    [categories, activeTab]
+    () => visibleCategories.find(c => c.tabs.some(t => t.id === activeTab)) || visibleCategories[0],
+    [visibleCategories, activeTab]
   );
+
 
   const handleSubTabKeyDown = useCallback((e: React.KeyboardEvent<HTMLButtonElement>, idx: number) => {
     const subTabs = activeCategory?.tabs || [];
@@ -284,14 +308,15 @@ const AdminPage = () => {
 
   const filteredCategories = useMemo(() => {
     const q = menuQuery.trim().toLowerCase();
-    if (!q) return categories;
-    return categories
+    if (!q) return visibleCategories;
+    return visibleCategories
       .map((c) => ({ ...c, tabs: c.tabs.filter((t) => t.label.toLowerCase().includes(q) || c.label.toLowerCase().includes(q)) }))
       .filter((c) => c.tabs.length > 0);
-  }, [categories, menuQuery]);
+  }, [visibleCategories, menuQuery]);
+
 
   const currentTab = tabs.find((t) => t.id === activeTab);
-  const hideSaveTabs = ["users", "permissions", "transactions", "linkpages", "auditlog", "wheelclaims", "datareset", "backup", "keys"];
+  const hideSaveTabs = ["users", "permissions", "roleaccess", "transactions", "linkpages", "auditlog", "wheelclaims", "datareset", "backup", "keys"];
   const showSave = !hideSaveTabs.includes(activeTab);
 
   return (
@@ -353,7 +378,7 @@ const AdminPage = () => {
           {/* Row 2: category navbar (horizontal chips) */}
           <nav aria-label="Admin categories" className="hidden md:block">
             <div className="flex items-center gap-1 overflow-x-auto scrollbar-none [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pb-2">
-              {categories.map((cat) => {
+              {visibleCategories.map((cat) => {
                 const active = activeCategory.id === cat.id;
                 return (
                   <button
@@ -664,6 +689,11 @@ const AdminPage = () => {
             {activeTab === "permissions" && isOwner && (
               <AdminPermissionsTab form={form} setForm={setForm} handleSave={handleSave} />
             )}
+
+            {activeTab === "roleaccess" && isOwner && (
+              <AdminRoleAccessTab />
+            )}
+
 
                 </Suspense>
                 </ErrorBoundary>

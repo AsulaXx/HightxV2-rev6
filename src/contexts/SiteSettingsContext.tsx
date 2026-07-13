@@ -532,7 +532,10 @@ interface SiteSettings {
   claimCooldownHours: number;
   cooldownEnabled: boolean;
   ruzienBypass?: RuzienBypassConfig;
+  /** New granular per-role feature flags (permissionRegistry). Undefined = fall back to defaults. */
+  roleFeatures?: Record<string, string[]>;
 }
+
 
 interface SiteSettingsContextType {
   settings: SiteSettings;

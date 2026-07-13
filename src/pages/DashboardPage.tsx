@@ -21,6 +21,8 @@ const DashboardTopUpBreakdown = lazy(() => import("@/components/dashboard/Dashbo
 const DashboardThunderQuota = lazy(() => import("@/components/dashboard/DashboardThunderQuota"));
 const DashboardWheelActivity = lazy(() => import("@/components/dashboard/DashboardWheelActivity"));
 import { ROLE_LABELS, type UserRole } from "@/contexts/AuthContext";
+import { useFeatureChecker } from "@/hooks/useFeature";
+
 import { Bar, Doughnut, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -203,7 +205,9 @@ const DashboardPage = () => {
     toast.success("รีเซ็ตการแสดงผลแล้ว");
   };
 
-  const canSeeRecentKeys = hasPermission("hightxcrew");
+  const hasFeature = useFeatureChecker();
+  const canSeeRecentKeys = hasFeature("dash.recent_keys");
+
 
   const sendThunderLowQuotaWebhook = async (remaining: number, max: number, used: number) => {
     // Only send once per day
@@ -729,10 +733,9 @@ const DashboardPage = () => {
 
   if (authLoading) return <div className="min-h-[80vh] flex items-center justify-center"><p className="text-muted-foreground">กำลังโหลด...</p></div>;
   if (!user) return <RedirectToLogin />;
-  // Dashboard access: Owner / Admin / Moderator / HightXCrew (Reseller excluded)
-  const dashRole = profile?.role;
-  const canViewDashboard = dashRole === "owner" || dashRole === "admin" || dashRole === "moderator" || dashRole === "hightxcrew";
-  if (!canViewDashboard) return <Navigate to="/" replace />;
+  // Dashboard access via feature flag (Owner always allowed by useFeatureChecker)
+  if (!hasFeature("page.dashboard")) return <Navigate to="/" replace />;
+
 
   // Filter daily data by period
   const filteredDaily = dailyData.slice(-trendPeriod);
@@ -874,7 +877,7 @@ const DashboardPage = () => {
         ) : (
           <>
             {/* Low Stock Alerts */}
-            {lowStockAlerts.length > 0 && (
+            {hasFeature("dash.low_stock") && lowStockAlerts.length > 0 && (
               <div className="mb-3 p-3 rounded-xl bg-destructive/10 border border-destructive/30">
                 <button onClick={toggleLowStock} className="w-full flex items-center justify-between">
                   <h3 className="text-sm font-bold text-destructive flex items-center gap-2">
@@ -897,48 +900,57 @@ const DashboardPage = () => {
               </div>
             )}
 
+
             <Suspense fallback={<div className="py-4 text-center text-muted-foreground text-sm">กำลังโหลด...</div>}>
-              <DashboardSummaryCards
-                totalUsers={totalUsers}
-                totalClaimedKeys={totalClaimedKeys}
-                totalAvailableKeys={totalAvailableKeys}
-                roleBreakdown={roleBreakdown}
-                todayRevenue={todayRevenue}
-                todayClaims={todayClaims}
-                totalRevenue={totalRevenue}
-                revenueTrend={revenueTrend}
-              />
+              {hasFeature("dash.summary_cards") && (
+                <DashboardSummaryCards
+                  totalUsers={totalUsers}
+                  totalClaimedKeys={totalClaimedKeys}
+                  totalAvailableKeys={totalAvailableKeys}
+                  roleBreakdown={roleBreakdown}
+                  todayRevenue={todayRevenue}
+                  todayClaims={todayClaims}
+                  totalRevenue={totalRevenue}
+                  revenueTrend={revenueTrend}
+                />
+              )}
             </Suspense>
 
             {/* Today Sales Summary */}
-            <div className="mb-3">
-              <CollapsibleSection title="ยอดขายสินค้าวันนี้" icon={<ShoppingCart size={18} />} isOpen={showPurchaseAnalytics} onToggle={togglePurchaseAnalytics} glass>
-                <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
-                  <TodaySalesSummary dailyProductClaims={dailyProductClaims} />
-                </Suspense>
-              </CollapsibleSection>
-            </div>
+            {hasFeature("dash.today_sales") && (
+              <div className="mb-3">
+                <CollapsibleSection title="ยอดขายสินค้าวันนี้" icon={<ShoppingCart size={18} />} isOpen={showPurchaseAnalytics} onToggle={togglePurchaseAnalytics} glass>
+                  <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
+                    <TodaySalesSummary dailyProductClaims={dailyProductClaims} />
+                  </Suspense>
+                </CollapsibleSection>
+              </div>
+            )}
 
             {/* Purchase Analytics */}
-            <div className="mb-3">
-              <CollapsibleSection title="ข้อมูลการซื้อสินค้า (เติมเงิน)" icon={<BarChart3 size={18} />} isOpen={showCharts} onToggle={toggleCharts} glass>
-                <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
-                  <PurchaseAnalytics dailyData={dailyData} productStats={productStats} dailyProductClaims={dailyProductClaims} />
-                </Suspense>
-              </CollapsibleSection>
-            </div>
+            {hasFeature("dash.purchase_analytics") && (
+              <div className="mb-3">
+                <CollapsibleSection title="ข้อมูลการซื้อสินค้า (เติมเงิน)" icon={<BarChart3 size={18} />} isOpen={showCharts} onToggle={toggleCharts} glass>
+                  <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
+                    <PurchaseAnalytics dailyData={dailyData} productStats={productStats} dailyProductClaims={dailyProductClaims} />
+                  </Suspense>
+                </CollapsibleSection>
+              </div>
+            )}
 
             {/* Top-Up Breakdown */}
-            <div className="mb-3">
-              <CollapsibleSection title="สรุปยอดเติมเงินแยกช่องทาง" icon={<Wallet size={18} />} isOpen={showTopUp} onToggle={toggleTopUp} glass>
-                <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
-                  <DashboardTopUpBreakdown topUpBreakdown={topUpBreakdown} />
-                </Suspense>
-              </CollapsibleSection>
-            </div>
+            {hasFeature("dash.topup_breakdown") && (
+              <div className="mb-3">
+                <CollapsibleSection title="สรุปยอดเติมเงินแยกช่องทาง" icon={<Wallet size={18} />} isOpen={showTopUp} onToggle={toggleTopUp} glass>
+                  <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
+                    <DashboardTopUpBreakdown topUpBreakdown={topUpBreakdown} />
+                  </Suspense>
+                </CollapsibleSection>
+              </div>
+            )}
 
             {/* Provider Quota — show only when Thunder is the active slip provider */}
-            {(settings.slipProvider || 'thunder') === 'thunder' && (
+            {hasFeature("dash.thunder_quota") && (settings.slipProvider || 'thunder') === 'thunder' && (
               <div className="mb-3">
                 <CollapsibleSection title="โควต้า Thunder API" icon={<Zap size={18} />} isOpen={showThunder} onToggle={toggleThunder} glass>
                   <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
@@ -953,28 +965,33 @@ const DashboardPage = () => {
                 </CollapsibleSection>
               </div>
             )}
-            {(settings.slipProvider || 'thunder') !== 'thunder' && (
+            {hasFeature("dash.thunder_quota") && (settings.slipProvider || 'thunder') !== 'thunder' && (
               <div className="mb-3 glass-card text-center text-sm text-muted-foreground py-3">
                 กำลังใช้ผู้ให้บริการตรวจสลิป: <strong className="text-foreground">{(settings.slipProvider || 'thunder').toUpperCase()}</strong> — ระบบนี้ไม่รองรับการแสดงโควต้า
               </div>
             )}
-            <div className="mb-3">
-              <CollapsibleSection title="กิจกรรมวงล้อ (Wheel)" icon={<RotateCcw size={18} />} isOpen={showWheel} onToggle={toggleWheel} glass>
-                <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
-                  <DashboardWheelActivity />
-                </Suspense>
-              </CollapsibleSection>
-            </div>
-            <div className="mb-3">
-              <CollapsibleSection title="สรุปการกดคีย์รายวันแยกประเภท" icon={<ListChecks size={18} />} isOpen={showDailyClaims} onToggle={toggleDailyClaims} glass>
-                <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
-                  <DailyClaimBreakdown
-                    data={dailyProductClaims}
-                    productNames={productStats.map((p) => p.productName)}
-                  />
-                </Suspense>
-              </CollapsibleSection>
-            </div>
+            {hasFeature("dash.wheel_activity") && (
+              <div className="mb-3">
+                <CollapsibleSection title="กิจกรรมวงล้อ (Wheel)" icon={<RotateCcw size={18} />} isOpen={showWheel} onToggle={toggleWheel} glass>
+                  <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
+                    <DashboardWheelActivity />
+                  </Suspense>
+                </CollapsibleSection>
+              </div>
+            )}
+            {hasFeature("dash.daily_claim_breakdown") && (
+              <div className="mb-3">
+                <CollapsibleSection title="สรุปการกดคีย์รายวันแยกประเภท" icon={<ListChecks size={18} />} isOpen={showDailyClaims} onToggle={toggleDailyClaims} glass>
+                  <Suspense fallback={<p className="text-sm text-muted-foreground text-center py-4">กำลังโหลด...</p>}>
+                    <DailyClaimBreakdown
+                      data={dailyProductClaims}
+                      productNames={productStats.map((p) => p.productName)}
+                    />
+                  </Suspense>
+                </CollapsibleSection>
+              </div>
+            )}
+
 
             {/* Product Claim Breakdown */}
             <div className="mb-3">
@@ -1083,7 +1100,9 @@ const DashboardPage = () => {
 
             {/* Role + Recent */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              {hasFeature("dash.users_breakdown") && (
               <CollapsibleSection title="สัดส่วนยศผู้ใช้" icon={<Shield size={18} />} isOpen={showRoles} onToggle={toggleRoles} glass>
+
                 <div className="space-y-3">
                   {Object.entries(roleBreakdown).map(([role, count]) => {
                     const pct = totalUsers > 0 ? Math.round((count / totalUsers) * 100) : 0;
@@ -1101,7 +1120,9 @@ const DashboardPage = () => {
                   })}
                 </div>
               </CollapsibleSection>
+              )}
 
+              {hasFeature("dash.recent_keys") && (
               <div className="relative">
                 <CollapsibleSection
                   title="คีย์ที่ถูกกดล่าสุด"
@@ -1120,8 +1141,8 @@ const DashboardPage = () => {
                   {!canSeeRecentKeys && (
                     <div className="absolute inset-0 rounded-2xl bg-background/60 backdrop-blur-md flex flex-col items-center justify-center z-10">
                       <Lock size={32} className="text-muted-foreground mb-3" />
-                      <p className="text-sm font-semibold text-muted-foreground">ต้องมียศ HightXCrew ขึ้นไป</p>
-                      <p className="text-xs text-muted-foreground mt-1">เพื่อดูคีย์ที่ถูกกดล่าสุด</p>
+                      <p className="text-sm font-semibold text-muted-foreground">ไม่มีสิทธิ์ดูคีย์ล่าสุด</p>
+                      <p className="text-xs text-muted-foreground mt-1">ติดต่อ Owner เพื่อเปิดสิทธิ์ dash.recent_keys</p>
                     </div>
                   )}
 
@@ -1143,7 +1164,9 @@ const DashboardPage = () => {
                   </div>
                 </CollapsibleSection>
               </div>
+              )}
             </div>
+
 
             {/* Dashboard Settings & Reset */}
             <div className="mt-3">

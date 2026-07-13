@@ -358,6 +358,23 @@ const AdminWebhooks = ({ form, setForm, settings, updateSettings, handleSave, se
       const cleaned = { ...form, ...blankUrlFields() };
       setForm(cleaned);
       await handleSave(cleaned);
+
+      // Bust the edge-function URL cache so newly added URLs fan out on next event
+      try {
+        const SUPABASE_URL = (import.meta as any).env?.VITE_SUPABASE_URL || "";
+        const SUPABASE_KEY = (import.meta as any).env?.VITE_SUPABASE_PUBLISHABLE_KEY || "";
+        if (SUPABASE_URL) {
+          await fetch(`${SUPABASE_URL}/functions/v1/send-webhook`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(SUPABASE_KEY ? { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } : {}),
+            },
+            body: JSON.stringify({ type: "__bust__", embeds: [], bustCache: true }),
+          }).catch(() => {});
+        }
+      } catch { /* non-blocking */ }
+
       toast.success(`บันทึก Webhook สำเร็จ · URL หลัก + ${persistedExtras} URL เพิ่มเติม`);
       if (persistedExtras !== totalExtras) {
         toast.error(`⚠️ คาดว่าจะบันทึก ${totalExtras} URL เพิ่มเติม แต่ Firestore เก็บได้ ${persistedExtras}`);

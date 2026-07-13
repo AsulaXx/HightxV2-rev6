@@ -297,7 +297,8 @@ const AdminRoleAccessTab = () => {
                       })}
                     </tr>
                   ))}
-                </>
+                </Fragment>
+
               ))}
             </tbody>
           </table>

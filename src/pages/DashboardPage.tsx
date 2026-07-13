@@ -1100,7 +1100,9 @@ const DashboardPage = () => {
 
             {/* Role + Recent */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              {hasFeature("dash.users_breakdown") && (
               <CollapsibleSection title="สัดส่วนยศผู้ใช้" icon={<Shield size={18} />} isOpen={showRoles} onToggle={toggleRoles} glass>
+
                 <div className="space-y-3">
                   {Object.entries(roleBreakdown).map(([role, count]) => {
                     const pct = totalUsers > 0 ? Math.round((count / totalUsers) * 100) : 0;

@@ -15,8 +15,6 @@ const AnnouncementTicker = () => {
   const { settings } = useSiteSettings();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
 
-  if (settings.uiVersion === "v2") return <AnnouncementTickerV2 />;
-
   useEffect(() => {
     const load = async () => {
       try {
@@ -29,6 +27,8 @@ const AnnouncementTicker = () => {
     };
     load();
   }, []);
+
+  if (settings.uiVersion === "v2") return <AnnouncementTickerV2 />;
 
   if (settings.ticker?.enabled === false) return null;
   

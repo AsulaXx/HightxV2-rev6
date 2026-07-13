@@ -132,7 +132,7 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
                   ? "v2-hero-img absolute inset-0 m-auto block max-w-[46%] max-h-[70%] drop-shadow-[0_10px_30px_hsl(var(--primary)/0.45)]"
                   : "v2-hero-img absolute inset-0 w-full h-full block"
               }
-              style={{ objectFit: finalFit }}
+              style={{ objectFit: finalFit, objectPosition: useLogoMode ? "center" : objectPosition }}
             />
             {/* Parallax shine sweep */}
             <div className="v2-hero-shine pointer-events-none absolute inset-0" aria-hidden />

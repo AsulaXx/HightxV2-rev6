@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ShoppingBag, Wallet, Users, Package, Boxes, ShoppingCart } from "lucide-react";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useLayoutConfig } from "@/hooks/useLayoutConfig";
@@ -10,6 +10,7 @@ interface Props {
   stats: { users: number; stock: number; sales: number };
   productsCount: number;
 }
+
 
 /**
  * V2 hero — full-bleed banner with 3D tilt, parallax shine, and floating stat cards.

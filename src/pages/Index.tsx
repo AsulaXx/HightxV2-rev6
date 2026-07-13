@@ -355,10 +355,12 @@ const Index = () => {
                 ? { href: nav.url, target: "_blank", rel: "noopener noreferrer" } 
                 : { to: nav.url };
               return (
-                <motion.div key={nav.id} variants={fade}>
-                  <Wrapper {...wrapperProps as any} className={`group block overflow-hidden ${radiusClass()}`}>
+                <motion.div key={nav.id} variants={fade} {...cardHover}>
+                  <Wrapper {...wrapperProps as any} className={`group relative block overflow-hidden ${radiusClass()}`}>
+                    {/* shine sweep */}
+                    <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 rotate-12 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-[380%] transition-all duration-700 ease-out z-10" />
                     {nav.bannerUrl ? (
-                      <img src={nav.bannerUrl} alt={nav.name} className="w-full h-auto object-contain group-hover:scale-[1.02] transition-transform duration-500" />
+                      <img src={nav.bannerUrl} alt={nav.name} className="w-full h-auto object-contain group-hover:scale-[1.03] transition-transform duration-500" />
                     ) : (
                       <div className={`aspect-[4/3] bg-gradient-to-br ${nav.gradient || 'from-primary/20 to-accent/20'} flex items-center justify-center p-4 relative overflow-hidden border border-border/30`}>
                         {nav.imageUrl ? (

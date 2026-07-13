@@ -415,7 +415,7 @@ interface MatchReceiverAccount {
   type: 'bank' | 'promptpay' | 'truewallet';
 }
 
-export type UIVersion = "v1";
+export type UIVersion = "v1" | "v2";
 
 export interface RuzienBypassDuration {
   id: string;
@@ -972,9 +972,11 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   }, [settings.theme]);
 
-  // Apply UI version (v1 = single skin)
+  // Apply UI version (v1 = Liquid Glass, v2 = Awang Violet)
   useEffect(() => {
-    document.documentElement.setAttribute("data-ui-version", "v1");
+    const raw = (settings.uiVersion as string) || "v1";
+    const version: UIVersion = raw === "v2" ? "v2" : "v1";
+    document.documentElement.setAttribute("data-ui-version", version);
   }, [settings.uiVersion]);
 
   // Apply 3D effect CSS variables (glow / tilt / gradient)

@@ -71,6 +71,14 @@ export const sendDailySummary = async (
         .join("\n");
       fields.push({ name: "📋 รายละเอียดตามสินค้า", value: breakdown, inline: false });
     }
+    const topFreeList = Object.values(freeByUser).sort((a, b) => b.count - a.count).slice(0, 5);
+    if (topFreeList.length > 0) {
+      const rankIcons = ["🥇", "🥈", "🥉", "4.", "5."];
+      const freeBreakdown = topFreeList
+        .map((u, i) => `${rankIcons[i]} ${u.display} — ${u.count} ครั้ง`)
+        .join("\n");
+      fields.push({ name: "🎁 อันดับกดฟรีวันนี้", value: freeBreakdown, inline: false });
+    }
     const { sendWebhook } = await import("@/lib/webhookSender");
     await sendWebhook(settings, "dailySummary", [
       {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Save, Key, FolderOpen, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
-import { AdminTabProps } from "./AdminTabProps";
+import { AdminTabProps } from "../shared/AdminTabProps";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, doc, setDoc, deleteDoc, query, where, serverTimestamp } from "firebase/firestore";
 import { toast } from "sonner";

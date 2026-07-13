@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { Save, Plus, Trash2, Search, ChevronDown, ChevronUp, Package, Clock, ArrowUp, ArrowDown, GripVertical, Edit3, X, ExternalLink, Upload } from "lucide-react";
-import { AdminTabProps, generateId } from "./AdminTabProps";
+import { AdminTabProps, generateId } from "../shared/AdminTabProps";
 import { type Product, type ProductDuration } from "@/contexts/SiteSettingsContext";
 import { TENANT_URLS } from "@/lib/tenantConfig";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";

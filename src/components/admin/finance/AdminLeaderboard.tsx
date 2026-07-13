@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Trophy, Plus, Trash2, GripVertical } from "lucide-react";
-import AdminSection from "./AdminSection";
+import AdminSection from "../shared/AdminSection";
 import type { LeaderboardSettings, LeaderboardReward } from "@/contexts/SiteSettingsContext";
 
 interface Props {

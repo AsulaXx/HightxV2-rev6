@@ -1,10 +1,10 @@
 import { Save, Upload } from "lucide-react";
-import { AdminTabProps } from "./AdminTabProps";
+import { AdminTabProps } from "../shared/AdminTabProps";
 import type { BgMusicConfig } from "@/contexts/SiteSettingsContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getSupabaseUploadPrefix } from "@/lib/supabaseSync";
 import { toast } from "sonner";
-import ImageUploadField from "./ImageUploadField";
+import ImageUploadField from "../shared/ImageUploadField";
 
 
 const AdminMusicTab = ({ form, setForm, handleSave }: AdminTabProps) => {

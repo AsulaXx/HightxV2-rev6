@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
 import { Save, Plus, Trash2, Search, ChevronDown, ChevronUp, FolderOpen, LayoutGrid, MoveUp, MoveDown, FolderTree, Package } from "lucide-react";
-import { AdminTabProps, generateId } from "./AdminTabProps";
+import { AdminTabProps, generateId } from "../shared/AdminTabProps";
 import { type ProductCategory, type BannerLayout, type CategorySubDisplayMode } from "@/contexts/SiteSettingsContext";
-import ImageUploadField from "./ImageUploadField";
+import ImageUploadField from "../shared/ImageUploadField";
 
 const AdminCategoriesTab = ({ form, setForm, handleSave }: AdminTabProps) => {
   const [categorySearch, setCategorySearch] = useState("");

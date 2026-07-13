@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Save, Image, Palette, Sparkles } from "lucide-react";
-import AdminSection from "./AdminSection";
-import { AdminTabProps } from "./AdminTabProps";
+import AdminSection from "../shared/AdminSection";
+import { AdminTabProps } from "../shared/AdminTabProps";
 import { type ParticlesConfig } from "@/contexts/SiteSettingsContext";
-import ImageUploadField from "./ImageUploadField";
+import ImageUploadField from "../shared/ImageUploadField";
 
 const hslToHex = (hslStr: string): string => {
   try {

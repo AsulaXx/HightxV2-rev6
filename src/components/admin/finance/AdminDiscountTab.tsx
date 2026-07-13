@@ -2,7 +2,7 @@ import { Save, Tag, Crown, Eye, Percent, Package, Plus, Trash2, UserCog } from "
 import { useEffect, useState, useMemo } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { AdminTabProps } from "./AdminTabProps";
+import { AdminTabProps } from "../shared/AdminTabProps";
 import type { DiscountSettings, BundleDiscount, UserDiscountRule } from "@/contexts/SiteSettingsContext";
 
 const AdminDiscountTab = ({ form, setForm, handleSave }: AdminTabProps) => {

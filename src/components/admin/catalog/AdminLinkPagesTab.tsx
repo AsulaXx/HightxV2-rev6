@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ExternalLink, RotateCcw, Trash2, Eye, EyeOff, Globe, MousePointerClick } from "lucide-react";
 import { Link } from "react-router-dom";
-import { AdminTabProps } from "./AdminTabProps";
+import { AdminTabProps } from "../shared/AdminTabProps";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "firebase/firestore";
 import { toast } from "sonner";

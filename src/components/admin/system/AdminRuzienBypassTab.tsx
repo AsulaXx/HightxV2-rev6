@@ -3,7 +3,7 @@ import { Plus, Trash2, Zap, Power, KeyRound, Shield, Save, Eye, EyeOff, Loader2 
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast } from "sonner";
-import { AdminTabProps } from "./AdminTabProps";
+import { AdminTabProps } from "../shared/AdminTabProps";
 import type { RuzienBypassConfig, RuzienBypassDuration } from "@/contexts/SiteSettingsContext";
 
 const defaultCfg: RuzienBypassConfig = {

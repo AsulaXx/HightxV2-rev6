@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Save, Plus, Trash2, RotateCcw, Shield, CheckCircle, XCircle } from "lucide-react";
-import { AdminTabProps, generateId } from "./AdminTabProps";
+import { AdminTabProps, generateId } from "../shared/AdminTabProps";
 import { ROLE_HIERARCHY, ROLE_LABELS, useAuth, type UserRole } from "@/contexts/AuthContext";
 import { DEFAULT_PERMISSIONS_LIST, DEFAULT_ROLE_PERMISSIONS_MAP, type PermissionItem, type RolePermissions } from "@/contexts/SiteSettingsContext";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";

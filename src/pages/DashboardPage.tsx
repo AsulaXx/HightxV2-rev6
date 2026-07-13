@@ -519,40 +519,61 @@ const DashboardPage = () => {
       });
       setTopUpBreakdown(tuBreakdown);
 
-      // Low stock webhook
+      // Low stock webhook — respects per-webhook threshold / product allowlist / only-zero
       if (hasPermission("moderator")) {
-        if (alerts.length > 0 && settings.lowStockWebhookEnabled) {
-          const grouped: Record<string, { duration: string; available: number }[]> = {};
-          for (const a of alerts) {
-            if (!grouped[a.product]) grouped[a.product] = [];
-            grouped[a.product].push({ duration: a.duration, available: a.available });
-          }
+        if (settings.lowStockWebhookEnabled) {
+          // Recompute filtered alerts using webhook-specific settings
+          const webhookThreshold = settings.lowStockWebhookOnlyZero
+            ? 0
+            : (typeof settings.lowStockWebhookThreshold === "number"
+                ? settings.lowStockWebhookThreshold
+                : (settings.lowStockThreshold || 5));
+          const allowedIds: string[] = Array.isArray(settings.lowStockWebhookProductIds)
+            ? settings.lowStockWebhookProductIds
+            : [];
+          const productNameToId = new Map<string, string>();
+          (settings.products || []).forEach((p: any) => productNameToId.set(p.name, p.id));
 
-          const alertFields = Object.entries(grouped).map(([product, items]) => ({
-            name: `📦 ${product}`,
-            value: items.map((item) =>
-              item.available === 0
-                ? `┗ ${item.duration}: ❌ หมดแล้ว!`
-                : `┗ ${item.duration}: ⚠️ เหลือ ${item.available} คีย์`
-            ).join("\n"),
-            inline: false,
-          }));
+          const webhookAlerts = alerts.filter((a) => {
+            const pid = productNameToId.get(a.product);
+            if (allowedIds.length > 0 && (!pid || !allowedIds.includes(pid))) return false;
+            if (settings.lowStockWebhookOnlyZero) return a.available === 0;
+            return a.available <= webhookThreshold;
+          });
 
-          const outOfStock = alerts.filter((a) => a.available === 0).length;
-          const lowStock = alerts.length - outOfStock;
+          if (webhookAlerts.length > 0) {
+            const grouped: Record<string, { duration: string; available: number }[]> = {};
+            for (const a of webhookAlerts) {
+              if (!grouped[a.product]) grouped[a.product] = [];
+              grouped[a.product].push({ duration: a.duration, available: a.available });
+            }
 
-          try {
-            const { sendWebhook } = await import("@/lib/webhookSender");
-            await sendWebhook(settings, "lowStock", [{
-              title: "⚠️ แจ้งเตือน: คีย์ใกล้หมด!",
-              description: `พบ ${alerts.length} รายการ${outOfStock > 0 ? ` (หมดสต็อก ${outOfStock})` : ""}${lowStock > 0 ? ` (ใกล้หมด ${lowStock})` : ""}`,
-              color: outOfStock > 0 ? 0xff4444 : 0xffaa00,
-              fields: alertFields,
-              timestamp: new Date().toISOString(),
-              footer: { text: `${settings.brandName} • Low Stock Alert` },
-            }]);
-          } catch (err) {
-            console.error("Low stock webhook failed:", err);
+            const alertFields = Object.entries(grouped).map(([product, items]) => ({
+              name: `📦 ${product}`,
+              value: items.map((item) =>
+                item.available === 0
+                  ? `┗ ${item.duration}: ❌ หมดแล้ว!`
+                  : `┗ ${item.duration}: ⚠️ เหลือ ${item.available} คีย์`
+              ).join("\n"),
+              inline: false,
+            }));
+
+            const outOfStock = webhookAlerts.filter((a) => a.available === 0).length;
+            const lowStock = webhookAlerts.length - outOfStock;
+
+            try {
+              const { sendWebhook } = await import("@/lib/webhookSender");
+              await sendWebhook(settings, "lowStock", [{
+                title: "⚠️ แจ้งเตือน: คีย์ใกล้หมด!",
+                description: `พบ ${webhookAlerts.length} รายการ${outOfStock > 0 ? ` (หมดสต็อก ${outOfStock})` : ""}${lowStock > 0 ? ` (ใกล้หมด ${lowStock})` : ""}`,
+                color: outOfStock > 0 ? 0xff4444 : 0xffaa00,
+                fields: alertFields,
+                timestamp: new Date().toISOString(),
+                footer: { text: `${settings.brandName} • Low Stock Alert${settings.lowStockWebhookOnlyZero ? " (เฉพาะหมด)" : ` (≤${webhookThreshold})`}` },
+              }]);
+            } catch (err) {
+              console.error("Low stock webhook failed:", err);
+            }
           }
         }
       }

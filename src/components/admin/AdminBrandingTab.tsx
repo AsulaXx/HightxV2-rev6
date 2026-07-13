@@ -100,7 +100,10 @@ const AdminBrandingTab = ({ form, setForm, handleSave }: AdminTabProps) => {
               { label: "สูง", v: 480 },
               { label: "ซินีม่า", v: 560 },
             ];
-            const autoFit = hb.imageAutoFit === true;
+            const autoFitDesktop = hb.imageAutoFitDesktop ?? hb.imageAutoFit === true;
+            const autoFitTablet = hb.imageAutoFitTablet ?? hb.imageAutoFit === true;
+            const autoFitMobile = hb.imageAutoFitMobile ?? hb.imageAutoFit === true;
+            const autoFit = autoFitDesktop; // preview uses desktop setting
             const previewHeight = autoFit ? undefined : (hb.imageHeight ?? 320);
             return (
               <div className="space-y-3">

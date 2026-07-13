@@ -476,15 +476,28 @@ const AdminPage = () => {
                     {cat.tabs.map((tab) => {
                       const active = activeTab === tab.id;
                       const pinned = pinnedTabs.includes(tab.id);
+                      const href = (tab as any).href as string | undefined;
+                      const commonCls = `w-full flex items-center gap-2 pl-6 pr-2 h-8 rounded-md text-xs font-medium transition-all ${
+                        active
+                          ? 'bg-primary text-primary-foreground shadow-sm'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+                      }`;
+                      if (href) {
+                        return (
+                          <div key={tab.id} className="relative group">
+                            <Link to={href} className={commonCls}>
+                              <tab.icon size={12} className="shrink-0" />
+                              <span className="truncate flex-1 text-left">{tab.label}</span>
+                              <ExternalLink size={10} className="opacity-60 shrink-0" />
+                            </Link>
+                          </div>
+                        );
+                      }
                       return (
                         <div key={tab.id} className="relative group">
                           <button
                             onClick={() => setActiveTab(tab.id)}
-                            className={`w-full flex items-center gap-2 pl-6 pr-2 h-8 rounded-md text-xs font-medium transition-all ${
-                              active
-                                ? 'bg-primary text-primary-foreground shadow-sm'
-                                : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
-                            }`}
+                            className={commonCls}
                           >
                             <tab.icon size={12} className="shrink-0" />
                             <span className="truncate flex-1 text-left">{tab.label}</span>

@@ -10,10 +10,35 @@ import { auth } from "@/lib/firebase";
 import { logError } from "@/lib/errorLogger";
 
 let inflight: Promise<string | null> | null = null;
+let lastSyncError: string | null = null;
+
+
+async function waitForFirebaseUser(timeoutMs = 4000) {
+  if (auth.currentUser) return auth.currentUser;
+  return await new Promise<typeof auth.currentUser>((resolve) => {
+    let done = false;
+    const unsub = auth.onAuthStateChanged((u) => {
+      if (done) return;
+      done = true;
+      unsub();
+      resolve(u);
+    });
+    setTimeout(() => {
+      if (done) return;
+      done = true;
+      unsub();
+      resolve(auth.currentUser);
+    }, timeoutMs);
+  });
+}
 
 async function doSync(): Promise<string | null> {
-  const fbUser = auth.currentUser;
-  if (!fbUser) return null;
+  const fbUser = await waitForFirebaseUser();
+  if (!fbUser) {
+    lastSyncError = "ยังไม่ได้เข้าสู่ระบบ (Firebase user null)";
+    return null;
+  }
+
   try {
     const idToken = await fbUser.getIdToken();
     const { data, error } = await supabase.functions.invoke("firebase-supabase-sync", {
@@ -28,12 +53,15 @@ async function doSync(): Promise<string | null> {
       token_hash: data.token_hash,
     });
     if (verifyErr) throw verifyErr;
+    lastSyncError = null;
     return verifyData.user?.id ?? null;
   } catch (err) {
+    lastSyncError = err instanceof Error ? err.message : String(err);
     logError("supabaseSync.doSync", err);
     return null;
   }
 }
+
 
 /** Ensures a Supabase session exists for the current Firebase user. Idempotent. */
 export async function syncSupabaseSession(force = false): Promise<string | null> {
@@ -52,9 +80,13 @@ export async function syncSupabaseSession(force = false): Promise<string | null>
 /** Returns the Supabase user id to prefix storage paths with. */
 export async function getSupabaseUploadPrefix(): Promise<string> {
   const uid = await syncSupabaseSession();
-  if (!uid) throw new Error("Supabase session unavailable — please re-login");
+  if (!uid) {
+    const reason = lastSyncError ? ` (${lastSyncError})` : "";
+    throw new Error(`Supabase session unavailable — please re-login${reason}`);
+  }
   return uid;
 }
+
 
 export async function clearSupabaseSession() {
   try {

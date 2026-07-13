@@ -321,7 +321,7 @@ const Index = () => {
               </div>
               <div className="min-w-0">
                 <p className="text-[10px] sm:text-xs text-muted-foreground/60 leading-tight">{stat.label}</p>
-                <p className="text-sm sm:text-base font-bold text-foreground leading-tight">{stat.value} <span className="text-[10px] sm:text-xs font-normal text-muted-foreground">{stat.unit}</span></p>
+                <p className="text-sm sm:text-base font-bold text-foreground leading-tight"><span className="font-numeric">{stat.value}</span> <span className="text-[10px] sm:text-xs font-normal text-muted-foreground">{stat.unit}</span></p>
               </div>
             </Reveal>
           ))}

@@ -4,8 +4,8 @@ import { doc, setDoc, onSnapshot } from "firebase/firestore";
 import { TENANT_BRAND, TENANT_THEME, TENANT_HERO, TENANT_DEFAULT_CATEGORIES, TENANT_URLS } from "@/lib/tenantConfig";
 
 export type ParticleMode = "default" | "snow" | "stars" | "bubbles";
-export type BackgroundEffect = "none" | "grid" | "dots" | "waves" | "aurora" | "matrix";
-export type LoaderStyle = "atom" | "ring" | "dots" | "bars" | "pulse" | "orbit";
+export type BackgroundEffect = "none" | "grid" | "dots" | "waves" | "aurora" | "matrix" | "starfield" | "mesh" | "noise" | "ripple";
+export type LoaderStyle = "atom" | "ring" | "dots" | "bars" | "pulse" | "orbit" | "quantum" | "wave" | "nebula" | "cube3d";
 export type PerformanceModeSetting = "auto" | "high" | "balanced" | "saver";
 
 export interface ParticlesConfig {
@@ -50,6 +50,10 @@ interface ThemeSettings {
   performanceMode?: PerformanceModeSetting;
   fontHeading?: string;
   fontBody?: string;
+  fontNumeric?: string;   // stats / prices / counters
+  fontButton?: string;    // buttons & CTAs
+  fontProduct?: string;   // product card titles
+  fontBrand?: string;     // navbar brand / logo text
   fx3d?: Theme3DConfig;
 }
 
@@ -995,6 +999,19 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
       root.style.setProperty("--font-body", `${settings.theme.fontBody}, sans-serif`);
       loadStack(settings.theme.fontBody);
     }
+    // Extended font tokens — apply if set, otherwise CSS defaults remain
+    const setFontVar = (key: string, val?: string) => {
+      if (val && val.trim()) {
+        root.style.setProperty(key, `${val}, sans-serif`);
+        loadStack(val);
+      } else {
+        root.style.removeProperty(key);
+      }
+    };
+    setFontVar("--font-numeric", settings.theme.fontNumeric);
+    setFontVar("--font-button",  settings.theme.fontButton);
+    setFontVar("--font-product", settings.theme.fontProduct);
+    setFontVar("--font-brand",   settings.theme.fontBrand);
   }, [settings.theme]);
 
   // Apply UI version (v1 = Liquid Glass, v2 = Awang Violet)

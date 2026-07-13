@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import type { BackgroundEffect, LoaderStyle } from "@/contexts/SiteSettingsContext";
 import Loader from "@/components/Loader";
-import { Sparkles, Grid3x3, Waves, CircleDot, Layers, Terminal, Command, UserCog, LogOut, Save, Zap, Gauge, Leaf, Cpu, Eye, EyeOff, Palette, RefreshCw } from "lucide-react";
+import { Sparkles, Grid3x3, Waves, CircleDot, Layers, Terminal, Command, UserCog, LogOut, Save, Zap, Gauge, Leaf, Cpu, Eye, EyeOff, Palette, RefreshCw, Stars, Cloud, CloudRain, Box } from "lucide-react";
 import { usePerformanceMode, setPerformancePreview, type PerformanceMode } from "@/hooks/usePerformanceMode";
 
 interface Props {
@@ -13,21 +13,29 @@ interface Props {
 }
 
 const EFFECTS: { id: BackgroundEffect; label: string; icon: any; desc: string }[] = [
-  { id: "none",   label: "ไม่มี",   icon: Sparkles,  desc: "ปิดเอฟเฟกต์" },
-  { id: "grid",   label: "Grid",    icon: Grid3x3,   desc: "ตารางเรืองแสง" },
-  { id: "dots",   label: "Dots",    icon: CircleDot, desc: "จุดๆ แบบพิมพ์เขียว" },
-  { id: "waves",  label: "Waves",   icon: Waves,     desc: "คลื่นเคลื่อนไหว" },
-  { id: "aurora", label: "Aurora",  icon: Layers,    desc: "แสงเหนือลอย" },
-  { id: "matrix", label: "Matrix",  icon: Terminal,  desc: "ตัวอักษรตก" },
+  { id: "none",      label: "ไม่มี",       icon: Sparkles,  desc: "ปิดเอฟเฟกต์" },
+  { id: "grid",      label: "Grid",        icon: Grid3x3,   desc: "ตารางเรืองแสง" },
+  { id: "dots",      label: "Dots",        icon: CircleDot, desc: "จุดๆ แบบพิมพ์เขียว" },
+  { id: "waves",     label: "Waves",       icon: Waves,     desc: "คลื่นเคลื่อนไหว" },
+  { id: "aurora",    label: "Aurora",      icon: Layers,    desc: "แสงเหนือลอย" },
+  { id: "matrix",    label: "Matrix",      icon: Terminal,  desc: "ตัวอักษรตก" },
+  { id: "starfield", label: "Starfield 3D",icon: Stars,     desc: "ดาววิ่งลึกเข้าออกจอ" },
+  { id: "mesh",      label: "Gradient Mesh",icon: Cloud,    desc: "ก้อนสีนุ่มไหลช้าๆ" },
+  { id: "noise",     label: "Noise/Grain", icon: Sparkles,  desc: "เม็ดฟิล์มเพิ่ม depth" },
+  { id: "ripple",    label: "Ripple Pulse",icon: CloudRain, desc: "วงกลม pulse ออกจากจุดสุ่ม" },
 ];
 
 const LOADERS: { id: LoaderStyle; label: string }[] = [
-  { id: "atom",  label: "Atom" },
-  { id: "ring",  label: "Ring" },
-  { id: "dots",  label: "Dots" },
-  { id: "bars",  label: "Bars" },
-  { id: "pulse", label: "Pulse" },
-  { id: "orbit", label: "Orbit" },
+  { id: "atom",    label: "Atom" },
+  { id: "ring",    label: "Ring" },
+  { id: "dots",    label: "Dots" },
+  { id: "bars",    label: "Bars" },
+  { id: "pulse",   label: "Pulse" },
+  { id: "orbit",   label: "Orbit" },
+  { id: "quantum", label: "Quantum" },
+  { id: "wave",    label: "Wave" },
+  { id: "nebula",  label: "Nebula" },
+  { id: "cube3d",  label: "Cube 3D" },
 ];
 
 const AdminEffectsTab = ({ form, setForm, handleSave }: Props) => {

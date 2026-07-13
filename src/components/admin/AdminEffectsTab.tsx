@@ -47,6 +47,18 @@ const AdminEffectsTab = ({ form, setForm, handleSave }: Props) => {
   const setPalette = (v: boolean) =>
     setForm({ ...form, theme: { ...theme, commandPaletteEnabled: v } });
 
+  const perfMode: PerformanceMode = theme.performanceMode || "auto";
+  const setPerf = (m: PerformanceMode) =>
+    setForm({ ...form, theme: { ...theme, performanceMode: m } });
+  const perf = usePerformanceMode();
+
+  const PERF_OPTS: { id: PerformanceMode; label: string; icon: any; desc: string }[] = [
+    { id: "auto",     label: "อัตโนมัติ", icon: Cpu,   desc: "ปรับตามอุปกรณ์" },
+    { id: "high",     label: "เต็มพลัง",  icon: Zap,   desc: "แสดงเอฟเฟกต์ทุกอย่าง" },
+    { id: "balanced", label: "สมดุล",     icon: Gauge, desc: "ลดจำนวน/ความเร็ว 40-50%" },
+    { id: "saver",    label: "ประหยัด",   icon: Leaf,  desc: "ปิดเอฟเฟกต์หนักทั้งหมด" },
+  ];
+
   const doImpersonate = async () => {
     if (!impUid.trim()) return;
     try {

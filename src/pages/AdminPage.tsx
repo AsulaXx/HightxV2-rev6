@@ -322,11 +322,171 @@ const AdminPage = () => {
   const showSave = !hideSaveTabs.includes(activeTab);
 
   return (
-    <><div className="relative z-10 h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
-      {/* Admin top bar */}
-      <header className="shrink-0 bg-transparent">
-        <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6">
-          {/* Row 1: title + search + save */}
+    <><div className="relative z-10 h-[calc(100vh-4rem)] overflow-hidden flex">
+      {/* ─── Desktop Sidebar ─── */}
+      <aside
+        className={`hidden md:flex flex-col shrink-0 border-r border-border/40 bg-card/30 backdrop-blur-sm transition-all duration-300 ${
+          sidebarOpen ? 'w-64' : 'w-14'
+        }`}
+      >
+        {/* Sidebar header */}
+        <div className="h-14 shrink-0 flex items-center gap-2 px-3 border-b border-border/40">
+          <div className="w-8 h-8 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0">
+            <Settings size={15} />
+          </div>
+          {sidebarOpen && (
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-foreground truncate">ตั้งค่าแอดมิน</p>
+              <p className="text-[10px] text-muted-foreground truncate">{ROLE_LABELS[profile.role]}</p>
+            </div>
+          )}
+          <button
+            onClick={() => setSidebarOpen((v) => !v)}
+            title={sidebarOpen ? "ย่อเมนู" : "ขยายเมนู"}
+            className="w-7 h-7 rounded-lg hover:bg-muted/40 flex items-center justify-center text-muted-foreground shrink-0"
+          >
+            <ChevronDown size={13} className={`transition-transform ${sidebarOpen ? 'rotate-90' : '-rotate-90'}`} />
+          </button>
+        </div>
+
+        {/* Search */}
+        {sidebarOpen && (
+          <div className="px-3 py-2 shrink-0">
+            <div className="relative">
+              <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                value={menuQuery}
+                onChange={(e) => setMenuQuery(e.target.value)}
+                placeholder="ค้นหาเมนู..."
+                className="w-full h-8 pl-7 pr-2 rounded-lg bg-muted/40 border border-border/40 text-xs focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/40"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Pinned */}
+        {sidebarOpen && pinnedTabs.length > 0 && !menuQuery && (
+          <div className="px-3 pb-2 shrink-0">
+            <p className="text-[10px] font-bold text-primary/70 uppercase tracking-wider px-1 py-1 flex items-center gap-1">
+              <Pin size={9} /> ปักหมุด
+            </p>
+            <div className="space-y-0.5">
+              {pinnedTabs
+                .map((pid) => tabs.find((t) => t.id === pid))
+                .filter((t): t is NonNullable<typeof t> => !!t)
+                .map((tab) => {
+                  const active = activeTab === tab.id;
+                  return (
+                    <button
+                      key={`pin-${tab.id}`}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`w-full group flex items-center gap-2 px-2 h-7 rounded-md text-xs font-medium transition-all ${
+                        active
+                          ? 'bg-primary/15 text-primary'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
+                      }`}
+                    >
+                      <tab.icon size={12} className="shrink-0" />
+                      <span className="truncate flex-1 text-left">{tab.label}</span>
+                      <span
+                        role="button"
+                        onClick={(e) => { e.stopPropagation(); togglePin(tab.id); }}
+                        className="opacity-0 group-hover:opacity-70 hover:!opacity-100"
+                        title="ยกเลิกปักหมุด"
+                      >
+                        <PinOff size={10} />
+                      </span>
+                    </button>
+                  );
+                })}
+            </div>
+          </div>
+        )}
+
+        {/* Categories & tabs */}
+        <nav className="flex-1 overflow-y-auto px-2 pb-3 scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {filteredCategories.map((cat) => {
+            const isCollapsed = !!collapsedCats[cat.id] && !menuQuery;
+            const catActive = activeCategory?.id === cat.id;
+            if (!sidebarOpen) {
+              // Collapsed sidebar: show only category icons, click sets first tab
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveTab(cat.tabs[0].id)}
+                  title={cat.label}
+                  className={`w-10 h-10 mx-auto mb-1 flex items-center justify-center rounded-xl transition-all ${
+                    catActive ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
+                  }`}
+                >
+                  <cat.icon size={15} />
+                </button>
+              );
+            }
+            return (
+              <div key={cat.id} className="mb-1">
+                <button
+                  onClick={() => setCollapsedCats((c) => ({ ...c, [cat.id]: !c[cat.id] }))}
+                  className={`w-full flex items-center gap-2 px-2 h-7 rounded-md text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                    catActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <cat.icon size={11} />
+                  <span className="flex-1 text-left">{cat.label}</span>
+                  <ChevronDown size={11} className={`transition-transform ${isCollapsed ? '-rotate-90' : ''}`} />
+                </button>
+                {!isCollapsed && (
+                  <div className="mt-0.5 space-y-0.5">
+                    {cat.tabs.map((tab) => {
+                      const active = activeTab === tab.id;
+                      const pinned = pinnedTabs.includes(tab.id);
+                      return (
+                        <div key={tab.id} className="relative group">
+                          <button
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`w-full flex items-center gap-2 pl-6 pr-2 h-8 rounded-md text-xs font-medium transition-all ${
+                              active
+                                ? 'bg-primary text-primary-foreground shadow-sm'
+                                : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+                            }`}
+                          >
+                            <tab.icon size={12} className="shrink-0" />
+                            <span className="truncate flex-1 text-left">{tab.label}</span>
+                            <span
+                              role="button"
+                              onClick={(e) => { e.stopPropagation(); togglePin(tab.id); }}
+                              title={pinned ? "ยกเลิกปักหมุด" : "ปักหมุด"}
+                              className={`p-0.5 rounded transition-opacity ${pinned ? 'opacity-100' : 'opacity-0 group-hover:opacity-70 hover:!opacity-100'}`}
+                            >
+                              {pinned ? <PinOff size={10} /> : <Pin size={10} />}
+                            </span>
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          {isAdmin && sidebarOpen && (
+            <Link
+              to="/announcements"
+              className="mt-2 flex items-center gap-2 px-2 h-8 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/40"
+            >
+              <Megaphone size={12} /> ประกาศ
+              <ExternalLink size={10} className="ml-auto opacity-60" />
+            </Link>
+          )}
+        </nav>
+      </aside>
+
+      {/* ─── Main column ─── */}
+      <div className="flex-1 flex flex-col min-w-0">
+      {/* Top bar */}
+      <header className="shrink-0 bg-transparent border-b border-border/40">
+        <div className="px-3 sm:px-4 md:px-6">
           <div className="flex items-center gap-2 h-14">
             <button
               onClick={() => setMobileMenuOpen(true)}
@@ -335,9 +495,6 @@ const AdminPage = () => {
             >
               <LayoutGrid size={15} />
             </button>
-            <div className="w-8 h-8 rounded-xl bg-primary/15 text-primary hidden md:flex items-center justify-center shrink-0">
-              <Settings size={15} />
-            </div>
             <div className="flex items-center gap-1.5 min-w-0 flex-1">
               {activeCategory && (
                 <>
@@ -351,16 +508,6 @@ const AdminPage = () => {
                   <span className="text-sm font-semibold truncate">{currentTab.label}</span>
                 </div>
               )}
-            </div>
-            <div className="relative hidden md:block">
-              <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="text"
-                value={menuQuery}
-                onChange={(e) => setMenuQuery(e.target.value)}
-                placeholder="ค้นหาเมนู..."
-                className="w-56 h-8 pl-7 pr-2 rounded-lg bg-muted/40 border border-border/40 text-xs focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/40"
-              />
             </div>
             {showSave && (
               <button
@@ -377,70 +524,9 @@ const AdminPage = () => {
             )}
           </div>
 
-          {/* Row 2: category navbar (horizontal chips) */}
-          <nav aria-label="Admin categories" className="hidden md:block">
-            <div className="flex items-center gap-1 overflow-x-auto scrollbar-none [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pb-2">
-              {visibleCategories.map((cat) => {
-                const active = activeCategory.id === cat.id;
-                return (
-                  <button
-                    key={cat.id}
-                    onClick={() => {
-                      setActiveTab(cat.tabs[0].id);
-                      contentScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                    className={`flex items-center gap-1.5 px-3 h-8 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-                      active
-                        ? 'bg-primary/12 text-primary border border-primary/30'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/30 border border-transparent'
-                    }`}
-                  >
-                    <cat.icon size={13} />
-                    {cat.label}
-                  </button>
-                );
-              })}
-              {isAdmin && (
-                <Link
-                  to="/announcements"
-                  className="flex items-center gap-1.5 px-3 h-8 rounded-lg text-xs font-medium whitespace-nowrap text-muted-foreground hover:text-foreground hover:bg-muted/30 border border-transparent"
-                >
-                  <Megaphone size={13} /> ประกาศ
-                </Link>
-              )}
-            </div>
-          </nav>
-
-          {/* Pinned tabs strip (quick access) */}
-          {pinnedTabs.length > 0 && (
-            <div className="hidden md:flex items-center gap-1 pb-2 overflow-x-auto scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <Pin size={11} className="text-primary/70 shrink-0" />
-              {pinnedTabs
-                .map((pid) => tabs.find((t) => t.id === pid))
-                .filter((t): t is NonNullable<typeof t> => !!t)
-                .map((tab) => {
-                  const active = activeTab === tab.id;
-                  return (
-                    <button
-                      key={`pin-${tab.id}`}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`flex items-center gap-1 px-2.5 h-7 rounded-md text-[11px] font-medium whitespace-nowrap transition-all ${
-                        active
-                          ? 'bg-primary/15 text-primary border border-primary/30'
-                          : 'bg-muted/30 text-muted-foreground hover:text-foreground border border-transparent'
-                      }`}
-                    >
-                      <tab.icon size={11} />
-                      {tab.label}
-                    </button>
-                  );
-                })}
-            </div>
-          )}
-
-          {/* Row 3: sub-tabs of current category */}
+          {/* Mobile: sub-tab pill row */}
           {activeCategory.tabs.length > 1 && (
-            <div className="pb-2 pt-1">
+            <div className="md:hidden pb-2 pt-1">
               <div
                 role="tablist"
                 aria-label={`${activeCategory.label} sub-tabs`}
@@ -448,35 +534,24 @@ const AdminPage = () => {
               >
                 {activeCategory.tabs.map((tab, idx) => {
                   const active = activeTab === tab.id;
-                  const pinned = pinnedTabs.includes(tab.id);
                   return (
-                    <div key={tab.id} className="relative group flex items-center">
-                      <button
-                        ref={(el) => { subTabRefs.current[idx] = el; }}
-                        role="tab"
-                        aria-selected={active}
-                        tabIndex={active ? 0 : -1}
-                        onClick={() => setActiveTab(tab.id)}
-                        onKeyDown={(e) => handleSubTabKeyDown(e, idx)}
-                        className={`flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all focus:outline-none focus-visible:ring-1 focus-visible:ring-primary ${
-                          active
-                            ? 'bg-primary text-primary-foreground'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
-                        }`}
-                      >
-                        <tab.icon size={12} />
-                        {tab.label}
-                        <span
-                          role="button"
-                          tabIndex={-1}
-                          onClick={(e) => { e.stopPropagation(); togglePin(tab.id); }}
-                          title={pinned ? "ยกเลิกปักหมุด" : "ปักหมุดเมนู"}
-                          className={`ml-1 p-0.5 rounded transition-opacity ${pinned ? 'opacity-100' : 'opacity-0 group-hover:opacity-70 hover:!opacity-100'}`}
-                        >
-                          {pinned ? <PinOff size={10} /> : <Pin size={10} />}
-                        </span>
-                      </button>
-                    </div>
+                    <button
+                      key={tab.id}
+                      ref={(el) => { subTabRefs.current[idx] = el; }}
+                      role="tab"
+                      aria-selected={active}
+                      tabIndex={active ? 0 : -1}
+                      onClick={() => setActiveTab(tab.id)}
+                      onKeyDown={(e) => handleSubTabKeyDown(e, idx)}
+                      className={`flex items-center gap-1.5 pl-3 pr-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all ${
+                        active
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
+                      }`}
+                    >
+                      <tab.icon size={12} />
+                      {tab.label}
+                    </button>
                   );
                 })}
               </div>

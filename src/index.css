@@ -1311,3 +1311,155 @@ a[href*="lovable.app"][target="_blank"][class*="badge"],
 /* Prevent horizontal overflow on any V2 page */
 [data-ui-version="v2"] { overflow-x: hidden; }
 [data-ui-version="v2"] img, [data-ui-version="v2"] video { max-width: 100%; height: auto; }
+
+/* ─────────────────────────────────────────────────────────────
+   V2 Clean Tone-Aware Refinement
+   Inspired by the product-status card: subtle tinted surface
+   (bg /0.06), thin border (/0.35), chip-style icon holders,
+   restrained typography. Applied globally to V2.
+   ───────────────────────────────────────────────────────────── */
+
+/* Base cards — soften into subtle tinted surfaces */
+[data-ui-version="v2"] .glass-card,
+[data-ui-version="v2"] .glass-panel {
+  background: hsl(var(--card) / 0.55) !important;
+  border: 1px solid hsl(var(--border) / 0.5) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  transition: border-color .18s ease, background-color .18s ease;
+}
+[data-ui-version="v2"] .glass-card:hover,
+[data-ui-version="v2"] .glass-card-hover:hover {
+  border-color: hsl(var(--primary) / 0.35) !important;
+  background: hsl(var(--card) / 0.75) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Kill oversized text gradients — keep clean solid heading tones */
+[data-ui-version="v2"] .stat-tile,
+[data-ui-version="v2"] .glass-card .text-3xl,
+[data-ui-version="v2"] .glass-card .text-4xl,
+[data-ui-version="v2"] .glass-card .text-5xl {
+  background: none !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Chip-style icon holders (matches ProductDetail status chip) */
+[data-ui-version="v2"] .glass-card [class*="rounded-xl"][class*="bg-gradient-to-br"],
+[data-ui-version="v2"] .glass-card [class*="rounded-lg"][class*="bg-gradient-to-br"] {
+  background: hsl(var(--primary) / 0.15) !important;
+  color: hsl(var(--primary)) !important;
+  box-shadow: none !important;
+}
+[data-ui-version="v2"] .glass-card [class*="rounded-xl"][class*="bg-gradient-to-br"] svg,
+[data-ui-version="v2"] .glass-card [class*="rounded-lg"][class*="bg-gradient-to-br"] svg {
+  color: hsl(var(--primary)) !important;
+}
+
+/* Auth/form cards — flatten dramatic glow */
+[data-ui-version="v2"] .auth-card,
+[data-ui-version="v2"] form.glass-card {
+  background: hsl(var(--card) / 0.6) !important;
+  border: 1px solid hsl(var(--border) / 0.55) !important;
+  box-shadow: none !important;
+}
+
+/* Hub / tool cards — subtle tint, no top ribbon */
+[data-ui-version="v2"] a.glass-card-hover,
+[data-ui-version="v2"] .tool-card {
+  background: hsl(var(--card) / 0.55) !important;
+  border: 1px solid hsl(var(--border) / 0.5) !important;
+}
+[data-ui-version="v2"] a.glass-card-hover::before,
+[data-ui-version="v2"] .tool-card::before { display: none !important; }
+[data-ui-version="v2"] a.glass-card-hover:hover,
+[data-ui-version="v2"] .tool-card:hover {
+  border-color: hsl(var(--primary) / 0.35) !important;
+  background: hsl(var(--card) / 0.75) !important;
+}
+
+/* Tabs — cleaner segmented look (no colored gradient bar) */
+[data-ui-version="v2"] [role="tablist"] {
+  background: hsl(var(--card) / 0.55) !important;
+  border: 1px solid hsl(var(--border) / 0.5) !important;
+}
+[data-ui-version="v2"] [role="tab"][data-state="active"] {
+  background: hsl(var(--primary) / 0.15) !important;
+  color: hsl(var(--primary)) !important;
+  box-shadow: inset 0 0 0 1px hsl(var(--primary) / 0.35) !important;
+}
+
+/* Buttons — solid primary but no heavy glow */
+[data-ui-version="v2"] .btn-gradient {
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  box-shadow: none !important;
+}
+[data-ui-version="v2"] .btn-gradient:hover {
+  background: hsl(var(--primary) / 0.9) !important;
+  filter: none !important;
+  transform: none !important;
+}
+
+/* Semantic tone chips (label pill) */
+[data-ui-version="v2"] .tone-chip {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ─── Dropdown menu polish (fixes profile menu look) ─── */
+[data-ui-version="v2"] [data-radix-popper-content-wrapper] > * {
+  background: hsl(var(--popover)) !important;
+  border: 1px solid hsl(var(--border) / 0.65) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 20px 50px -20px hsl(0 0% 0% / 0.7) !important;
+  padding: 4px !important;
+  overflow: hidden;
+}
+[data-ui-version="v2"] [role="menuitem"] {
+  border-radius: 8px !important;
+  padding: 8px 10px !important;
+  font-size: 13px !important;
+  color: hsl(var(--foreground)) !important;
+  cursor: pointer;
+  transition: background-color .14s ease, color .14s ease;
+}
+[data-ui-version="v2"] [role="menuitem"] > a,
+[data-ui-version="v2"] [role="menuitem"] > * {
+  display: flex; align-items: center; gap: 0.5rem;
+  width: 100%;
+  color: inherit !important;
+}
+[data-ui-version="v2"] [role="menuitem"]:hover,
+[data-ui-version="v2"] [role="menuitem"][data-highlighted],
+[data-ui-version="v2"] [role="menuitem"]:focus {
+  background: hsl(var(--primary) / 0.14) !important;
+  color: hsl(var(--primary)) !important;
+  outline: none !important;
+}
+[data-ui-version="v2"] [role="menuitem"].text-destructive:hover,
+[data-ui-version="v2"] [role="menuitem"].text-destructive[data-highlighted] {
+  background: hsl(0 82% 60% / 0.15) !important;
+  color: hsl(0 82% 68%) !important;
+}
+[data-ui-version="v2"] [role="separator"] {
+  background: hsl(var(--border) / 0.5) !important;
+  margin: 4px 2px !important;
+}
+[data-ui-version="v2"] [role="menu"] [role="group"] > [class*="Label"],
+[data-ui-version="v2"] [data-radix-popper-content-wrapper] [class*="MenuLabel"] {
+  padding: 8px 10px !important;
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* User trigger button — align size, prevent overflow jitter */
+[data-ui-version="v2"] .v2-user-btn {
+  min-width: 0;
+  max-width: 200px;
+}
+[data-ui-version="v2"] .v2-user-btn > span { min-width: 0; }
+

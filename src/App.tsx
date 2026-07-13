@@ -25,6 +25,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { AnimatePresence } from "framer-motion";
 import AtomLoader from "@/components/AtomLoader";
 import ConsentGate from "@/components/ConsentGate";
+import { usePerformanceMode } from "@/hooks/usePerformanceMode";
 
 
 // Eagerly loaded (critical path)
@@ -103,6 +104,19 @@ const NotificationAuthBridge = () => {
     setUserId(user?.uid ?? null);
   }, [user?.uid, setUserId]);
   return null;
+};
+
+/** Renders heavy visual backdrops respecting the resource-saver setting. */
+const PerformanceBackdrops = () => {
+  const { isSaver, isHigh } = usePerformanceMode();
+  if (isSaver) return null;
+  return (
+    <>
+      {isHigh && <GlowOrbs />}
+      <BackgroundParticles />
+      <BackgroundEffects />
+    </>
+  );
 };
 
 const AnimatedRoutes = () => {
@@ -188,9 +202,7 @@ const App = () => (
                   <ScrollToTop />
                   <CartCleaner />
                   <NotificationAuthBridge />
-                   <GlowOrbs />
-                   <BackgroundParticles />
-                   <BackgroundEffects />
+                   <PerformanceBackdrops />
                    <div className="relative z-10 flex flex-col min-h-screen">
                      <ConsentGate>
                        <AnimatedRoutes />

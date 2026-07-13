@@ -62,6 +62,12 @@ const HomeV2Hero = ({ stats, productsCount }: Props) => {
   }, [heroImg]);
 
   const isMobile = containerW > 0 && containerW < 640;
+  const isTablet = containerW >= 640 && containerW < 1024;
+  const isDesktop = containerW >= 1024;
+  const autoFitDesktop = hero.imageAutoFitDesktop ?? heroAutoFitLegacy;
+  const autoFitTablet = hero.imageAutoFitTablet ?? heroAutoFitLegacy;
+  const autoFitMobile = hero.imageAutoFitMobile ?? heroAutoFitLegacy;
+  const heroAutoFit = isMobile ? autoFitMobile : isTablet ? autoFitTablet : isDesktop ? autoFitDesktop : autoFitDesktop;
   const useLogoMode = forceLogoMode || logoFallback || (isMobile && mobileMode === "logo");
 
   const mobileH = 180;

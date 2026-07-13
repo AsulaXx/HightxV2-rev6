@@ -140,12 +140,12 @@ async function loadFlags(): Promise<Record<string, any>> {
     const token = await gcpToken();
     const r = await fsGet(token, "settings/site");
     if (!r.ok) {
-      flagCache = { data: {}, exp: Date.now() + CACHE_MS };
+      flagCache = { data: {}, exp: Date.now() + FLAG_CACHE_MS };
       return {};
     }
     const j = await r.json();
     const data = decodeFields(j.fields || {});
-    flagCache = { data, exp: Date.now() + CACHE_MS };
+    flagCache = { data, exp: Date.now() + FLAG_CACHE_MS };
     return data;
   } catch {
     return {};

@@ -516,6 +516,7 @@ interface SiteSettings {
   homeSectionTitles: Record<string, string>;
   homeSectionSubtitles: Record<string, string>;
   homeSectionVisibility: Record<string, boolean>;
+  statsPosition?: "top" | "left" | "right";
   ogTitle: string;
   ogDescription: string;
   ogImage: string;

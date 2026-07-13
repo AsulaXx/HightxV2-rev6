@@ -27,6 +27,7 @@ const StorePage = () => {
   const navigate = useNavigate();
   const [claimedCount, setClaimedCount] = useState<Record<string, number>>({});
   const [availableCounts, setAvailableCounts] = useState<Record<string, number>>({});
+  const [soldCounts, setSoldCounts] = useState<Record<string, number>>({});
   const [lastClaimTimes, setLastClaimTimes] = useState<Record<string, number>>({});
   const [countsLoading, setCountsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(paramCategoryId || searchParams.get("category"));
@@ -72,9 +73,10 @@ const StorePage = () => {
   const loadAvailableCounts = useCallback(async () => {
     try {
       // Use edge function (service account) — Firestore rules block /keys list-reads for non-staff.
-      const { fetchKeyCounts } = await import("@/lib/keyCounts");
-      const counts = await fetchKeyCounts();
+      const { fetchKeyCounts, fetchSoldCounts } = await import("@/lib/keyCounts");
+      const [counts, sold] = await Promise.all([fetchKeyCounts(), fetchSoldCounts()]);
       setAvailableCounts(counts);
+      setSoldCounts(sold);
     } catch (err: any) { console.error("Failed to load available counts:", err?.code, err?.message, err); }
   }, []);
 
@@ -631,12 +633,19 @@ const StorePage = () => {
                       )}
                       {product.description && <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{product.description}</p>}
                       {priceLabel && (
-                        <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gradient-to-r from-primary/15 to-accent/15 border border-primary/25">
-                          <Coins size={10} className="text-primary" />
-                          <span className="text-[11px] font-bold text-primary">
-                            {priceLabel}
-                            {!allFree && <span className="ml-1 text-[9px] font-medium text-primary/70">เครดิต</span>}
-                          </span>
+                        <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gradient-to-r from-primary/15 to-accent/15 border border-primary/25">
+                            <Coins size={10} className="text-primary" />
+                            <span className="text-[11px] font-bold text-primary">
+                              {priceLabel}
+                              {!allFree && <span className="ml-1 text-[9px] font-medium text-primary/70">เครดิต</span>}
+                            </span>
+                          </div>
+                          {(soldCounts[product.id] || 0) > 0 && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-400/25 text-emerald-400 text-[9px] font-semibold">
+                              <ShoppingCart size={9} /> ขายแล้ว {(soldCounts[product.id] || 0).toLocaleString()}
+                            </span>
+                          )}
                         </div>
                       )}
                       <motion.button
@@ -688,6 +697,11 @@ const StorePage = () => {
                         {optionCount > 0 && (
                           <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-muted/30 text-muted-foreground text-[9px] font-medium">
                             <Layers size={9} /> {optionCount}
+                          </span>
+                        )}
+                        {(soldCounts[product.id] || 0) > 0 && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-400/25 text-emerald-400 text-[9px] font-semibold">
+                            <ShoppingCart size={9} /> {(soldCounts[product.id] || 0).toLocaleString()}
                           </span>
                         )}
                         {isUnavailable && statusMeta && tint && (
@@ -802,12 +816,19 @@ const StorePage = () => {
                         <p className="text-[10px] text-muted-foreground mt-1 line-clamp-2 leading-relaxed">{product.description}</p>
                       )}
                       {priceLabel && (
-                        <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gradient-to-r from-primary/15 to-accent/15 border border-primary/25">
-                          <Coins size={10} className="text-primary" />
-                          <span className="text-[11px] font-bold text-primary">
-                            {priceLabel}
-                            {!allFree && <span className="ml-1 text-[9px] font-medium text-primary/70">เครดิต</span>}
-                          </span>
+                        <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gradient-to-r from-primary/15 to-accent/15 border border-primary/25">
+                            <Coins size={10} className="text-primary" />
+                            <span className="text-[11px] font-bold text-primary">
+                              {priceLabel}
+                              {!allFree && <span className="ml-1 text-[9px] font-medium text-primary/70">เครดิต</span>}
+                            </span>
+                          </div>
+                          {(soldCounts[product.id] || 0) > 0 && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-400/25 text-emerald-400 text-[9px] font-semibold">
+                              <ShoppingCart size={9} /> ขายแล้ว {(soldCounts[product.id] || 0).toLocaleString()}
+                            </span>
+                          )}
                         </div>
                       )}
                       {isUnavailable && statusMeta && (

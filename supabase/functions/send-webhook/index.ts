@@ -358,7 +358,11 @@ serve(async (req) => {
       });
     }
 
-    const urls = resolveUrls(await loadUrls(), type);
+    const allUrls = await loadUrls();
+    const urls = resolveUrls(allUrls, type);
+    // TEMP DEBUG — log what we see for this type
+    const _debugKey = KEY_MAP[type];
+    console.log(`[send-webhook] type=${type} key=${_debugKey} primary=${JSON.stringify(allUrls[_debugKey])} extras=${JSON.stringify(allUrls[_debugKey + "Urls"])} resolved=${urls.length}`);
     if (urls.length === 0) {
       return new Response(JSON.stringify({ ok: true, status: "skipped", reason: "no URL configured" }), {
         status: 200,

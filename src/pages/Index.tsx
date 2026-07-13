@@ -12,6 +12,7 @@ import { cachedQuery, invalidateCache } from "@/lib/firestoreCache";
 import TypingText from "@/components/TypingText";
 import Reveal, { RevealGroup } from "@/components/Reveal";
 import { useMouseParallax } from "@/hooks/useMouseParallax";
+import HomeV2Hero from "@/components/v2/HomeV2Hero";
 
 interface Announcement {
   id: string;
@@ -202,6 +203,16 @@ const Index = () => {
 
       {/* Ticker is now a global component in App.tsx */}
 
+      {/* V2 Awang-style: full-bleed hero + welcome + 4 stat cards */}
+      {settings.uiVersion === "v2" && (
+        <HomeV2Hero
+          stats={siteStats}
+          productsCount={(settings.products || []).filter(p => p.enabled).length}
+        />
+      )}
+
+      {/* V1 Hero Banner with Logo + Typing Text + 3D Parallax */}
+      {settings.uiVersion !== "v2" && (<>
       {/* Hero Banner with Logo + Typing Text + 3D Parallax */}
       {settings.heroBanner?.enabled !== false && (
         <motion.section
@@ -306,6 +317,9 @@ const Index = () => {
         </RevealGroup>
       </section>
       )}
+      </>)}
+
+
 
 
       {(settings.homeSectionVisibility?.quicknav !== false) && (settings.quickNavItems || []).filter(n => n.enabled).length > 0 && (

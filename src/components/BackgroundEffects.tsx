@@ -207,6 +207,30 @@ const BackgroundEffects = memo(() => {
       />
     );
   }
+  if (effect === "mesh") {
+    return (
+      <div
+        aria-hidden
+        className="fixed inset-0 pointer-events-none bg-effect-mesh"
+        style={{
+          zIndex: 1,
+          opacity,
+          ["--mesh-color" as any]: `rgb(${color})`,
+          ["--mesh-speed" as any]: `${Math.max(6, 40 / speed)}s`,
+        }}
+      />
+    );
+  }
+  if (effect === "noise") {
+    return (
+      <div
+        aria-hidden
+        className="fixed inset-0 pointer-events-none bg-effect-noise"
+        style={{ zIndex: 1, opacity }}
+      />
+    );
+  }
+
 
   return (
     <canvas

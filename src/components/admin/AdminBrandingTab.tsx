@@ -118,16 +118,24 @@ const AdminBrandingTab = ({ form, setForm, handleSave }: AdminTabProps) => {
                   />
                 </div>
 
-                {/* Auto-fit frame toggle */}
-                <div className="flex items-center justify-between gap-3 p-2.5 rounded-lg border border-border/30 bg-card/40">
+                {/* Auto-fit frame toggles (per device) */}
+                <div className="p-2.5 rounded-lg border border-border/30 bg-card/40 space-y-2">
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold text-foreground">กรอบตามอัตราส่วนรูป</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">ให้ความสูงของกรอบยืดหยุ่นตามรูปที่อัปโหลด</p>
+                    <p className="text-xs font-semibold text-foreground">กรอบตามอัตราส่วนรูป (แยกตามอุปกรณ์)</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">เลือกเปิดเฉพาะโหมดที่ต้องการให้กรอบยืดตามรูป</p>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                    <input type="checkbox" checked={autoFit} onChange={(e) => setHB({ imageAutoFit: e.target.checked })} className="sr-only peer" />
-                    <div className="w-9 h-5 rounded-full bg-muted peer-checked:bg-primary transition-colors after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-background after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
-                  </label>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {([
+                      { k: "imageAutoFitDesktop" as const, v: autoFitDesktop, l: "PC" },
+                      { k: "imageAutoFitTablet" as const, v: autoFitTablet, l: "Tablet" },
+                      { k: "imageAutoFitMobile" as const, v: autoFitMobile, l: "Mobile" },
+                    ]).map(opt => (
+                      <button key={opt.k} onClick={() => setHB({ [opt.k]: !opt.v } as any)}
+                        className={`py-2 rounded-lg text-xs font-medium border transition-colors ${opt.v ? "bg-primary/15 border-primary/40 text-primary" : "border-border/20 text-muted-foreground hover:bg-muted/20"}`}>
+                        {opt.l} {opt.v ? "ON" : "OFF"}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Height presets */}

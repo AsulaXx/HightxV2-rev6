@@ -80,9 +80,13 @@ export async function syncSupabaseSession(force = false): Promise<string | null>
 /** Returns the Supabase user id to prefix storage paths with. */
 export async function getSupabaseUploadPrefix(): Promise<string> {
   const uid = await syncSupabaseSession();
-  if (!uid) throw new Error("Supabase session unavailable — please re-login");
+  if (!uid) {
+    const reason = lastSyncError ? ` (${lastSyncError})` : "";
+    throw new Error(`Supabase session unavailable — please re-login${reason}`);
+  }
   return uid;
 }
+
 
 export async function clearSupabaseSession() {
   try {

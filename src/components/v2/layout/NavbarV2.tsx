@@ -169,15 +169,15 @@ const NavbarV2 = () => {
                       </div>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuItem asChild><Link to="/profile"><User size={14} className="mr-2" /> โปรไฟล์</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link to="/history"><History size={14} className="mr-2" /> ประวัติ</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link to="/wallet"><Wallet size={14} className="mr-2" /> Wallet</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link to="/permissions"><Shield size={14} className="mr-2" /> สิทธิ์ของฉัน</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link to="/profile" className="flex items-center gap-2 whitespace-nowrap"><User size={14} className="shrink-0" /> <span className="truncate">โปรไฟล์</span></Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link to="/history" className="flex items-center gap-2 whitespace-nowrap"><History size={14} className="shrink-0" /> <span className="truncate">ประวัติ</span></Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link to="/wallet" className="flex items-center gap-2 whitespace-nowrap"><Wallet size={14} className="shrink-0" /> <span className="truncate">Wallet</span></Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link to="/permissions" className="flex items-center gap-2 whitespace-nowrap"><Shield size={14} className="shrink-0" /> <span className="truncate">สิทธิ์ของฉัน</span></Link></DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild><Link to="/hub"><Compass size={14} className="mr-2" /> เมนูทั้งหมด</Link></DropdownMenuItem>
-                  {isMod && <DropdownMenuItem asChild><Link to="/admin"><Settings size={14} className="mr-2" /> ตั้งค่าเว็บไซต์</Link></DropdownMenuItem>}
+                  <DropdownMenuItem asChild><Link to="/hub" className="flex items-center gap-2 whitespace-nowrap"><Compass size={14} className="shrink-0" /> <span className="truncate">เมนูทั้งหมด</span></Link></DropdownMenuItem>
+                  {isMod && <DropdownMenuItem asChild><Link to="/admin" className="flex items-center gap-2 whitespace-nowrap"><Settings size={14} className="shrink-0" /> <span className="truncate">ตั้งค่าเว็บไซต์</Link></span></DropdownMenuItem>}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={() => logout()} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                  <DropdownMenuItem onSelect={() => logout()} className="flex items-center gap-2 whitespace-nowrap text-destructive focus:text-destructive focus:bg-destructive/10">
                     <LogOut size={14} className="mr-2" /> ออกจากระบบ
                   </DropdownMenuItem>
                 </DropdownMenuContent>

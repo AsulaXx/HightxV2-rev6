@@ -7,7 +7,7 @@ import { X, ExternalLink, ArrowRight, ChevronRight, Volume2, LogIn, Megaphone, S
 import logo from "@/assets/logo.png";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, query, orderBy, limit as fbLimit, getCountFromServer, where } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, limit as fbLimit } from "firebase/firestore";
 import { cachedQuery, invalidateCache } from "@/lib/firestoreCache";
 import TypingText from "@/components/TypingText";
 import Reveal, { RevealGroup } from "@/components/Reveal";

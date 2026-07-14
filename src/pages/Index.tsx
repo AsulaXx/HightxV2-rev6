@@ -7,7 +7,7 @@ import { X, ExternalLink, ArrowRight, ChevronRight, Volume2, LogIn, Megaphone, S
 import logo from "@/assets/logo.png";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, query, orderBy, limit as fbLimit, getCountFromServer, where } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, limit as fbLimit } from "firebase/firestore";
 import { cachedQuery, invalidateCache } from "@/lib/firestoreCache";
 import TypingText from "@/components/TypingText";
 import Reveal, { RevealGroup } from "@/components/Reveal";
@@ -45,30 +45,22 @@ const Index = () => {
         invalidateCache("index-stats");
         invalidateCache("index-product-stock");
       }
-      const safeCount = async (ref: any) => {
-        try {
-          const snap = await getCountFromServer(ref);
-          return snap.data().count;
-        } catch (e) {
-          console.warn("Count query failed:", e);
-          return 0;
-        }
-      };
 
-      const [users, stock, sales] = await Promise.all([
-        cachedQuery("index-stats-users", () => safeCount(collection(db, "users")), 3 * 60 * 1000),
-        cachedQuery("index-stats-stock", () => safeCount(query(collection(db, "keys"), where("claimed", "==", false))), 3 * 60 * 1000),
-        cachedQuery("index-stats-sales", () => safeCount(query(collection(db, "keys"), where("claimed", "==", true))), 3 * 60 * 1000),
-      ]);
+      // Use edge function (service account) so numbers are identical for every role.
+      // Firestore rules block /keys and /users list-reads for non-staff, which is why
+      // members previously saw zeros.
+      const totals = await cachedQuery("index-stats-totals", async () => {
+        const { fetchSiteTotals } = await import("@/lib/keyCounts");
+        return await fetchSiteTotals({ force: forceRefresh });
+      }, 3 * 60 * 1000);
 
-      setSiteStats({ users, stock, sales });
+      setSiteStats({ users: totals.users, stock: totals.stock, sales: totals.sales });
 
       const products = settings.products || [];
       if (products.length > 0) {
         const pStock = await cachedQuery("index-product-stock", async () => {
-          // Edge function (service account) — Firestore rules block /keys list-reads for non-staff.
           const { fetchKeyCounts } = await import("@/lib/keyCounts");
-          const all = await fetchKeyCounts();
+          const all = await fetchKeyCounts({ force: forceRefresh });
           const counts: Record<string, number> = {};
           Object.entries(all).forEach(([k, v]) => {
             const pid = k.split("_")[0];
@@ -82,6 +74,7 @@ const Index = () => {
       console.error("Failed to load stats:", err);
     }
   }, [settings.products]);
+
 
   const handleRefreshStats = useCallback(async () => {
     setStatsRefreshing(true);
@@ -114,7 +107,7 @@ const Index = () => {
   }, []);
 
   useEffect(() => {
-    invalidateCache("index-stats-sales");
+    invalidateCache("index-stats-totals");
     loadStats();
   }, [loadStats]);
 

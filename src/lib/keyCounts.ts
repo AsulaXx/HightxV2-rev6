@@ -2,10 +2,13 @@
 // Uses service account because Firestore rules restrict /keys list-reads to staff only.
 import { supabase } from "@/integrations/supabase/client";
 
+export type SiteTotals = { users: number; stock: number; sales: number };
+
 let memCache: {
   ts: number;
   counts: Record<string, number>;
   sold: Record<string, number>;
+  totals: SiteTotals;
 } | null = null;
 
 async function fetchAll(force?: boolean) {
@@ -18,11 +21,12 @@ async function fetchAll(force?: boolean) {
       ts: Date.now(),
       counts: (data.counts || {}) as Record<string, number>,
       sold: (data.sold || {}) as Record<string, number>,
+      totals: (data.totals || { users: 0, stock: 0, sales: 0 }) as SiteTotals,
     };
     return memCache;
   } catch (e) {
     console.error("fetchKeyCounts failed:", e);
-    return memCache || { ts: 0, counts: {}, sold: {} };
+    return memCache || { ts: 0, counts: {}, sold: {}, totals: { users: 0, stock: 0, sales: 0 } };
   }
 }
 
@@ -35,3 +39,9 @@ export async function fetchSoldCounts(opts?: { force?: boolean }): Promise<Recor
   const r = await fetchAll(opts?.force);
   return r.sold;
 }
+
+export async function fetchSiteTotals(opts?: { force?: boolean }): Promise<SiteTotals> {
+  const r = await fetchAll(opts?.force);
+  return r.totals;
+}
+

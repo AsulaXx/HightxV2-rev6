@@ -80,9 +80,10 @@ serve(async (req) => {
     const now = Date.now();
     const needCounts = !cache || now - cache.ts >= 30_000;
     const needSold = !soldCache || now - soldCache.ts >= 5 * 60_000;
+    const needTotals = !totalsCache || now - totalsCache.ts >= 60_000;
 
     let token = "";
-    if (needCounts || needSold) token = await gcpToken();
+    if (needCounts || needSold || needTotals) token = await gcpToken();
 
     if (needCounts) {
       const rows = await runKeysQuery(token, false);
@@ -114,7 +115,35 @@ serve(async (req) => {
       soldCache = { ts: now, data: sold };
     }
 
-    return ok({ success: true, counts: cache!.data, sold: soldCache!.data });
+    if (needTotals) {
+      const claimedFilter = {
+        fieldFilter: {
+          field: { fieldPath: "claimed" },
+          op: "EQUAL",
+          value: { booleanValue: true },
+        },
+      };
+      const unclaimedFilter = {
+        fieldFilter: {
+          field: { fieldPath: "claimed" },
+          op: "EQUAL",
+          value: { booleanValue: false },
+        },
+      };
+      const [users, stock, sales] = await Promise.all([
+        countCollection(token, "users"),
+        countCollection(token, "keys", unclaimedFilter),
+        countCollection(token, "keys", claimedFilter),
+      ]);
+      totalsCache = { ts: now, users, stock, sales };
+    }
+
+    return ok({
+      success: true,
+      counts: cache!.data,
+      sold: soldCache!.data,
+      totals: { users: totalsCache!.users, stock: totalsCache!.stock, sales: totalsCache!.sales },
+    });
   } catch (e) {
     return ok({ success: false, error: String((e as Error)?.message || e) });
   }

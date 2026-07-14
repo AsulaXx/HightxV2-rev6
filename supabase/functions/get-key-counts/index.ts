@@ -24,6 +24,7 @@ const ok = (body: unknown) => new Response(JSON.stringify(body), {
 // Cache: 30s for unclaimed counts, 5min for sold counts (claimed grows forever).
 let cache: { ts: number; data: Record<string, number> } | null = null;
 let soldCache: { ts: number; data: Record<string, number> } | null = null;
+let totalsCache: { ts: number; users: number; stock: number; sales: number } | null = null;
 
 async function runKeysQuery(token: string, claimed: boolean) {
   const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents:runQuery`;
@@ -48,6 +49,28 @@ async function runKeysQuery(token: string, claimed: boolean) {
   if (!r.ok) throw new Error(`Firestore query failed: ${r.status} ${(await r.text()).slice(0, 200)}`);
   return (await r.json()) as any[];
 }
+
+async function countCollection(token: string, collectionId: string, where?: any): Promise<number> {
+  const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents:runAggregationQuery`;
+  const structuredQuery: any = { from: [{ collectionId }] };
+  if (where) structuredQuery.where = where;
+  const body = {
+    structuredAggregationQuery: {
+      structuredQuery,
+      aggregations: [{ alias: "c", count: {} }],
+    },
+  };
+  const r = await fetch(url, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) return 0;
+  const rows = (await r.json()) as any[];
+  const v = rows?.[0]?.result?.aggregateFields?.c?.integerValue;
+  return v ? Number(v) : 0;
+}
+
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });

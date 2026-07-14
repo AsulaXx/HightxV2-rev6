@@ -107,7 +107,7 @@ const Index = () => {
   }, []);
 
   useEffect(() => {
-    invalidateCache("index-stats-sales");
+    invalidateCache("index-stats-totals");
     loadStats();
   }, [loadStats]);
 

@@ -72,79 +72,128 @@ async function countCollection(token: string, collectionId: string, where?: any)
 }
 
 
+// Backoff after a Firestore 429 so we stop hammering the quota.
+let quotaBlockUntil = 0;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  const respond = (extra: Record<string, unknown> = {}) =>
+    ok({
+      success: true,
+      counts: cache?.data || {},
+      sold: soldCache?.data || {},
+      totals: {
+        users: totalsCache?.users || 0,
+        stock: totalsCache?.stock || 0,
+        sales: totalsCache?.sales || 0,
+      },
+      stale: !cache,
+      ...extra,
+    });
+
   try {
     if (!PROJECT_ID) return ok({ success: false, error: "Server misconfigured" });
 
     const now = Date.now();
-    const needCounts = !cache || now - cache.ts >= 30_000;
-    const needSold = !soldCache || now - soldCache.ts >= 5 * 60_000;
-    const needTotals = !totalsCache || now - totalsCache.ts >= 60_000;
+    // Quota guard: while blocked, serve whatever cache we have.
+    if (now < quotaBlockUntil) return respond({ quotaBackoff: true });
 
-    let token = "";
-    if (needCounts || needSold || needTotals) token = await gcpToken();
+    // Longer TTLs = far fewer Firestore reads (previous 30s TTL blew the daily quota).
+    const needCounts = !cache || now - cache.ts >= 120_000;
+    const needSold = !soldCache || now - soldCache.ts >= 15 * 60_000;
+    const needTotals = !totalsCache || now - totalsCache.ts >= 10 * 60_000;
+
+    if (!needCounts && !needSold && !needTotals) return respond();
+
+    const token = await gcpToken();
+    let quotaHit = false;
+    const handle = (e: unknown) => {
+      const msg = String((e as Error)?.message || e);
+      if (msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED")) quotaHit = true;
+      console.error("get-key-counts step failed:", msg.slice(0, 200));
+    };
 
     if (needCounts) {
-      const rows = await runKeysQuery(token, false);
-      const counts: Record<string, number> = {};
-      if (Array.isArray(rows)) {
-        for (const row of rows) {
-          const doc = row?.document; if (!doc) continue;
-          const pid = doc.fields?.productId?.stringValue || "";
-          const did = doc.fields?.durationId?.stringValue || "";
-          if (!pid || !did) continue;
-          const k = `${pid}_${did}`;
-          counts[k] = (counts[k] || 0) + 1;
+      try {
+        const rows = await runKeysQuery(token, false);
+        const counts: Record<string, number> = {};
+        if (Array.isArray(rows)) {
+          for (const row of rows) {
+            const doc = row?.document; if (!doc) continue;
+            const pid = doc.fields?.productId?.stringValue || "";
+            const did = doc.fields?.durationId?.stringValue || "";
+            if (!pid || !did) continue;
+            const k = `${pid}_${did}`;
+            counts[k] = (counts[k] || 0) + 1;
+          }
         }
-      }
-      cache = { ts: now, data: counts };
+        cache = { ts: now, data: counts };
+      } catch (e) { handle(e); }
     }
 
-    if (needSold) {
-      const rows = await runKeysQuery(token, true);
-      const sold: Record<string, number> = {};
-      if (Array.isArray(rows)) {
-        for (const row of rows) {
-          const doc = row?.document; if (!doc) continue;
-          const pid = doc.fields?.productId?.stringValue || "";
-          if (!pid) continue;
-          sold[pid] = (sold[pid] || 0) + 1;
+    if (needSold && !quotaHit) {
+      try {
+        const rows = await runKeysQuery(token, true);
+        const sold: Record<string, number> = {};
+        if (Array.isArray(rows)) {
+          for (const row of rows) {
+            const doc = row?.document; if (!doc) continue;
+            const pid = doc.fields?.productId?.stringValue || "";
+            if (!pid) continue;
+            sold[pid] = (sold[pid] || 0) + 1;
+          }
         }
-      }
-      soldCache = { ts: now, data: sold };
+        soldCache = { ts: now, data: sold };
+      } catch (e) { handle(e); }
     }
 
-    if (needTotals) {
-      const claimedFilter = {
-        fieldFilter: {
-          field: { fieldPath: "claimed" },
-          op: "EQUAL",
-          value: { booleanValue: true },
-        },
-      };
-      const unclaimedFilter = {
-        fieldFilter: {
-          field: { fieldPath: "claimed" },
-          op: "EQUAL",
-          value: { booleanValue: false },
-        },
-      };
-      const [users, stock, sales] = await Promise.all([
-        countCollection(token, "users"),
-        countCollection(token, "keys", unclaimedFilter),
-        countCollection(token, "keys", claimedFilter),
-      ]);
-      totalsCache = { ts: now, users, stock, sales };
+    if (needTotals && !quotaHit) {
+      try {
+        const claimedFilter = {
+          fieldFilter: {
+            field: { fieldPath: "claimed" },
+            op: "EQUAL",
+            value: { booleanValue: true },
+          },
+        };
+        const unclaimedFilter = {
+          fieldFilter: {
+            field: { fieldPath: "claimed" },
+            op: "EQUAL",
+            value: { booleanValue: false },
+          },
+        };
+        const [users, stock, sales] = await Promise.all([
+          countCollection(token, "users"),
+          countCollection(token, "keys", unclaimedFilter),
+          countCollection(token, "keys", claimedFilter),
+        ]);
+        // Aggregation queries return 0 on failure; keep previous non-zero values.
+        totalsCache = {
+          ts: now,
+          users: users || totalsCache?.users || 0,
+          stock: stock || totalsCache?.stock || 0,
+          sales: sales || totalsCache?.sales || 0,
+        };
+      } catch (e) { handle(e); }
     }
 
-    return ok({
-      success: true,
-      counts: cache!.data,
-      sold: soldCache!.data,
-      totals: { users: totalsCache!.users, stock: totalsCache!.stock, sales: totalsCache!.sales },
-    });
+    if (quotaHit) {
+      quotaBlockUntil = Date.now() + 5 * 60_000;
+      return respond({ quotaBackoff: true });
+    }
+
+    return respond();
   } catch (e) {
-    return ok({ success: false, error: String((e as Error)?.message || e) });
+    const msg = String((e as Error)?.message || e);
+    if (msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED")) {
+      quotaBlockUntil = Date.now() + 5 * 60_000;
+      return respond({ quotaBackoff: true });
+    }
+    // No cache at all → report the failure so the client can retry later.
+    if (!cache && !totalsCache) return ok({ success: false, error: msg });
+    return respond({ error: msg });
   }
 });
+
